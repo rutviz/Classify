@@ -125,10 +125,12 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                             init++;
                         }
                     }
+                    updatedbimagepath();
                 }
             });
             t.start();
             flag=1;
+
         }
 
         return new ViewHolder(view);
@@ -183,5 +185,15 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
             oldCursor.close();
         }
     }
-}
+    public void updatedbimagepath() {
+        List<String> paths_of_image_db = new ArrayList<String>();
+        paths_of_image_db = myDB.getImagepathlist();
+        paths_of_image_db.removeAll(paths_of_image);
+        if(paths_of_image_db.size()!=0){
+        for (int i = 0; i < paths_of_image_db.size(); i++) {
+            myDB.deleteimagepath(paths_of_image_db.get(i));
+        }
+        }
+    }
+    }
 

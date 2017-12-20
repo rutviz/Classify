@@ -357,12 +357,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
     }
-    /*@Override
+    @Override
     public void onBackPressed() {
-        int pid = android.os.Process.myPid();
-        android.os.Process.killProcess(pid);
+//        int pid = android.os.Process.myPid();
+//        android.os.Process.killProcess(pid);
         super.onBackPressed();
-    }*/
+    }
     static {
         System.loadLibrary("native-lib");
     }
