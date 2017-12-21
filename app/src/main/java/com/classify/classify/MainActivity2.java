@@ -48,6 +48,7 @@ public class MainActivity2 extends AppCompatActivity {
         imageViewResult = (ImageView) findViewById(R.id.ImageView);
         textViewResult = (TextView) findViewById(R.id.result);
         selectImage = (Button) findViewById(R.id.selectImage);
+
 //        selectImage.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {

@@ -44,20 +44,17 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         void OnClickImage(Uri imageUri);
     }
     public MediaStoreAdapter(Activity activity, Classifier classifier) {
-        Log.d("lests","7");
         this.mActivity = activity;
         this.mOnClickThumbListener = (OnClickThumbListener)activity;
         this.classifier = classifier;
     }
     public MediaStoreAdapter(Activity activity) {
-        Log.d("lests","8");
         this.mActivity = activity;
         this.mOnClickThumbListener = (OnClickThumbListener)activity;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d("lests","9");
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.image_grid, parent, false);
 
@@ -66,7 +63,6 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d("lests","10");
                     int Count_new = mMediaStoreCursor.getCount();
                     int dataIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                     for (int i = 0;i<mMediaStoreCursor.getCount();i++)
@@ -81,24 +77,15 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                         String size = String.valueOf(length );
                         Date lastModDate = new Date(file.lastModified());
                         String date = lastModDate.getTime()+"";
-                        //boolean isInserted = myDb.insertData(imagePath.getName(),imagePath.getAbsolutePath(),size,date);
                         paths_of_image.add(imagePath.getAbsolutePath());
                         date_list.add(date);
-                        //myDB.addData(new Classify_path(imagePath.getAbsolutePath(),"none"));
-//                        Log.d("DATE",date);
-
-
                     }
-//                    Log.d("Database",myDB.getDataCount()+"");
-//                    Log.d("count12345", String.valueOf(paths_of_image.size()) + " "+ mMediaStoreCursor.getCount());
-
-                    if(myDB.getDataCount()<1){
-                        Log.d("lests1","11");
+                    if(myDB.getDataCount()<1)
+                    {
                         for(int z =0; z < paths_of_image.size();z++)
                         {
                             Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_image.get(z)),224,224);
                             final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-//                            int r = (new Random()).nextInt(4);
                             if(results.size()!=0){
                                 myDB.addData(new Classify_path(paths_of_image.get(z),results.get(0).toString(),date_list.get(z)));
                             }
@@ -111,53 +98,39 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                     }
                     else
                     {
-                        Log.d("lests1","12");
                         int new_images = Count_new - myDB.getDataCount();
                         int init = 0;
                         while(new_images>0)
                         {
-                            Log.d("hey","13");
                             if(myDB.getpathCount(paths_of_image.get(init))==0)
                             {
-                                Log.d("lests1","14");
                                 Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_image.get(init)),224,224);
                                 try{
                                     final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
                                     if(results.size()!=0){
-                                        Log.d("lests1","15 : lest");
                                         myDB.addData(new Classify_path(paths_of_image.get(init),results.get(0).toString(),date_list.get(init)));
                                     }
                                     else
                                     {
-                                        Log.d("lests","15 : lest");
                                         myDB.addData(new Classify_path(paths_of_image.get(init),"none",date_list.get(init)));
                                     }
                                     Log.d("CLassifying",results.toString()+" "+paths_of_image.get(init));
                                 }
-
                                 catch (Exception e)
                                 {
                                     myDB.addData(new Classify_path(paths_of_image.get(init),"none",date_list.get(init)));
                                 }
-
-//                            int r = (new Random()).nextInt(4);
-
                             }
-                            Log.d("lests","16");
                             new_images = Count_new - myDB.getDataCount();
                             init++;
                         }
-
-//                            Log.d("DB_PATH","new path updated "+cp.toString());
-
-//                        Log.d("DB_PATH","new path updated "+new_images+"");
                     }
-
-
+                    updatedbimagepath();
                 }
             });
             t.start();
             flag=1;
+
         }
 
         return new ViewHolder(view);
@@ -165,12 +138,10 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        Log.d("lests","17");
 //        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_image.get(position)),width/3,width/3);
 //                holder.image.setImageBitmap(bitmap);
        while(paths_of_image.size()==position){}
             Glide.with(mActivity).load(paths_of_image.get(position)).centerCrop().into(holder.image);
-//        Log.d("count","running "+position);
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -181,34 +152,22 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                     mActivity.startActivity(i, options.toBundle());
                 }
             });
-
-    }
-    int size_data()
-    {
-        int size;
-        size = mMediaStoreCursor.getCount();
-        return size;
     }
 
     @Override
     public int getItemCount() {
-        Log.d("lests","18");
-        //return (mMediaStoreCursor == null) ? 0 : mMediaStoreCursor.getCount();
         return (mMediaStoreCursor == null) ? 0:mMediaStoreCursor.getCount();
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
         public ViewHolder(View itemView) {
             super(itemView);
-            Log.d("lests","19");
             image = (ImageView) itemView.findViewById(R.id.image_all);
         }
     }
 
     private Cursor swapCursor(Cursor cursor) {
-        Log.d("lests","6");
         if (mMediaStoreCursor == cursor) {
             return null;
         }
@@ -221,13 +180,20 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
     }
 
     public void changeCursor(Cursor cursor) {
-        Log.d("lests","3");
         Cursor oldCursor = swapCursor(cursor);
-        Log.d("lests","4");
         if (oldCursor != null) {
-            Log.d("lests","5");
             oldCursor.close();
         }
     }
-}
+    public void updatedbimagepath() {
+        List<String> paths_of_image_db = new ArrayList<String>();
+        paths_of_image_db = myDB.getImagepathlist();
+        paths_of_image_db.removeAll(paths_of_image);
+        if(paths_of_image_db.size()!=0){
+        for (int i = 0; i < paths_of_image_db.size(); i++) {
+            myDB.deleteimagepath(paths_of_image_db.get(i));
+        }
+        }
+    }
+    }
 

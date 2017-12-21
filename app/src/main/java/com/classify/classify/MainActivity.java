@@ -49,10 +49,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
     private AutoCompleteTextView search;
-    private TextView dbcount;
-    private TextView mediacount;
-    private RelativeLayout splash_view;
-    private ProgressBar loader_bar;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
     int width,height;
@@ -81,13 +77,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("lests","20");
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
-        /*dbcount = (TextView) findViewById(R.id.dbcount);
-        mediacount = (TextView) findViewById(R.id.mediacount);
-        splash_view = (RelativeLayout) findViewById(R.id.splash_screen);
-        loader_bar = (ProgressBar) findViewById(R.id.progressBar);*/
         types.add("All");
         mActivity = this;
         databaseHandler = new DatabaseHandler(this);
@@ -115,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String SEARCH =  search.getText().toString();
-//                 Log.d("Search123","Search output");
                     databaseHandler = new DatabaseHandler(mActivity);
                     Specific_data = databaseHandler.getUniqueData(SEARCH);
                     mThumbnailRecyclerView.setAdapter(new image_adapter());
@@ -125,49 +115,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         initTensorFlowAndLoadModel();
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
-        Log.d("lests","21");
         mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
-        Log.d("lests","22");
         recyclerView_types.setAdapter(new type_adapter(types));
-        Log.d("lests","23");
         mThumbnailRecyclerView.setAdapter(mMediaStoreAdapter);
-        Log.d("lests","24");
         mMediaStoreAdapter.notifyDataSetChanged();
-        Log.d("lests","25");
     }
 
     private void startTimerThread() {
         Runnable runnable = new Runnable() {
             private long startTime = System.currentTimeMillis();
-
             public void run() {
                 Mediacount = findcount();
 
-
-
-                /*while (Mydbcount < Mediacount)
-                {
-//                    dbcount.setText(Mydbcount+"");
-                    Mydbcount = databaseHandler.getDataCount();
-                    handler.post(new Runnable(){
-                        public void run() {
-
-                            Log.d("tests","123");
-
-                            dbcount.setText(Mydbcount+"");
-                            mediacount.setText(Mediacount+"");
-                            loader_bar.setMax(Mediacount);
-                            loader_bar.setProgress(Mydbcount);
-                        }
-                    });
-                }*/
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("tests","1234");
-                       // splash_view.setVisibility(View.GONE);
-                        AsyncTaskRunner runner = new AsyncTaskRunner();
-                        runner.execute();
                         types = databaseHandler.getCategory();
                         types.add(0,"All");
                         recyclerView_types.setAdapter(new type_adapter(types));
@@ -181,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     int findcount(){
-        //checkReadExternalStoragePermission();
         int count = 0;
 
         final String[] projection = {MediaStore.Images.Media.DATA};
@@ -197,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return count;
     }
 
+<<<<<<< HEAD
     private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
         @Override
         protected Void doInBackground(String... params) {
@@ -228,10 +190,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+=======
+>>>>>>> afe4a66ab5904d281876abfb0cbcf424586b653a
     private void initTensorFlowAndLoadModel() {
-//        Thread t = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
                 try {
                     classifier = TensorFlowImageClassifier.create(
                             getAssets(),
@@ -246,9 +207,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 catch (final Exception e) {
                     throw new RuntimeException("Error initializing TensorFlow!", e);
                 }
-//            }
-//        });
-//        t.start();
     }
 
     @Override
@@ -297,10 +255,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         };
         String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-        //+ " OR "
-        //+ MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-        //+ MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-//        Log.d("qas","4");
         return new CursorLoader(
                 this,
                 MediaStore.Files.getContentUri("external"),
@@ -314,9 +268,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.d("lests","1");
         mMediaStoreAdapter.changeCursor(data);
-        Log.d("lests","2");
     }
 
     @Override
@@ -332,12 +284,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private class type_adapter extends RecyclerView.Adapter<type_adapter.ViewHolder>
     {
         ArrayList<String> type = new ArrayList<>();
-
         type_adapter(ArrayList<String> item)
         {
             this.type = item;
         }
-
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view;
@@ -375,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
             }
             else {
-               // holder.type_name.setVisibility(View.GONE);
                 Glide.with(mActivity).load(R.drawable.classify_logo).asGif().into(holder.imv);
                 holder.imv.setVisibility(View.VISIBLE);
             }
@@ -417,7 +366,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         public void onBindViewHolder(final ViewHolder holder, final int position)
         {
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
-//            Log.d("count","running "+position);
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -443,13 +391,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
     }
-    /*@Override
+    @Override
     public void onBackPressed() {
-        int pid = android.os.Process.myPid();
-        android.os.Process.killProcess(pid);
+//        int pid = android.os.Process.myPid();
+//        android.os.Process.killProcess(pid);
         super.onBackPressed();
     }
     static {
         System.loadLibrary("native-lib");
-    }*/
+    }
 }
