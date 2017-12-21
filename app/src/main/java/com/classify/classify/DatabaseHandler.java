@@ -6,8 +6,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Rutviz Vyas on 24-11-2017.
@@ -188,6 +190,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         cursor.close();
         return category;
+    }
+
+    List<String> getImagepathlist(){
+        List<String> paths = new ArrayList<>();
+        String selectQuery = "SELECT  "+path+" FROM " + table_name;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        String temp;
+        if (cursor.moveToFirst()) {
+            do {
+                temp = cursor.getString(0);
+                paths.add(temp);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return paths;
+    }
+
+    void deleteimagepath(String value){
+        String query = "DELETE FROM " + table_name +" WHERE "+ path +" = '"+value+"'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+        Log.d("path123","Path deleted: "+value);
+
     }
 
 }

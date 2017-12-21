@@ -23,7 +23,10 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,6 +34,8 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -41,6 +46,7 @@ import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, MediaStoreAdapter.OnClickThumbListener {
 
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private final static int MEDIASTORE_LOADER_ID = 0;
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
+    DatabaseHandler myDB;
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
@@ -77,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         types.add("All");
@@ -119,7 +127,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         recyclerView_types.setAdapter(new type_adapter(types));
         mThumbnailRecyclerView.setAdapter(mMediaStoreAdapter);
         mMediaStoreAdapter.notifyDataSetChanged();
+
     }
+
 
     private void startTimerThread() {
         Runnable runnable = new Runnable() {
@@ -354,15 +364,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public ViewHolder(View itemView) {
                 super(itemView);
                 image = (ImageView)itemView.findViewById(R.id.image_all);
+
             }
         }
     }
-    /*@Override
+    @Override
     public void onBackPressed() {
-        int pid = android.os.Process.myPid();
-        android.os.Process.killProcess(pid);
+       // int pid = android.os.Process.myPid();
+     //   android.os.Process.killProcess(pid);
         super.onBackPressed();
-    }*/
+    }
     static {
         System.loadLibrary("native-lib");
     }

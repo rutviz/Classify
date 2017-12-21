@@ -14,7 +14,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -36,6 +38,7 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
     int flags = 1;
     List<String> paths_of_image = new ArrayList<String>();
     List<String> date_list = new ArrayList<String>();
+    List<String> delete_from_appp = new ArrayList<String>();
     DatabaseHandler myDB;
     ArrayList<String> category = new ArrayList<>();
     private Classifier classifier;
@@ -124,7 +127,11 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                             new_images = Count_new - myDB.getDataCount();
                             init++;
                         }
+
                     }
+
+                    updatedbimagepath();
+
                 }
             });
             t.start();
@@ -134,8 +141,10 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+
 //        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_image.get(position)),width/3,width/3);
 //                holder.image.setImageBitmap(bitmap);
        while(paths_of_image.size()==position){}
@@ -150,6 +159,16 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                     mActivity.startActivity(i, options.toBundle());
                 }
             });
+
+        holder.image.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                holder.checkBox.setVisibility(View.VISIBLE);
+                holder.checkBox.setChecked(true);
+                delete_from_appp.add(paths_of_image.get(position));
+                return false;
+            }
+        });
     }
 
     @Override
@@ -159,9 +178,11 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
+        private final CheckBox checkBox;
         public ViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.image_all);
+            checkBox = (CheckBox) itemView.findViewById(R.id.itemCheckBox);
         }
     }
 
@@ -181,6 +202,17 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         Cursor oldCursor = swapCursor(cursor);
         if (oldCursor != null) {
             oldCursor.close();
+        }
+    }
+
+    public void updatedbimagepath() {
+        List<String> paths_of_image_db = new ArrayList<String>();
+        paths_of_image_db = myDB.getImagepathlist();
+        paths_of_image_db.removeAll(paths_of_image);
+        if(paths_of_image_db.size()!=0){
+            for (int i = 0; i < paths_of_image_db.size(); i++) {
+                myDB.deleteimagepath(paths_of_image_db.get(i));
+            }
         }
     }
 }

@@ -113,7 +113,7 @@
             app:layout_scrollFlags="scroll|enterAlways">
 
             <ImageButton
-                android:id="@+id/menu"
+                android:id="@+id/menu_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
