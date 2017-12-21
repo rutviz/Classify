@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         protected Void doInBackground(String... params) {
             Mediacount = findcount();
             if(Mydbcount < Mediacount){
-splash_view.setVisibility(View.VISIBLE);
+        splash_view.setVisibility(View.VISIBLE);
                 startTimerThread();
 
                 mThumbnailRecyclerView.setAdapter(mMediaStoreAdapter);
