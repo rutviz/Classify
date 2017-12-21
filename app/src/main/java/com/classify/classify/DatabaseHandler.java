@@ -217,8 +217,4 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Log.d("path123","Path deleted: "+value);
 
     }
-<<<<<<< HEAD
-
-=======
->>>>>>> f837d48d21440e187639f1acd101827d882d5959
 }

@@ -16,16 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.ViewHolder> {
 
@@ -129,13 +126,8 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                         }
 
                     }
-<<<<<<< HEAD
 
                     updatedbimagepath();
-
-=======
-                    updatedbimagepath();
->>>>>>> f837d48d21440e187639f1acd101827d882d5959
                 }
             });
             t.start();
@@ -152,25 +144,56 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
 //        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_image.get(position)),width/3,width/3);
 //                holder.image.setImageBitmap(bitmap);
+         final int[] Delete_mode = {0};
        while(paths_of_image.size()==position){}
             Glide.with(mActivity).load(paths_of_image.get(position)).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(mActivity, Photo_Viewer.class);
-                    i.putExtra("path_of_image", paths_of_image.get(position));
-                    i.putExtra("category",myDB.getSingleCategory(paths_of_image.get(position)));
-                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
-                    mActivity.startActivity(i, options.toBundle());
+                    if(Delete_mode[0]==1)
+                    {
+                        if(holder.checkBox.isChecked())
+                        {
+                            holder.checkBox.setVisibility(View.GONE);
+                            holder.checkBox.setChecked(false);
+                            delete_from_appp.remove(delete_from_appp.indexOf(new String(paths_of_image.get(position))));
+                            Global_Share.delete_from_app = delete_from_appp;
+                            if(delete_from_appp.size()==0)
+                            {
+                                Delete_mode[0]=0;
+                                MainActivity.delete_btn.setVisibility(View.GONE);
+                            }
+                        }
+                        else
+                        {
+                            holder.checkBox.setVisibility(View.VISIBLE);
+                            holder.checkBox.setChecked(true);
+                            delete_from_appp.add(paths_of_image.get(position));
+                            Global_Share.delete_from_app = delete_from_appp;
+                        }
+                    }
+                    else
+                    {
+                        Intent i = new Intent(mActivity, Photo_Viewer.class);
+                        i.putExtra("path_of_image", paths_of_image.get(position));
+                        i.putExtra("category",myDB.getSingleCategory(paths_of_image.get(position)));
+                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
+                        mActivity.startActivity(i, options.toBundle());
+                    }
                 }
             });
 
         holder.image.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                holder.checkBox.setVisibility(View.VISIBLE);
-                holder.checkBox.setChecked(true);
-                delete_from_appp.add(paths_of_image.get(position));
+                if(Delete_mode[0] == 0){
+                    MainActivity.delete_btn.setVisibility(View.VISIBLE);
+                    Delete_mode[0] = 1;
+                    holder.checkBox.setVisibility(View.VISIBLE);
+                    holder.checkBox.setChecked(true);
+                    delete_from_appp.add(paths_of_image.get(position));
+                    Global_Share.delete_from_app = delete_from_appp;
+                }
                 return false;
             }
         });
@@ -209,28 +232,18 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
             oldCursor.close();
         }
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> f837d48d21440e187639f1acd101827d882d5959
     public void updatedbimagepath() {
         List<String> paths_of_image_db = new ArrayList<String>();
         paths_of_image_db = myDB.getImagepathlist();
         paths_of_image_db.removeAll(paths_of_image);
         if(paths_of_image_db.size()!=0){
-<<<<<<< HEAD
+
             for (int i = 0; i < paths_of_image_db.size(); i++) {
                 myDB.deleteimagepath(paths_of_image_db.get(i));
             }
         }
     }
 }
-=======
-        for (int i = 0; i < paths_of_image_db.size(); i++) {
-            myDB.deleteimagepath(paths_of_image_db.get(i));
-        }
-        }
-    }
-    }
->>>>>>> f837d48d21440e187639f1acd101827d882d5959
+
 

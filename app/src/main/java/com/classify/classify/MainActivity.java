@@ -1,15 +1,13 @@
 package com.classify.classify;
+
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -22,11 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -34,19 +28,14 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, MediaStoreAdapter.OnClickThumbListener {
 
@@ -78,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     int Mediacount ;
     final Handler handler = new Handler();
 
+    public static ImageButton delete_btn;
+
 
 
     @Override
@@ -87,6 +78,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
+
+        delete_btn = (ImageButton) findViewById(R.id.delete);
+
+        delete_btn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(Global_Share.delete_from_app.size()!=0){
+
+                    for (int i = 0; i < Global_Share.delete_from_app.size(); i++) {
+                        myDB.deleteimagepath(Global_Share.delete_from_app.get(i));
+                    }
+                }
+            }
+        });
+
         types.add("All");
         mActivity = this;
         databaseHandler = new DatabaseHandler(this);
@@ -120,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             }
         });
-        initTensorFlowAndLoadModel();
+        //initTensorFlowAndLoadModel();
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
         mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
@@ -168,40 +174,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return count;
     }
 
-<<<<<<< HEAD
-    private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            Mediacount = findcount();
-            if(Mydbcount < Mediacount){
-        splash_view.setVisibility(View.VISIBLE);
-                startTimerThread();
-
-                mThumbnailRecyclerView.setAdapter(mMediaStoreAdapter);
-                AsyncTaskRunner runner = new AsyncTaskRunner();
-                runner.execute();
-               // mMediaStoreAdapter.notifyDataSetChanged();
-            }
-            else
-            {
-                AsyncTaskRunner runner = new AsyncTaskRunner();
-                runner.execute();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void result) {
-        }
-        @Override
-        protected void onPreExecute() {
-        }
-        @Override
-        protected void onProgressUpdate(String... text) {
-        }
-    }
-
-=======
->>>>>>> afe4a66ab5904d281876abfb0cbcf424586b653a
     private void initTensorFlowAndLoadModel() {
                 try {
                     classifier = TensorFlowImageClassifier.create(
@@ -404,13 +376,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
     @Override
     public void onBackPressed() {
-<<<<<<< HEAD
-       // int pid = android.os.Process.myPid();
-     //   android.os.Process.killProcess(pid);
-=======
-//        int pid = android.os.Process.myPid();
-//        android.os.Process.killProcess(pid);
->>>>>>> f837d48d21440e187639f1acd101827d882d5959
+
         super.onBackPressed();
     }
     static {

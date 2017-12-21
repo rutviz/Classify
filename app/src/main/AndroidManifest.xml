@@ -20,8 +20,7 @@
         </activity>
         <activity android:name=".MainActivity2" />
         <activity android:name=".Photo_Viewer" />
-        <activity android:name=".Splash_screen" />
-       <!-- <activity
+        <activity
             android:name=".Splash_screen"
             android:label="Classify"
             android:theme="@style/SplashTheme">
@@ -31,13 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-       --> <activity android:name=".Image_classify">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+       <activity android:name=".Image_classify"/>
     </application>
 
 </manifest>
