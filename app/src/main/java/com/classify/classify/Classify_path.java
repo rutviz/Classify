@@ -11,6 +11,12 @@ public class Classify_path {
 
     }
 
+    public Classify_path(String path) {
+        this.path = path;
+        this.category = "";
+        this.date = "";
+    }
+
     public Classify_path(String path, String category, String date) {
         this.path = path;
         this.category = category;

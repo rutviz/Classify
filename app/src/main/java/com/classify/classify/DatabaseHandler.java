@@ -124,8 +124,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public ArrayList<Classify_path> getUniqueData(String Search) {
         ArrayList<Classify_path> Data = new ArrayList<>();
+        String selectQuery;
+        if(Search.equals("All"))
+        {
+            selectQuery = "SELECT  * FROM " + table_name + " ORDER BY "+date+" DESC";
+        }
+        else
+        {
+            selectQuery = "SELECT  * FROM " + table_name + " WHERE "+category+" = '"+Search+"' ORDER BY "+date+" DESC";
+        }
 
-        String selectQuery = "SELECT  * FROM " + table_name + " WHERE "+category+" = '"+Search+"' ORDER BY "+date+" DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -209,6 +217,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         return paths;
     }
+
+
 
     void deleteimagepath(String value){
         String query = "DELETE FROM " + table_name +" WHERE "+ path +" = '"+value+"'";
