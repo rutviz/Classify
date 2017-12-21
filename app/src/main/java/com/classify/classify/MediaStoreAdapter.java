@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -152,22 +151,22 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                 public void onClick(View view) {
                     if(Delete_mode[0]==1)
                     {
-                        if(holder.checkBox.isChecked())
+//                        if(holder.checkBox.isChecked())
+//                        {
+//                            holder.checkBox.setVisibility(View.GONE);
+//                            holder.checkBox.setChecked(false);
+//                            delete_from_appp.remove(delete_from_appp.indexOf(new String(paths_of_image.get(position))));
+//                            Global_Share.delete_from_app = delete_from_appp;
+//                            if(delete_from_appp.size()==0)
+//                            {
+//                                Delete_mode[0]=0;
+//                                MainActivity.delete_btn.setVisibility(View.GONE);
+//                            }
+//                        }
+//                        else
                         {
-                            holder.checkBox.setVisibility(View.GONE);
-                            holder.checkBox.setChecked(false);
-                            delete_from_appp.remove(delete_from_appp.indexOf(new String(paths_of_image.get(position))));
-                            Global_Share.delete_from_app = delete_from_appp;
-                            if(delete_from_appp.size()==0)
-                            {
-                                Delete_mode[0]=0;
-                                MainActivity.delete_btn.setVisibility(View.GONE);
-                            }
-                        }
-                        else
-                        {
-                            holder.checkBox.setVisibility(View.VISIBLE);
-                            holder.checkBox.setChecked(true);
+//                            holder.checkBox.setVisibility(View.VISIBLE);
+//                            holder.checkBox.setChecked(true);
                             delete_from_appp.add(paths_of_image.get(position));
                             Global_Share.delete_from_app = delete_from_appp;
                         }
@@ -189,8 +188,8 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                 if(Delete_mode[0] == 0){
                     MainActivity.delete_btn.setVisibility(View.VISIBLE);
                     Delete_mode[0] = 1;
-                    holder.checkBox.setVisibility(View.VISIBLE);
-                    holder.checkBox.setChecked(true);
+//                    holder.checkBox.setVisibility(View.VISIBLE);
+//                    holder.checkBox.setChecked(true);
                     delete_from_appp.add(paths_of_image.get(position));
                     Global_Share.delete_from_app = delete_from_appp;
                 }
@@ -206,11 +205,11 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
-        private final CheckBox checkBox;
+       // private final CheckBox checkBox;
         public ViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.image_all);
-            checkBox = (CheckBox) itemView.findViewById(R.id.itemCheckBox);
+          // checkBox = (CheckBox) itemView.findViewById(R.id.itemCheckBox);
         }
     }
 

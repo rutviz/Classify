@@ -13,14 +13,13 @@
         android:transitionName="image">
     </ImageView>
 
-    <CheckBox
-        android:id="@+id/itemCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/image_all"
-        android:layout_marginStart="94dp"
-        android:layout_marginTop="15dp"
-        android:visibility="gone"/>
+    <ImageView
+        android:visibility="gone"
+        android:id="@+id/isSelected"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:background="#CC000000"
+        android:src="@drawable/ic_check_white_24dp"
+        android:scaleType="centerInside"/>
 
 </RelativeLayout>

@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,8 +60,10 @@ public class MainActivity extends AppCompatActivity  {
     final Handler handler = new Handler();
     List<String> delete_from_appp = new ArrayList<String>();
     List<String> paths_of_image = new ArrayList<String>();
+    List<Integer> visible = new ArrayList<Integer>();
 
     public static ImageButton delete_btn;
+    final String TAG = "Image_Classify";
 
 
 
@@ -129,6 +132,8 @@ public class MainActivity extends AppCompatActivity  {
         recyclerView_types.setAdapter(new type_adapter(types));
         mThumbnailRecyclerView.setAdapter(new image_adapter());
 //        mMediaStoreAdapter.notifyDataSetChanged();
+
+
 
     }
 
@@ -274,6 +279,7 @@ public class MainActivity extends AppCompatActivity  {
     private class image_adapter extends RecyclerView.Adapter<image_adapter.ViewHolder>
     {
 
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_grid,parent,false);
@@ -283,15 +289,15 @@ public class MainActivity extends AppCompatActivity  {
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position)
         {
-
+            visible.add(0);
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (Delete_mode[0] == 1) {
-                        if (holder.checkBox.isChecked()) {
-                            holder.checkBox.setVisibility(View.GONE);
-                            holder.checkBox.setChecked(false);
+                        if (visible.get(position)==1) {
+                            holder.chk.setVisibility(View.GONE);
+                            visible.set(position,0);
                             delete_from_appp.remove(delete_from_appp.indexOf(new String(paths_of_image.get(position))));
                             Global_Share.delete_from_app = delete_from_appp;
                             if (delete_from_appp.size() == 0) {
@@ -299,8 +305,7 @@ public class MainActivity extends AppCompatActivity  {
                                 MainActivity.delete_btn.setVisibility(View.GONE);
                             }
                         } else {
-                            holder.checkBox.setVisibility(View.VISIBLE);
-                            holder.checkBox.setChecked(true);
+                            holder.chk.setVisibility(View.VISIBLE);
                             delete_from_appp.add(paths_of_image.get(position));
                             Global_Share.delete_from_app = delete_from_appp;
                         }
@@ -317,10 +322,11 @@ public class MainActivity extends AppCompatActivity  {
                 @Override
                 public boolean onLongClick(View view) {
                     if(Delete_mode[0] == 0){
+                        visible.add(position,1);
                         MainActivity.delete_btn.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
-                        holder.checkBox.setVisibility(View.VISIBLE);
-                        holder.checkBox.setChecked(true);
+                        Log.d(TAG,position+"");
+                        holder.chk.setVisibility(View.VISIBLE);
                         delete_from_appp.add(paths_of_image.get(position));
                         Global_Share.delete_from_app = delete_from_appp;
                     }
@@ -335,12 +341,12 @@ public class MainActivity extends AppCompatActivity  {
 
         public class ViewHolder extends RecyclerView.ViewHolder
         {
-            ImageView image;
-            private final CheckBox checkBox;
+            ImageView image,chk;
+             CheckBox checkBox;
             public ViewHolder(View itemView) {
                 super(itemView);
                 image = (ImageView)itemView.findViewById(R.id.image_all);
-                checkBox = (CheckBox) itemView.findViewById(R.id.itemCheckBox);
+                chk = (ImageView) itemView.findViewById(R.id.isSelected);
             }
         }
     }
