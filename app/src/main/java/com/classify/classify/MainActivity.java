@@ -168,6 +168,40 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return count;
     }
 
+<<<<<<< HEAD
+    private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            Mediacount = findcount();
+            if(Mydbcount < Mediacount){
+        splash_view.setVisibility(View.VISIBLE);
+                startTimerThread();
+
+                mThumbnailRecyclerView.setAdapter(mMediaStoreAdapter);
+                AsyncTaskRunner runner = new AsyncTaskRunner();
+                runner.execute();
+               // mMediaStoreAdapter.notifyDataSetChanged();
+            }
+            else
+            {
+                AsyncTaskRunner runner = new AsyncTaskRunner();
+                runner.execute();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void result) {
+        }
+        @Override
+        protected void onPreExecute() {
+        }
+        @Override
+        protected void onProgressUpdate(String... text) {
+        }
+    }
+
+=======
+>>>>>>> afe4a66ab5904d281876abfb0cbcf424586b653a
     private void initTensorFlowAndLoadModel() {
                 try {
                     classifier = TensorFlowImageClassifier.create(
@@ -370,8 +404,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
     @Override
     public void onBackPressed() {
+<<<<<<< HEAD
        // int pid = android.os.Process.myPid();
      //   android.os.Process.killProcess(pid);
+=======
+//        int pid = android.os.Process.myPid();
+//        android.os.Process.killProcess(pid);
+>>>>>>> f837d48d21440e187639f1acd101827d882d5959
         super.onBackPressed();
     }
     static {

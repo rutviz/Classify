@@ -129,13 +129,18 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                         }
 
                     }
+<<<<<<< HEAD
 
                     updatedbimagepath();
 
+=======
+                    updatedbimagepath();
+>>>>>>> f837d48d21440e187639f1acd101827d882d5959
                 }
             });
             t.start();
             flag=1;
+
         }
 
         return new ViewHolder(view);
@@ -204,16 +209,28 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
             oldCursor.close();
         }
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> f837d48d21440e187639f1acd101827d882d5959
     public void updatedbimagepath() {
         List<String> paths_of_image_db = new ArrayList<String>();
         paths_of_image_db = myDB.getImagepathlist();
         paths_of_image_db.removeAll(paths_of_image);
         if(paths_of_image_db.size()!=0){
+<<<<<<< HEAD
             for (int i = 0; i < paths_of_image_db.size(); i++) {
                 myDB.deleteimagepath(paths_of_image_db.get(i));
             }
         }
     }
 }
+=======
+        for (int i = 0; i < paths_of_image_db.size(); i++) {
+            myDB.deleteimagepath(paths_of_image_db.get(i));
+        }
+        }
+    }
+    }
+>>>>>>> f837d48d21440e187639f1acd101827d882d5959
 
