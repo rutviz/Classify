@@ -2,6 +2,7 @@ package com.classify.classify;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -25,8 +26,11 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.classify.classify.Global_Share.delete_from_app;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -80,10 +84,23 @@ public class MainActivity extends AppCompatActivity  {
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(Global_Share.delete_from_app.size()!=0){
+                if(delete_from_appp.size()!=0){
 
-                    for (int i = 0; i < Global_Share.delete_from_app.size(); i++) {
-                        myDB.deleteimagepath(Global_Share.delete_from_app.get(i));
+                    for (int i = 0; i < delete_from_appp.size(); i++) {
+                        myDB.deleteimagepath(delete_from_appp.get(i));
+                        String myPath = delete_from_appp.get(i);
+                        Uri mediaUri = Uri.parse("file://" + myPath);
+                        File file = new File(mediaUri.getPath());
+                        boolean deleted;
+//                        if (deleted = file.exists()== true) {
+//                            if (file.delete()) {
+//                                Log.e("-->", "file Deleted :" );
+//                            } else {
+//                                Log.e("-->", "file not Deleted :" );
+//                            }
+//                      }
+                         deleted = file.delete();
+                        Log.d(TAG,"deleted :"+delete_from_appp.get(i)+" "+deleted);
                     }
                 }
             }
@@ -137,7 +154,6 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
-//
 //    private void startTimerThread() {
 //        Runnable runnable = new Runnable() {
 //            private long startTime = System.currentTimeMillis();
@@ -289,7 +305,13 @@ public class MainActivity extends AppCompatActivity  {
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position)
         {
-            visible.add(0);
+            if(visible.get(position)==0)
+                holder.chk.setVisibility(View.GONE);
+            else
+                holder.chk.setVisibility(View.VISIBLE);
+
+            Log.d(TAG,""+visible.get(position));
+
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -298,16 +320,17 @@ public class MainActivity extends AppCompatActivity  {
                         if (visible.get(position)==1) {
                             holder.chk.setVisibility(View.GONE);
                             visible.set(position,0);
-                            delete_from_appp.remove(delete_from_appp.indexOf(new String(paths_of_image.get(position))));
-                            Global_Share.delete_from_app = delete_from_appp;
+                            delete_from_appp.remove(delete_from_appp.indexOf(new String(Specific_data.get(position).getPath())));
+//                            Global_Share.delete_from_app = delete_from_appp;
                             if (delete_from_appp.size() == 0) {
                                 Delete_mode[0] = 0;
                                 MainActivity.delete_btn.setVisibility(View.GONE);
                             }
                         } else {
                             holder.chk.setVisibility(View.VISIBLE);
-                            delete_from_appp.add(paths_of_image.get(position));
-                            Global_Share.delete_from_app = delete_from_appp;
+                            delete_from_appp.add(Specific_data.get(position).getPath());
+                            visible.set(position,1);
+//                            Global_Share.delete_from_app = delete_from_appp;
                         }
                     } else {
                         Intent i = new Intent(mActivity, Photo_Viewer.class);
@@ -316,19 +339,20 @@ public class MainActivity extends AppCompatActivity  {
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
                         mActivity.startActivity(i, options.toBundle());
                     }
+                    Log.d(TAG,""+Delete_mode[0]+" "+visible.get(position));
                 }
             });
             holder.image.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     if(Delete_mode[0] == 0){
-                        visible.add(position,1);
+                        visible.set(position,1);
                         MainActivity.delete_btn.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
                         Log.d(TAG,position+"");
                         holder.chk.setVisibility(View.VISIBLE);
-                        delete_from_appp.add(paths_of_image.get(position));
-                        Global_Share.delete_from_app = delete_from_appp;
+                        delete_from_appp.add(Specific_data.get(position).getPath());
+                        delete_from_app = delete_from_appp;
                     }
                     return true;
                 }
@@ -345,6 +369,8 @@ public class MainActivity extends AppCompatActivity  {
              CheckBox checkBox;
             public ViewHolder(View itemView) {
                 super(itemView);
+                for(int i = 0; i<Specific_data.size();i++)
+                    visible.add(0);
                 image = (ImageView)itemView.findViewById(R.id.image_all);
                 chk = (ImageView) itemView.findViewById(R.id.isSelected);
             }

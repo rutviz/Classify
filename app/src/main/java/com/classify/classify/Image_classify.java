@@ -227,7 +227,7 @@ public class Image_classify extends AppCompatActivity  {
                 Date lastModDate = new Date(file.lastModified());
                 String date = lastModDate.getTime() + "";
                 Date_list.add(date);
-                Log.d(TAG, Image_path.get(Image_path.size() - 1) + "");
+                Log.d(TAG, dataString + "");
                 Log.d(TAG, date + "");
             }
         }
