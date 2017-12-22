@@ -122,6 +122,29 @@
                 android:src="@drawable/ic_menu_white_24dp">
             </ImageButton>
 
+            <ImageButton
+                android:id="@+id/close"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:background="#007fe8"
+                android:src="@drawable/ic_close_white_24dp">
+            </ImageButton>
+
+            <TextView
+                android:id="@+id/count_selelcted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="0"
+                android:textSize="25dp"
+                android:padding="5dp"
+                android:layout_marginLeft="5dp"
+                android:textColor="#FFF"
+                android:layout_toRightOf="@+id/close"/>
+
             <ImageView
                 android:id="@+id/logo_image"
                 android:layout_width="wrap_content"
@@ -130,6 +153,17 @@
                 android:layout_centerVertical="true"
                 android:src="@drawable/logo_white">
             </ImageView>
+
+            <ImageButton
+                android:id="@+id/check"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="#60B4FC"
+                android:layout_toLeftOf="@+id/delete"
+                android:src="@drawable/ic_check_box_outline_blank_white_24dp"/>
 
             <ImageButton
                 android:id="@+id/delete"

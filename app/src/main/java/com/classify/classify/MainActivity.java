@@ -3,11 +3,11 @@ package com.classify.classify;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,11 +28,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.classify.classify.Global_Share.delete_from_app;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -67,10 +64,14 @@ public class MainActivity extends AppCompatActivity  {
     List<String> delete_from_appp = new ArrayList<String>();
     List<String> paths_of_image = new ArrayList<String>();
     List<Integer> visible = new ArrayList<Integer>();
+    type_adapter type ;
 
-    public static ImageButton delete_btn;
+    public static ImageButton delete_btn,select_all,close;
+    TextView count_selected;
     final String TAG = "Image_Classify";
-
+    String CurrentCategory = "All";
+    image_adapter imageadapter;
+    int all_selected=0;
 
 
     @Override
@@ -82,6 +83,9 @@ public class MainActivity extends AppCompatActivity  {
         height = getWindowManager().getDefaultDisplay().getHeight();
 
         delete_btn = (ImageButton) findViewById(R.id.delete);
+        close = (ImageButton) findViewById(R.id.close);
+        select_all = (ImageButton) findViewById(R.id.check);
+        count_selected = (TextView) findViewById(R.id.count_selelcted);
 
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
@@ -95,9 +99,42 @@ public class MainActivity extends AppCompatActivity  {
                         contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
                         myDB.deleteimagepath(delete_from_appp.get(i));
-
+                        UpdateUI();
                     }
 
+                }
+            }
+        });
+
+        close.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Category_change();
+                imageadapter.notifyDataSetChanged();
+            }
+        });
+
+        select_all.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(all_selected==0)
+                {
+                    select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_white_24dp));
+                    visible.clear();
+                    delete_from_appp.clear();
+                    for(int i = 0; i<Specific_data.size();i++)
+                    {
+                        visible.add(1);
+                        delete_from_appp.add(Specific_data.get(i).getPath());
+                    }
+                    count_selected.setText(delete_from_appp.size()+"");
+                    imageadapter.notifyDataSetChanged();
+                    all_selected = 1;
+                }
+                else
+                {
+                    UpdateUI();
+                    all_selected = 0;
                 }
             }
         });
@@ -127,14 +164,14 @@ public class MainActivity extends AppCompatActivity  {
         types.addAll(databaseHandler.getCategory());
         searchadapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,types);
         search.setAdapter(searchadapter);
-
+        imageadapter = new image_adapter();
         search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String SEARCH =  search.getText().toString();
                     databaseHandler = new DatabaseHandler(mActivity);
                     Specific_data = databaseHandler.getUniqueData(SEARCH);
-                    mThumbnailRecyclerView.setAdapter(new image_adapter());
+                    mThumbnailRecyclerView.setAdapter(imageadapter);
 
             }
         });
@@ -142,86 +179,39 @@ public class MainActivity extends AppCompatActivity  {
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
 //        mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
-        recyclerView_types.setAdapter(new type_adapter(types));
-        mThumbnailRecyclerView.setAdapter(new image_adapter());
+        type = new type_adapter(types);
+        recyclerView_types.setAdapter(type);
+        mThumbnailRecyclerView.setAdapter(imageadapter);
 //        mMediaStoreAdapter.notifyDataSetChanged();
-
-
 
     }
 
-//    private void startTimerThread() {
-//        Runnable runnable = new Runnable() {
-//            private long startTime = System.currentTimeMillis();
-//            public void run() {
-//                Mediacount = findcount();
-//
-//                handler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        types = databaseHandler.getCategory();
-//                        types.add(0,"All");
-//                        recyclerView_types.setAdapter(new type_adapter(types));
-//                        searchadapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,types);
-//                        search.setAdapter(searchadapter);
-//                    }
-//                });
-//            }
-//        };
-//        new Thread(runnable).start();
-//    }
-//
-//    int findcount(){
-//        int count = 0;
-//
-//        final String[] projection = {MediaStore.Images.Media.DATA};
-//        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//        Cursor cursorcount = getContentResolver().query(uri,projection,null,null,null);
-//
-//        if(cursorcount!=null)
-//        {
-//            count = cursorcount.getCount();
-//        }
-//        else
-//        cursorcount.close();
-//        return count;
-//    }
+    private void UpdateUI() {
+        delete_btn.setVisibility(View.GONE);
+        delete_from_appp.clear();
+        hide_button();
+        UpdateLists();
+    }
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        String[] projection = {
-//                MediaStore.Files.FileColumns._ID,
-//                MediaStore.Files.FileColumns.DATE_ADDED,
-//                MediaStore.Files.FileColumns.DATA,
-//                MediaStore.Files.FileColumns.MEDIA_TYPE
-//        };
-//        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-//                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-//        return new CursorLoader(
-//                this,
-//                MediaStore.Files.getContentUri("external"),
-//                projection,
-//                selection,
-//                null,
-//                MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
-//        );
-//
-//    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//        mMediaStoreAdapter.changeCursor(data);
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//        mMediaStoreAdapter.changeCursor(null);
-//    }
-//
-//    @Override
-//    public void OnClickImage(Uri imageUri) {
-//
-//    }
+    private void UpdateLists() {
+        types.clear();
+        visible.clear();
+        for(int i = 0; i<Specific_data.size();i++)
+            visible.add(0);
+        types.add("All");
+        types.addAll(databaseHandler.getCategory());
+        Specific_data = databaseHandler.getUniqueData(CurrentCategory);
+        if(Specific_data.size()==0)
+        {
+            Specific_data = databaseHandler.getUniqueData("All");
+            CurrentCategory = "All";
+        }
+        type.notifyDataSetChanged();
+        imageadapter.notifyDataSetChanged();
+//        types;
+//        Specific_data;
+
+    }
 
     private class type_adapter extends RecyclerView.Adapter<type_adapter.ViewHolder>
     {
@@ -253,8 +243,10 @@ public class MainActivity extends AppCompatActivity  {
                     public void onClick(View view) {
                         search.setText("");
                         String SEARCH = (String) holder.type_name.getText();
+                        CurrentCategory = SEARCH;
                         databaseHandler = new DatabaseHandler(mActivity);
                         Specific_data = databaseHandler.getUniqueData(SEARCH);
+                        Category_change();
                         mThumbnailRecyclerView.setAdapter(new image_adapter());
                     }
                 });
@@ -320,7 +312,7 @@ public class MainActivity extends AppCompatActivity  {
 //                            Global_Share.delete_from_app = delete_from_appp;
                             if (delete_from_appp.size() == 0) {
                                 Delete_mode[0] = 0;
-                                MainActivity.delete_btn.setVisibility(View.GONE);
+                                Category_change();
                             }
                         } else {
                             holder.chk.setVisibility(View.VISIBLE);
@@ -328,6 +320,7 @@ public class MainActivity extends AppCompatActivity  {
                             visible.set(position,1);
 //                            Global_Share.delete_from_app = delete_from_appp;
                         }
+                        count_selected.setText(delete_from_appp.size()+"");
                     } else {
                         Intent i = new Intent(mActivity, Photo_Viewer.class);
                         i.putExtra("path_of_image", Specific_data.get(position).getPath());
@@ -343,12 +336,15 @@ public class MainActivity extends AppCompatActivity  {
                 public boolean onLongClick(View view) {
                     if(Delete_mode[0] == 0){
                         visible.set(position,1);
-                        MainActivity.delete_btn.setVisibility(View.VISIBLE);
+                        delete_btn.setVisibility(View.VISIBLE);
+                        select_all.setVisibility(View.VISIBLE);
+                        close.setVisibility(View.VISIBLE);
+                        count_selected.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
                         Log.d(TAG,position+"");
                         holder.chk.setVisibility(View.VISIBLE);
                         delete_from_appp.add(Specific_data.get(position).getPath());
-                        delete_from_app = delete_from_appp;
+                        count_selected.setText(delete_from_appp.size()+"");
                     }
                     return true;
                 }
@@ -371,6 +367,26 @@ public class MainActivity extends AppCompatActivity  {
                 chk = (ImageView) itemView.findViewById(R.id.isSelected);
             }
         }
+    }
+
+    void Category_change()
+    {
+        visible.clear();
+        delete_from_appp.clear();
+        for(int i = 0; i<Specific_data.size();i++)
+            visible.add(0);
+       hide_button();
+    }
+    void hide_button()
+    {
+        select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_outline_blank_white_24dp));
+        delete_btn.setVisibility(View.GONE);
+        close.setVisibility(View.GONE);
+        select_all.setVisibility(View.GONE);
+        count_selected.setVisibility(View.GONE);
+        count_selected.setText("0");
+        all_selected = 0;
+        Delete_mode[0] = 0;
     }
     @Override
     public void onBackPressed() {
