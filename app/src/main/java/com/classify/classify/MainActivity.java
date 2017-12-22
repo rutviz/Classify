@@ -99,9 +99,8 @@ public class MainActivity extends AppCompatActivity  {
                         contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
                         myDB.deleteimagepath(delete_from_appp.get(i));
-                        UpdateUI();
                     }
-
+                    UpdateUI();
                 }
             }
         });
@@ -136,6 +135,7 @@ public class MainActivity extends AppCompatActivity  {
                     UpdateUI();
                     all_selected = 0;
                 }
+                Log.d(TAG,delete_from_appp.size()+" "+Delete_mode[0]+" "+Specific_data.size()+" "+visible.size()+" "+all_selected);
             }
         });
 
@@ -186,32 +186,7 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
-    private void UpdateUI() {
-        delete_btn.setVisibility(View.GONE);
-        delete_from_appp.clear();
-        hide_button();
-        UpdateLists();
-    }
 
-    private void UpdateLists() {
-        types.clear();
-        visible.clear();
-        for(int i = 0; i<Specific_data.size();i++)
-            visible.add(0);
-        types.add("All");
-        types.addAll(databaseHandler.getCategory());
-        Specific_data = databaseHandler.getUniqueData(CurrentCategory);
-        if(Specific_data.size()==0)
-        {
-            Specific_data = databaseHandler.getUniqueData("All");
-            CurrentCategory = "All";
-        }
-        type.notifyDataSetChanged();
-        imageadapter.notifyDataSetChanged();
-//        types;
-//        Specific_data;
-
-    }
 
     private class type_adapter extends RecyclerView.Adapter<type_adapter.ViewHolder>
     {
@@ -388,6 +363,31 @@ public class MainActivity extends AppCompatActivity  {
         all_selected = 0;
         Delete_mode[0] = 0;
     }
+
+    private void UpdateUI() {
+        delete_from_appp.clear();
+        hide_button();
+        UpdateLists();
+    }
+
+    private void UpdateLists() {
+        types.clear();
+        visible.clear();
+        Specific_data = databaseHandler.getUniqueData(CurrentCategory);
+        if(Specific_data.size()==0)
+        {
+            Specific_data = databaseHandler.getUniqueData("All");
+            CurrentCategory = "All";
+        }
+        for(int i = 0; i<Specific_data.size();i++)
+            visible.add(0);
+        types.add("All");
+        types.addAll(databaseHandler.getCategory());
+        type.notifyDataSetChanged();
+        imageadapter.notifyDataSetChanged();
+
+    }
+
     @Override
     public void onBackPressed() {
 
