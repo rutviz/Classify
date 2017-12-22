@@ -1,10 +1,12 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -87,21 +89,15 @@ public class MainActivity extends AppCompatActivity  {
                 if(delete_from_appp.size()!=0){
 
                     for (int i = 0; i < delete_from_appp.size(); i++) {
-                        myDB.deleteimagepath(delete_from_appp.get(i));
+
                         String myPath = delete_from_appp.get(i);
-                        Uri mediaUri = Uri.parse("file://" + myPath);
-                        File file = new File(mediaUri.getPath());
-                        boolean deleted;
-//                        if (deleted = file.exists()== true) {
-//                            if (file.delete()) {
-//                                Log.e("-->", "file Deleted :" );
-//                            } else {
-//                                Log.e("-->", "file not Deleted :" );
-//                            }
-//                      }
-                         deleted = file.delete();
-                        Log.d(TAG,"deleted :"+delete_from_appp.get(i)+" "+deleted);
+                        ContentResolver contentResolver = getContentResolver();
+                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                        myDB.deleteimagepath(delete_from_appp.get(i));
+
                     }
+
                 }
             }
         });

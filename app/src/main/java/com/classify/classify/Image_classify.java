@@ -80,17 +80,8 @@ public class Image_classify extends AppCompatActivity  {
         }
         checkReadExternalStoragePermission();
 
-        //to hide focus of search
-//        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-//        mThumbnailRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_photos);
-//        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
-//        mThumbnailRecyclerView.setHasFixedSize(true);
         initTensorFlowAndLoadModel();
-//        mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
-//        mMediaStoreAdapter = new image_adapter(this,classifier);
-//        mThumbnailRecyclerView.setAdapter(mMediaStoreAdapter);
-//        mMediaStoreAdapter.notifyDataSetChanged();
+
         getPath();
 
     }
@@ -117,7 +108,7 @@ public class Image_classify extends AppCompatActivity  {
                     public void run() {
                         Intent i = new Intent(Image_classify.this, MainActivity.class);
                         startActivity(i);
-//                        finish();
+
                     }
                 });
             }
@@ -130,20 +121,9 @@ public class Image_classify extends AppCompatActivity  {
         Runnable classify = new Runnable() {
 //            private long startTime = System.currentTimeMillis();
             public void run() {
-//                for(int z =0; z < Image_path.size();z++)
-//                {
-//                    Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(z)),224,224);
-//                    final List<Recognition> results = classifier.recognizeImage(bitmap);
-//                    if(results.size()!=0){
-//                        databaseHandler.addData(new Classify_path(Image_path.get(z),results.get(0).toString(),Date_list.get(z)));
-//                    }
-//                    else
-//                    {
-//                        databaseHandler.addData(new Classify_path(Image_path.get(z),"none",Date_list.get(z)));
-//                    }
-//                    Log.d("CLassifying",results.toString()+" "+Image_path.get(z));
-//                }
+
                 int Count_new = findcount();
+
                 if(databaseHandler.getDataCount()<1)
                 {
                     for(int z =0; z < Image_path.size();z++)
@@ -157,7 +137,7 @@ public class Image_classify extends AppCompatActivity  {
                         {
                             databaseHandler.addData(new Classify_path(Image_path.get(z),"none",Date_list.get(z)));
                         }
-                        Log.d("CLassifying",results.toString()+" "+Image_path.get(z));
+
                     }
                 }
                 else
@@ -178,7 +158,7 @@ public class Image_classify extends AppCompatActivity  {
                                 {
                                     databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
                                 }
-                                Log.d("CLassifying",results.toString()+" "+Image_path.get(init));
+
                             }
                             catch (Exception e)
                             {
@@ -227,8 +207,7 @@ public class Image_classify extends AppCompatActivity  {
                 Date lastModDate = new Date(file.lastModified());
                 String date = lastModDate.getTime() + "";
                 Date_list.add(date);
-                Log.d(TAG, dataString + "");
-                Log.d(TAG, date + "");
+
             }
         }
         ClassifyImage();
@@ -255,9 +234,9 @@ public class Image_classify extends AppCompatActivity  {
         switch(requestCode) {
             case READ_EXTERNAL_STORAGE_PERMMISSION_RESULT:
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    startTimerThread();
+
                     checkReadExternalStoragePermission();
-//                    getSupportLoaderManager().initLoader(MEDIASTORE_LOADER_ID, null, this);
+
                 }
                 break;
             default:
@@ -269,11 +248,8 @@ public class Image_classify extends AppCompatActivity  {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-                // Start cursor loader
-                startTimerThread();
-//                findcount();
 
-//                getSupportLoaderManager().initLoader(MEDIASTORE_LOADER_ID, null, this);
+                startTimerThread();
             } else {
                 if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     Toast.makeText(this, "App needs to view thumbnails", Toast.LENGTH_SHORT).show();
@@ -282,39 +258,8 @@ public class Image_classify extends AppCompatActivity  {
                         READ_EXTERNAL_STORAGE_PERMMISSION_RESULT);
             }
         } else {
-            // Start cursor loader
-            startTimerThread();
-//            findcount();
-//           getSupportLoaderManager().initLoader(MEDIASTORE_LOADER_ID, null, this);
 
+            startTimerThread();
         }
     }
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        String[] projection = {
-//                MediaStore.Files.FileColumns._ID,
-//                MediaStore.Files.FileColumns.DATE_ADDED,
-//                MediaStore.Files.FileColumns.DATA,
-//                MediaStore.Files.FileColumns.MEDIA_TYPE
-//        };
-//        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-//                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-//        return new CursorLoader(
-//                this,
-//                MediaStore.Files.getContentUri("external"),
-//                projection,
-//                selection,
-//                null,
-//                MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
-//        );
-//
-//    }
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//        mMediaStoreAdapter.changeCursor(data);
-//    }
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//        mMediaStoreAdapter.changeCursor(null);
-//    }
 }
