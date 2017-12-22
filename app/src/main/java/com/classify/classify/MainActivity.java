@@ -136,6 +136,9 @@ public class MainActivity extends AppCompatActivity  {
                     all_selected = 0;
                 }
                 Log.d(TAG,delete_from_appp.size()+" "+Delete_mode[0]+" "+Specific_data.size()+" "+visible.size()+" "+all_selected);
+
+                for(int i :visible)
+                Log.d(TAG,""+i);
             }
         });
 
@@ -172,7 +175,7 @@ public class MainActivity extends AppCompatActivity  {
                     databaseHandler = new DatabaseHandler(mActivity);
                     Specific_data = databaseHandler.getUniqueData(SEARCH);
                     mThumbnailRecyclerView.setAdapter(imageadapter);
-
+                    close.callOnClick();
             }
         });
         //initTensorFlowAndLoadModel();
@@ -219,10 +222,10 @@ public class MainActivity extends AppCompatActivity  {
                         search.setText("");
                         String SEARCH = (String) holder.type_name.getText();
                         CurrentCategory = SEARCH;
-                        databaseHandler = new DatabaseHandler(mActivity);
+                        //databaseHandler = new DatabaseHandler(mActivity);
                         Specific_data = databaseHandler.getUniqueData(SEARCH);
+                        imageadapter.notifyDataSetChanged();
                         Category_change();
-                        mThumbnailRecyclerView.setAdapter(new image_adapter());
                     }
                 });
             }
@@ -284,7 +287,8 @@ public class MainActivity extends AppCompatActivity  {
                             holder.chk.setVisibility(View.GONE);
                             visible.set(position,0);
                             delete_from_appp.remove(delete_from_appp.indexOf(new String(Specific_data.get(position).getPath())));
-//                            Global_Share.delete_from_app = delete_from_appp;
+                            select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_outline_blank_white_24dp));
+                            all_selected=0;
                             if (delete_from_appp.size() == 0) {
                                 Delete_mode[0] = 0;
                                 Category_change();
