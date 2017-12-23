@@ -31,6 +31,8 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.classify.classify.Global_Share.CurrentCategory;
+
 public class MainActivity extends AppCompatActivity  {
 
     private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity  {
     public static ImageButton delete_btn,select_all,close;
     TextView count_selected;
     final String TAG = "Image_Classify";
-    String CurrentCategory = "All";
+
     image_adapter imageadapter;
     int all_selected=0;
 
@@ -172,6 +174,7 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String SEARCH =  search.getText().toString();
+                    CurrentCategory = SEARCH;
                     databaseHandler = new DatabaseHandler(mActivity);
                     Specific_data = databaseHandler.getUniqueData(SEARCH);
                     mThumbnailRecyclerView.setAdapter(imageadapter);
@@ -302,7 +305,8 @@ public class MainActivity extends AppCompatActivity  {
                         count_selected.setText(delete_from_appp.size()+"");
                     } else {
                         Intent i = new Intent(mActivity, Photo_Viewer.class);
-                        i.putExtra("path_of_image", Specific_data.get(position).getPath());
+                        Global_Share.paths_of_image = convert(Specific_data);
+                        i.putExtra("id", position+"");
                         i.putExtra("category", databaseHandler.getSingleCategory(Specific_data.get(position).getPath()));
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
                         mActivity.startActivity(i, options.toBundle());
@@ -390,6 +394,17 @@ public class MainActivity extends AppCompatActivity  {
         type.notifyDataSetChanged();
         imageadapter.notifyDataSetChanged();
 
+    }
+
+    List<String> convert(ArrayList<Classify_path> Specific)
+    {
+        List<String> temp = new ArrayList<>();
+        for(int i=0;i<Specific.size();i++)
+        {
+            temp.add(Specific.get(i).getPath());
+        }
+        Log.d(TAG,temp.size()+" Main");
+        return temp;
     }
 
     @Override

@@ -43,5 +43,6 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.github.liuguangqiang.swipeback:library:1.0.2@aar'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.9'
+    compile 'it.sephiroth.android.library.imagezoom:imagezoom:+'
     testCompile 'junit:junit:4.12'
 }

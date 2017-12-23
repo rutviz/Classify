@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.liuguangqiang.swipeback.SwipeBackLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/swipeBackLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-            <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView"
-            android:transitionName="image"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/logo_black">
-            </ImageView>
-        <TextView
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:id="@+id/category_title"
-            android:background="@color/colorPrimaryDark"
-            android:layout_alignParentBottom="true"
-            android:text="Person"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20dp"
-            android:padding="10dp"
-            android:layout_centerVertical="true"
-            android:textAlignment="center"/>
+            android:layout_height="match_parent" />
 
-    </RelativeLayout>
+            <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/imageView"-->
+            <!--android:transitionName="image"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:src="@drawable/logo_black">-->
+            <!--</ImageView>-->
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:id="@+id/category_title"-->
+            <!--android:background="@color/colorPrimaryDark"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:text="Person"-->
+            <!--android:textColor="@color/colorPrimary"-->
+            <!--android:textSize="20dp"-->
+            <!--android:padding="10dp"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:textAlignment="center"/>-->
 
-</com.liuguangqiang.swipeback.SwipeBackLayout>
+</RelativeLayout>

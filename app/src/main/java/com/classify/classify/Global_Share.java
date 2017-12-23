@@ -9,5 +9,7 @@ import java.util.List;
 
 public class Global_Share {
 
-    public static List<String> delete_from_app = new ArrayList<String>();
+    static List<String> paths_of_image = new ArrayList<String>();
+    static String CurrentCategory = "All";
+    static final String TAG = "Image_Classify";
 }
