@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity  {
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
+        //myDB.createtable();
 
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
@@ -416,3 +417,4 @@ public class MainActivity extends AppCompatActivity  {
         System.loadLibrary("native-lib");
     }
 }
+

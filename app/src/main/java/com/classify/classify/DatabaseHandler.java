@@ -20,11 +20,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "Classify";
     private static final String table_name = "Classification";
+    private static final String table_name_global = "Global";
 
     private static final String id = "id";
     private static final String path = "path";
     private static final String category = "category";
     private static final String date = "date";
+    private static final String variablename = "variable";
+    private static final String variablevalue = "variablevalue";
 
 
     public DatabaseHandler(Context context) {
@@ -37,14 +40,37 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String Create_table = "CREATE TABLE " + table_name + "("
                 + id + " INTEGER PRIMARY KEY AUTOINCREMENT," + path + " TEXT,"
                 + category + " TEXT" + ","+date+" TEXT )";
+        String Create_table2 = "CREATE TABLE " + table_name_global + "("
+                +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
         sqLiteDatabase.execSQL(Create_table);
-
+        sqLiteDatabase.execSQL(Create_table2);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + table_name);
         onCreate(sqLiteDatabase);
+    }
+
+    public void createtable(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String droptable = "DROP TABLE "+ table_name_global;
+        db.execSQL(droptable);
+        String Create_table2 = "CREATE TABLE " + table_name_global + "("
+                +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
+        db.execSQL(Create_table2);
+    }
+
+    public void globaladdData(String variable_name,String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        {
+            ContentValues values = new ContentValues();
+            values.put(variablename, variable_name);
+            values.put(variablevalue, value);
+            db.insert(table_name_global, null, values);
+            getData();
+        }
+        db.close();
     }
 
     public void addData(Classify_path classify) {
@@ -62,24 +88,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void getDeleteRow(int ids)
-    {
-        SQLiteDatabase database = this.getWritableDatabase();
-        database.execSQL("DELETE FROM " + table_name+ " WHERE " +id+ "= '"+ids+"'" );
-        database.close();
+    public String globalgetvalue(String variable_name){
+        String value = "";
+        String query = "SELECT "+variablevalue+" FROM "+ table_name_global + " WHERE " +variablename+" = '"+variable_name+"'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                value = cursor.getString(0);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return value;
     }
 
-    public Cursor getPathOfnum(int ids)
-    {
-        SQLiteDatabase database = this.getWritableDatabase();
-        /*database.execSQL("SELECT FROM " + table_name+ " WHERE " +id+ "= '"+ids+"'" );*/
-        String query = "SELECT path FROM " + table_name+ " WHERE " +id+ "= '"+ids+"'" ;
-        Cursor cursor = database.rawQuery(query, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-        }
-        return cursor;
+    public void globalsetvalue(String variable_name,String variable_value){
+
+        String query = "UPDATE "+table_name_global+" SET "+ variablevalue +"=" +variable_value+ " WHERE " +variablename+" = '"+variable_name+"'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+
     }
+
 
     public int getDataCount() {
         String countQuery = "SELECT  * FROM " + table_name;
@@ -154,18 +185,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // return contact list
         return Data;
     }
-    void Cleardata()
-    {
-        SQLiteDatabase db = this.getReadableDatabase();
-        db.execSQL("DROP TABLE " + table_name);
-        String Create_table = "CREATE TABLE " + table_name + "("
-                + id + " INTEGER PRIMARY KEY AUTOINCREMENT," + path + " TEXT,"
-                + category + " TEXT" + ")";;
-        db.execSQL(Create_table);
-    }
-
-    ArrayList<String> getCategory()
-    {
+    ArrayList<String> getCategory(){
         ArrayList<String> category_list= new ArrayList<>();
 
         String query = "SELECT DISTINCT "+category+" FROM "+table_name;
@@ -217,9 +237,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         return paths;
     }
-
-
-
     void deleteimagepath(String value){
         String query = "DELETE FROM " + table_name +" WHERE "+ path +" = '"+value+"'";
         SQLiteDatabase db = this.getWritableDatabase();
@@ -227,4 +244,5 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Log.d("path123","Path deleted: "+value);
 
     }
+
 }
