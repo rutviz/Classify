@@ -1,17 +1,21 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.DisplayType;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 import static com.classify.classify.Global_Share.CurrentCategory;
@@ -51,9 +56,10 @@ public class Image_View_Adapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(ViewGroup container, final int position) {
         ImageViewTouch imgDisplay;
-        Button btnClose;
+        Button btnDelete;
+        ImageView back;
         TextView category_title;
 
         db = new DatabaseHandler(_activity);
@@ -65,7 +71,8 @@ public class Image_View_Adapter extends PagerAdapter {
 
         imgDisplay = (ImageViewTouch) viewLayout.findViewById(R.id.imgDisplay);
         category_title = (TextView) viewLayout.findViewById(R.id.category_title);
-//        btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
+        btnDelete = (Button) viewLayout.findViewById(R.id.btnDelete);
+        back = (ImageView) viewLayout.findViewById(R.id.btnBack);
 
 
         Log.d(TAG,"showing "+ _imagePaths.get(position));
@@ -75,7 +82,7 @@ public class Image_View_Adapter extends PagerAdapter {
         Matrix matrix = imgDisplay.getImageMatrix();
         //imgDisplay.setImageBitmap(bitmap, matrix );
         imgDisplay.setImageBitmap(bitmap);
-//        imgDisplay.setDisplayType(DisplayType.FIT_WIDTH);
+        imgDisplay.setDisplayType(DisplayType.FIT_IF_BIGGER);
 
         // close button click event
         if(CurrentCategory.equals("All"))
@@ -84,12 +91,32 @@ public class Image_View_Adapter extends PagerAdapter {
         }
         else
         category_title.setText(CurrentCategory+"");
-//        btnClose.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                _activity.finish();
-//            }
-//        });
+
+        btnDelete.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String deletePath = _imagePaths.get(position);
+                ContentResolver contentResolver = _activity.getContentResolver();
+                contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ deletePath });
+                db.deleteimagepath(deletePath);
+                Global_Share.paths_of_image.remove(deletePath);
+                Photo_Viewer.viewPager.setAdapter(new Image_View_Adapter(_activity,Global_Share.paths_of_image));
+                if(Global_Share.paths_of_image.size() == 0)
+                    _activity.finish();
+                if(position==Global_Share.paths_of_image.size())
+                    Photo_Viewer.viewPager.setCurrentItem(position-1);
+                else
+                    Photo_Viewer.viewPager.setCurrentItem(position);
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _activity.finish();
+            }
+        });
 
         ((ViewPager) container).addView(viewLayout);
 

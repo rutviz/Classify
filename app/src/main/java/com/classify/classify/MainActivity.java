@@ -387,6 +387,7 @@ public class MainActivity extends AppCompatActivity  {
         {
             Specific_data = databaseHandler.getUniqueData("All");
             CurrentCategory = "All";
+            recyclerView_types.setAdapter(type);
         }
         for(int i = 0; i<Specific_data.size();i++)
             visible.add(0);
@@ -406,6 +407,12 @@ public class MainActivity extends AppCompatActivity  {
         }
         Log.d(TAG,temp.size()+" Main");
         return temp;
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        UpdateLists();
     }
 
     @Override
