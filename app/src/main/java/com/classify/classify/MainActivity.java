@@ -142,8 +142,14 @@ public class MainActivity extends AppCompatActivity  {
                         }
                         new_images = Count_new - myDB.getDataCount();
                         init++;
-                        UpdateLists();
-                        imageadapter.notifyDataSetChanged();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                UpdateLists();
+                                imageadapter.notifyDataSetChanged();
+
+                            }
+                        });
                     }
                     try {
                         Thread.sleep(1000);

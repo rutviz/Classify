@@ -85,10 +85,14 @@ public class Image_classify extends AppCompatActivity  {
 
         initTensorFlowAndLoadModel();
         databaseHandler.globaladdData("firstrun","0");
+        Log.d("globalvalue",databaseHandler.globalgetvalue("firstrun"));
         if(databaseHandler.globalgetvalue("firstrun").equals("1")){
-
+            Log.d("Skip","1");
+            Intent i = new Intent(Image_classify.this, MainActivity.class);
+            startActivity(i);
         }
         else{
+            Log.d("Skip","0");
             getPath();
         }
 
@@ -116,12 +120,12 @@ public class Image_classify extends AppCompatActivity  {
                     @Override
                     public void run() {
                         databaseHandler.globalsetvalue("firstrun","1");
-                        Intent i = new Intent(Image_classify.this, MainActivity.class);
-                        startActivity(i);
+            Intent i = new Intent(Image_classify.this, MainActivity.class);
+            startActivity(i);
 
-                    }
-                });
-            }
+        }
+    });
+}
         };
         new Thread(runnable).start();
     }

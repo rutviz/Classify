@@ -99,7 +99,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public String globalgetvalue(String variable_name){
         String value = "";
-        String query = "SELECT "+variablename+" FROM "+ table_name_global + " WHERE " +variablename+" = '"+variable_name+"'";
+        String query = "SELECT "+variablevalue+" FROM "+ table_name_global + " WHERE " +variablename+" = '"+variable_name+"'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
