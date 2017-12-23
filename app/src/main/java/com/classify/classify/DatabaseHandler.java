@@ -63,6 +63,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void globaladdData(String variable_name,String value) {
         SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db1 = this.getReadableDatabase();
+        String query = "SELECT "+variablename+" FROM "+table_name_global+" WHERE "+variablename+" = '"+variable_name+"'";
+        Cursor cursor = db1.rawQuery(query, null);
+        int count = cursor.getCount();
+        cursor.close();
+        if(count!=0)
         {
             ContentValues values = new ContentValues();
             values.put(variablename, variable_name);
@@ -70,7 +76,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.insert(table_name_global, null, values);
             getData();
         }
+        else {
+        }
         db.close();
+        db1.close();
     }
 
     public void addData(Classify_path classify) {
@@ -90,7 +99,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public String globalgetvalue(String variable_name){
         String value = "";
-        String query = "SELECT "+variablevalue+" FROM "+ table_name_global + " WHERE " +variablename+" = '"+variable_name+"'";
+        String query = "SELECT "+variablename+" FROM "+ table_name_global + " WHERE " +variablename+" = '"+variable_name+"'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
