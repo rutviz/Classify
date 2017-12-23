@@ -68,7 +68,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db1.rawQuery(query, null);
         int count = cursor.getCount();
         cursor.close();
-        if(count!=0)
+        if(count==0)
         {
             ContentValues values = new ContentValues();
             values.put(variablename, variable_name);

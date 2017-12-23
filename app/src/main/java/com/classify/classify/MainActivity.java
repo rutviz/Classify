@@ -91,7 +91,9 @@ public class MainActivity extends AppCompatActivity  {
         myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
-
+        final String[] projection = {MediaStore.Images.Media.DATA};
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
         delete_btn = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
@@ -116,11 +118,14 @@ public class MainActivity extends AppCompatActivity  {
                         paths_of_images.add(imagePath.getAbsolutePath());
                         date_list.add(date);
                     }
+                    Log.d("currentmedia: ",Count_new+"");
 
                     updatedbimagepath();
                     int new_images = Count_new - myDB.getDataCount();
+                    Log.d("new media: ",new_images+"");
                     int init = 0;
                     while (new_images > 0) {
+                        Log.d("classify1124",init+"");
                         if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
                             Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
                             try {
