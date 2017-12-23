@@ -7,93 +7,6 @@
     android:background="@color/grey_100"
     app:layout_collapseParallaxMultiplier="1.0"
     tools:context="com.classify.classify.MainActivity">
-<!--
-    <RelativeLayout
-        android:elevation="20dp"
-        android:id="@+id/splash_screen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/splash_bg"
-        android:clickable="true">
-
-
-        <pl.droidsonroids.gif.GifImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/classify_logo"
-            android:layout_centerHorizontal="true" />
-
-        <ProgressBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="20dp"
-            android:scaleY="1"
-            android:progressTint="#FFF"
-            android:progress="10"
-            android:max="100"/>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/relative_2"
-            android:id="@+id/relative_1"
-            android:layout_marginTop="30dp"
-            android:layout_centerHorizontal="true">
-            <TextView
-                android:id="@+id/dbcount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FFF"
-                android:textSize="50dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="0"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/sample_text"
-                android:layout_toRightOf="@+id/dbcount"
-                android:layout_alignBottom="@+id/dbcount"
-                android:textColor="#FFF"
-                android:textSize="20dp"
-                android:layout_centerHorizontal="true"
-                android:fontFamily="sans-serif-medium"
-                android:padding="10dp"
-                android:text="Classified"/>
-        </RelativeLayout>
-
-        <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/relative_2"
-                android:layout_above="@+id/progressBar"
-                android:layout_centerHorizontal="true">
-            <TextView
-                android:id="@+id/mediacount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:layout_toRightOf="@+id/sample_text_2"
-                android:textColor="#FFF"
-                android:textSize="50dp"
-                android:fontFamily="sans-serif-medium"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/sample_text_2"
-                android:textColor="#FFF"
-                android:layout_alignBottom="@+id/mediacount"
-                android:textSize="20dp"
-                android:fontFamily="sans-serif-medium"
-                android:padding="10dp"
-                android:text="out of  "/>
-        </RelativeLayout>
-
-    </RelativeLayout>-->
-
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/my_appbar_container"
@@ -109,8 +22,8 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:padding="5dp"
-            android:background="@drawable/toolbar_top"
-            app:layout_scrollFlags="scroll|enterAlways">
+            android:background="@drawable/toolbar_top">
+            <!--app:layout_scrollFlags="scroll|enterAlways">-->
 
             <ImageButton
                 android:id="@+id/menu_delete"

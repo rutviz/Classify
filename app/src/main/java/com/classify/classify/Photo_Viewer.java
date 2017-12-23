@@ -9,9 +9,9 @@ import android.widget.TextView;
 public class Photo_Viewer extends AppCompatActivity{
 
     int width,height;
-    ImageView imageView;
+    ImageView back;
     TextView category_title;
-    ViewPager viewPager;
+    static public ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
