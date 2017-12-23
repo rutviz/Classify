@@ -209,7 +209,7 @@ public class MediaStoreAdapter {
 //            oldCursor.close();
 //        }
 //    }
-//
+
 //    public void updatedbimagepath() {
 //        List<String> paths_of_image_db = new ArrayList<String>();
 //        paths_of_image_db = myDB.getImagepathlist();

@@ -3,6 +3,10 @@ package com.classify.classify;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -28,10 +32,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.classify.classify.Global_Share.CurrentCategory;
+import static com.classify.classify.Global_Share.classifier;
+import static com.classify.classify.Global_Share.mmediaStorecursor;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -56,7 +64,6 @@ public class MainActivity extends AppCompatActivity  {
             "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
-    private Classifier classifier;
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
     ArrayList<Classify_path> Specific_data = new ArrayList<>();
@@ -71,7 +78,8 @@ public class MainActivity extends AppCompatActivity  {
     public static ImageButton delete_btn,select_all,close;
     TextView count_selected;
     final String TAG = "Image_Classify";
-
+    ArrayList<String> date_list = new ArrayList<>();
+    List<String> paths_of_images = new ArrayList<String>();
     image_adapter imageadapter;
     int all_selected=0;
 
@@ -83,12 +91,70 @@ public class MainActivity extends AppCompatActivity  {
         myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
-
+        final String[] projection = {MediaStore.Images.Media.DATA};
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
         delete_btn = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
         //myDB.createtable();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    int Count_new = mmediaStorecursor.getCount();
+                    int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                    paths_of_images = new ArrayList<String>();
+                    date_list = new ArrayList<String>();
+                    for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
+                        mmediaStorecursor.moveToPosition(i);
+                        String dataString = mmediaStorecursor.getString(dataIndex);
+                        Uri mediaUri = Uri.parse("file://" + dataString);
+                        File imagePath = new File(mediaUri.getPath());
+                        File file = new File(imagePath.getAbsolutePath());
+                        Date lastModDate = new Date(file.lastModified());
+                        String date = lastModDate.getTime() + "";
+                        paths_of_images.add(imagePath.getAbsolutePath());
+                        date_list.add(date);
+                    }
+                    Log.d("currentmedia: ",Count_new+"");
+
+                    updatedbimagepath();
+                    int new_images = Count_new - myDB.getDataCount();
+                    Log.d("new media: ",new_images+"");
+                    int init = 0;
+                    while (new_images > 0) {
+                        Log.d("classify1124",init+"");
+                        if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
+                            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
+                            try {
+                                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                                if (results.size() != 0) {
+                                    myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                } else {
+                                    myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                }
+                                Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
+                            } catch (Exception e) {
+                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                            }
+                        }
+                        new_images = Count_new - myDB.getDataCount();
+                        init++;
+                        UpdateLists();
+                        imageadapter.notifyDataSetChanged();
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            });
+        t.start();
+
 
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
@@ -396,6 +462,16 @@ public class MainActivity extends AppCompatActivity  {
         type.notifyDataSetChanged();
         imageadapter.notifyDataSetChanged();
 
+    }
+    public void updatedbimagepath() {
+        List<String> paths_of_image_db = new ArrayList<String>();
+        paths_of_image_db = myDB.getImagepathlist();
+        paths_of_image_db.removeAll(paths_of_images);
+        if(paths_of_image_db.size()!=0){
+            for (int i = 0; i < paths_of_image_db.size(); i++) {
+                myDB.deleteimagepath(paths_of_image_db.get(i));
+            }
+        }
     }
 
     List<String> convert(ArrayList<Classify_path> Specific)

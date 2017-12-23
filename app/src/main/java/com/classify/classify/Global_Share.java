@@ -1,5 +1,7 @@
 package com.classify.classify;
 
+import android.database.Cursor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,4 +14,6 @@ public class Global_Share {
     static List<String> paths_of_image = new ArrayList<String>();
     static String CurrentCategory = "All";
     static final String TAG = "Image_Classify";
+    static Classifier classifier;
+    static Cursor mmediaStorecursor;
 }

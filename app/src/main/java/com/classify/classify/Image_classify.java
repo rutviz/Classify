@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.classify.classify.Global_Share.classifier;
+import static com.classify.classify.Global_Share.mmediaStorecursor;
+
 public class Image_classify extends AppCompatActivity  {
 
     private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
@@ -48,7 +51,7 @@ public class Image_classify extends AppCompatActivity  {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
     DatabaseHandler databaseHandlerCount;
-    private Classifier classifier;
+
     Runnable runnable;
     Activity mActivity;
     int Mydbcount ;
@@ -81,8 +84,14 @@ public class Image_classify extends AppCompatActivity  {
         checkReadExternalStoragePermission();
 
         initTensorFlowAndLoadModel();
+        databaseHandler.globaladdData("firstrun","0");
+        if(databaseHandler.globalgetvalue("firstrun").equals("1")){
 
-        getPath();
+        }
+        else{
+            getPath();
+        }
+
 
     }
 
@@ -106,6 +115,7 @@ public class Image_classify extends AppCompatActivity  {
                handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        databaseHandler.globalsetvalue("firstrun","1");
                         Intent i = new Intent(Image_classify.this, MainActivity.class);
                         startActivity(i);
 
@@ -179,27 +189,27 @@ public class Image_classify extends AppCompatActivity  {
         int count = 0;
         final String[] projection = {MediaStore.Images.Media.DATA};
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursorcount = getContentResolver().query(uri,projection,null,null,null);
-        if(cursorcount!=null)
+        mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+        if(mmediaStorecursor!=null)
         {
-            count = cursorcount.getCount();
+            count = mmediaStorecursor.getCount();
         }
         else
-        cursorcount.close();
+        mmediaStorecursor.close();
         return count;
     }
     void getPath()
     {
         final String[] projection = {MediaStore.Images.Media.DATA};
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursorcount = getContentResolver().query(uri,projection,null,null,null);
-        if(cursorcount!=null)
+        mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+        if(mmediaStorecursor!=null)
         {
-            int dataIndex = cursorcount.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-            for (int i = 0;i<cursorcount.getCount();i++)
+            int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+            for (int i = 0;i<mmediaStorecursor.getCount();i++)
             {
-                cursorcount.moveToPosition(i);
-                String dataString = cursorcount.getString(dataIndex);
+                mmediaStorecursor.moveToPosition(i);
+                String dataString = mmediaStorecursor.getString(dataIndex);
                 Uri mediaUri = Uri.parse("file://" + dataString);
                 File imagePath = new File(mediaUri.getPath());
                 Image_path.add(imagePath.getAbsolutePath());
