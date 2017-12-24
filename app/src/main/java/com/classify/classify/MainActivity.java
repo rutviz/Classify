@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -81,7 +82,8 @@ public class MainActivity extends AppCompatActivity  {
     ArrayList<String> date_list = new ArrayList<>();
     List<String> paths_of_images = new ArrayList<String>();
     image_adapter imageadapter;
-    int all_selected=0;
+    int all_selected=0,flag=0;
+    Thread t;
 
 
     @Override
@@ -99,68 +101,21 @@ public class MainActivity extends AppCompatActivity  {
         select_all = (ImageButton) findViewById(R.id.check);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
         //myDB.createtable();
-        Thread t = new Thread(new Runnable() {
+
+
+        t = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    int Count_new = mmediaStorecursor.getCount();
-                    int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                    paths_of_images = new ArrayList<String>();
-                    date_list = new ArrayList<String>();
-                    for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
-                        mmediaStorecursor.moveToPosition(i);
-                        String dataString = mmediaStorecursor.getString(dataIndex);
-                        Uri mediaUri = Uri.parse("file://" + dataString);
-                        File imagePath = new File(mediaUri.getPath());
-                        File file = new File(imagePath.getAbsolutePath());
-                        Date lastModDate = new Date(file.lastModified());
-                        String date = lastModDate.getTime() + "";
-                        paths_of_images.add(imagePath.getAbsolutePath());
-                        date_list.add(date);
-                    }
-                    Log.d("currentmedia: ",Count_new+"");
-
-                    updatedbimagepath();
-                    int new_images = Count_new - myDB.getDataCount();
-                    Log.d("new media: ",new_images+"");
-                    int init = 0;
-                    while (new_images > 0) {
-                        Log.d("classify1124",init+"");
-                        if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
-                            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
-                            try {
-                                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                                if (results.size() != 0) {
-                                    myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
-                                } else {
-                                    myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                                }
-                                Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
-                            } catch (Exception e) {
-                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                            }
-                        }
-                        new_images = Count_new - myDB.getDataCount();
-                        init++;
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                UpdateLists();
-                                imageadapter.notifyDataSetChanged();
-
-                            }
-                        });
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                if(flag==0)
+                {
+                    initTensorFlowAndLoadModel();
+                    flag=1;
                 }
+                AsyncTaskRunner runner = new AsyncTaskRunner();
+                runner.execute();
             }
-            });
+        });
         t.start();
-
 
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
@@ -254,7 +209,7 @@ public class MainActivity extends AppCompatActivity  {
                     close.callOnClick();
             }
         });
-        //initTensorFlowAndLoadModel();
+
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
 //        mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
@@ -263,9 +218,120 @@ public class MainActivity extends AppCompatActivity  {
         mThumbnailRecyclerView.setAdapter(imageadapter);
 //        mMediaStoreAdapter.notifyDataSetChanged();
 
+
+    }
+
+    private void initTensorFlowAndLoadModel() {
+        try {
+            classifier = TensorFlowImageClassifier.create(
+                    getAssets(),
+                    MODEL_FILE,
+                    LABEL_FILE,
+                    INPUT_SIZE,
+                    IMAGE_MEAN,
+                    IMAGE_STD,
+                    INPUT_NAME,
+                    OUTPUT_NAME);
+        }
+        catch (final Exception e) {
+            throw new RuntimeException("Error initializing TensorFlow!", e);
+        }
+    }
+
+    private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+
+            while (true) {
+                int Count_new = mmediaStorecursor.getCount();
+                int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                paths_of_images = new ArrayList<String>();
+                date_list = new ArrayList<String>();
+                for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
+                    mmediaStorecursor.moveToPosition(i);
+                    String dataString = mmediaStorecursor.getString(dataIndex);
+                    Uri mediaUri = Uri.parse("file://" + dataString);
+                    File imagePath = new File(mediaUri.getPath());
+                    File file = new File(imagePath.getAbsolutePath());
+                    Date lastModDate = new Date(file.lastModified());
+                    String date = lastModDate.getTime() + "";
+                    paths_of_images.add(imagePath.getAbsolutePath());
+                    date_list.add(date);
+                }
+                Log.d("currentmedia: ",Count_new+"");
+                updatedbimagepath();
+                int new_images = Count_new - myDB.getDataCount();
+                Log.d("new_media: ",new_images+"");
+                int init = 0;
+                while (new_images > 0) {
+                    Log.d("classify1124",init+"");
+                    if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
+                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
+                        try {
+                            final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                            if (results.size() != 0) {
+                                myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                            } else {
+                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                            }
+                            Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
+                        } catch (Exception e) {
+                            myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                        }
+                    }
+                    new_images = Count_new - myDB.getDataCount();
+                    init++;
+
+                }
+            }
+        }
+
+
+        @Override
+        protected void onPostExecute(Void result) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    UpdateLists();
+                    imageadapter.notifyDataSetChanged();
+                }
+            });
+            AsyncTaskRunner runner3 = new AsyncTaskRunner();
+            try {
+                runner3.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        @Override
+        protected void onPreExecute() {
+        }
+        @Override
+        protected void onProgressUpdate(String... text) {
+        }
     }
 
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+/*
+        try {
+            AsyncTaskRunner run = new AsyncTaskRunner();
+            run.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+*/
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AsyncTaskRunner run = new AsyncTaskRunner();
+        run.execute();
+        Log.d("resume", "123");
+    }
 
     private class type_adapter extends RecyclerView.Adapter<type_adapter.ViewHolder>
     {

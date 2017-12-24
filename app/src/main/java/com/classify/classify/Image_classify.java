@@ -248,9 +248,7 @@ public class Image_classify extends AppCompatActivity  {
         switch(requestCode) {
             case READ_EXTERNAL_STORAGE_PERMMISSION_RESULT:
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     checkReadExternalStoragePermission();
-
                 }
                 break;
             default:
