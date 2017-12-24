@@ -262,13 +262,14 @@ public class MainActivity extends AppCompatActivity  {
                     paths_of_images.add(imagePath.getAbsolutePath());
                     date_list.add(date);
                 }
-                Log.d("currentmedia: ",Count_new+"");
+              //  Log.d("currentmedia: ",Count_new+"");
                 updatedbimagepath();
                 int new_images = Count_new - myDB.getDataCount();
-                Log.d("new_media: ",new_images+"");
+                //Log.d("new_media: ",new_images+"");
                 int init = 0;
                 while (new_images > 0) {
-                    Log.d("classify1124",init+"");
+                  //  Log.d("heyy","1");
+                    //Log.d("classify1124",init+"");
                     if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
                         Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
                         try {
@@ -278,11 +279,12 @@ public class MainActivity extends AppCompatActivity  {
                             } else {
                                 myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
                             }
-                            Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
+                      //      Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
                         } catch (Exception e) {
                             myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
                         }
                     }
+
                     new_images = Count_new - myDB.getDataCount();
                     init++;
                     if(new_images==0)
@@ -295,7 +297,6 @@ public class MainActivity extends AppCompatActivity  {
                             }
                         });
                     }
-
                 }
             }
         }
@@ -304,12 +305,6 @@ public class MainActivity extends AppCompatActivity  {
         @Override
         protected void onPostExecute(Void result) {
 
-            AsyncTaskRunner runner3 = new AsyncTaskRunner();
-            try {
-                runner3.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         @Override
         protected void onPreExecute() {
@@ -318,29 +313,18 @@ public class MainActivity extends AppCompatActivity  {
         protected void onProgressUpdate(String... text) {
         }
     }
-
-
+    
     @Override
-    protected void onPause() {
-        super.onPause();
-/*
-        try {
-            AsyncTaskRunner run = new AsyncTaskRunner();
-            run.wait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-*/
+    protected void onPostResume() {
+        super.onPostResume();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                UpdateLists();
+                imageadapter.notifyDataSetChanged();
+            }
+        });
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        /*AsyncTaskRunner run = new AsyncTaskRunner();
-        run.execute();*/
-        Log.d("resume", "123");
-    }
-
     private class type_adapter extends RecyclerView.Adapter<type_adapter.ViewHolder>
     {
         ArrayList<String> type = new ArrayList<>();
@@ -566,15 +550,8 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        UpdateLists();
-    }
-
-    @Override
     public void onBackPressed() {
-
-        super.onBackPressed();
+        MainActivity.this.finishAffinity();
     }
     static {
         System.loadLibrary("native-lib");
