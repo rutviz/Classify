@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity  {
     List<String> paths_of_images = new ArrayList<String>();
     image_adapter imageadapter;
     int all_selected=0,flag=0;
+    int Count_new;
     Thread t;
 
 
@@ -243,7 +244,10 @@ public class MainActivity extends AppCompatActivity  {
         protected Void doInBackground(String... params) {
 
             while (true) {
-                int Count_new = mmediaStorecursor.getCount();
+                final String[] projection = {MediaStore.Images.Media.DATA};
+                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+                Count_new = mmediaStorecursor.getCount();
                 int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                 paths_of_images = new ArrayList<String>();
                 date_list = new ArrayList<String>();
@@ -281,6 +285,16 @@ public class MainActivity extends AppCompatActivity  {
                     }
                     new_images = Count_new - myDB.getDataCount();
                     init++;
+                    if(new_images==0)
+                    {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                UpdateLists();
+                                imageadapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
 
                 }
             }
@@ -289,13 +303,7 @@ public class MainActivity extends AppCompatActivity  {
 
         @Override
         protected void onPostExecute(Void result) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    UpdateLists();
-                    imageadapter.notifyDataSetChanged();
-                }
-            });
+
             AsyncTaskRunner runner3 = new AsyncTaskRunner();
             try {
                 runner3.wait();
@@ -328,8 +336,8 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onResume() {
         super.onResume();
-        AsyncTaskRunner run = new AsyncTaskRunner();
-        run.execute();
+        /*AsyncTaskRunner run = new AsyncTaskRunner();
+        run.execute();*/
         Log.d("resume", "123");
     }
 
