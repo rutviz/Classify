@@ -250,32 +250,45 @@ public class MainActivity extends AppCompatActivity  {
                 Count_new = mmediaStorecursor.getCount();
                 int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                 paths_of_images = new ArrayList<String>();
+                Log.d("c1124","beforesize"+paths_of_images.size());
                 date_list = new ArrayList<String>();
                 for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
                     mmediaStorecursor.moveToPosition(i);
                     String dataString = mmediaStorecursor.getString(dataIndex);
                     Uri mediaUri = Uri.parse("file://" + dataString);
                     File imagePath = new File(mediaUri.getPath());
+                                        paths_of_images.add(imagePath.getAbsolutePath());
+                }
+//               Log.d("currentmedia: ",Count_new+"");
+                updatedbimagepath();
+                int new_images = Count_new - myDB.getDataCount();
+  //              Log.d("new_media: ",new_images+"");
+                int init = 0;
+             List<String> paths_of_image_db = new ArrayList<String>();
+             paths_of_image_db = myDB.getImagepathlist();
+//                Log.d("c1124","db_  Size: "+paths_of_image_db.size());
+//                Log.d("c1124","im_  Size: "+paths_of_images.size());
+             paths_of_images.removeAll(paths_of_image_db);
+             Log.d("c1124","Size: "+paths_of_images.size());
+                for (int j =0;j<paths_of_images.size();j++) {
+                    Uri mediaUri = Uri.parse(paths_of_images.get(j));
+                    File imagePath = new File(mediaUri.getPath());
                     File file = new File(imagePath.getAbsolutePath());
                     Date lastModDate = new Date(file.lastModified());
                     String date = lastModDate.getTime() + "";
-                    paths_of_images.add(imagePath.getAbsolutePath());
                     date_list.add(date);
                 }
-              //  Log.d("currentmedia: ",Count_new+"");
-                updatedbimagepath();
-                int new_images = Count_new - myDB.getDataCount();
-                //Log.d("new_media: ",new_images+"");
-                int init = 0;
+
                 while (new_images > 0) {
                   //  Log.d("heyy","1");
-                    //Log.d("classify1124",init+"");
+//                    Log.d("c1124",init+"");
                     if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
                         Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
                         try {
                             final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
                             if (results.size() != 0) {
                                 myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+//                                Log.d("class","category:"+results.get(0).toString());
                             } else {
                                 myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
                             }
@@ -530,7 +543,10 @@ public class MainActivity extends AppCompatActivity  {
     public void updatedbimagepath() {
         List<String> paths_of_image_db = new ArrayList<String>();
         paths_of_image_db = myDB.getImagepathlist();
+//        Log.d("c1124","update_db_Size: "+paths_of_image_db.size());
+//        Log.d("c1124","update_im_Size: "+paths_of_images.size());
         paths_of_image_db.removeAll(paths_of_images);
+//        Log.d("c1124","update_db_Size: "+paths_of_image_db.size());
         if(paths_of_image_db.size()!=0){
             for (int i = 0; i < paths_of_image_db.size(); i++) {
                 myDB.deleteimagepath(paths_of_image_db.get(i));
