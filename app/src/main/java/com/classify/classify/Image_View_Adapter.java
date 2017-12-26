@@ -135,6 +135,8 @@ public class Image_View_Adapter extends PagerAdapter {
                 Uri mediaUri = Uri.parse(_imagePaths.get(position));
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("image/jpeg");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Shared via Classify");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Shared via Classify ");
                 sharingIntent.putExtra(Intent.EXTRA_STREAM,mediaUri);
                 _activity.startActivity(Intent.createChooser(sharingIntent, "Share via"));
             }
