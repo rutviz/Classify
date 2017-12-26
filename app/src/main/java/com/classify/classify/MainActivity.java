@@ -280,7 +280,8 @@ public class MainActivity extends AppCompatActivity  {
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.logo_white)
                         .setContentTitle(title)
-                        .setContentText(rates);
+                        .setContentText(rates)
+                        .setProgress(total_image,rate,false);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
