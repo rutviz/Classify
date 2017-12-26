@@ -1,7 +1,9 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +32,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -121,18 +124,58 @@ public class MainActivity extends AppCompatActivity  {
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(delete_from_appp.size()!=0){
 
-                    for (int i = 0; i < delete_from_appp.size(); i++) {
+                if (all_selected==1)
+                {
 
-                        String myPath = delete_from_appp.get(i);
-                        ContentResolver contentResolver = getContentResolver();
-                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                        myDB.deleteimagepath(delete_from_appp.get(i));
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                    alertDialogBuilder.setMessage("Are you sure you want to delete all photos");
+                            alertDialogBuilder.setPositiveButton("yes",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface arg0, int arg1) {
+                                            if(delete_from_appp.size()!=0){
+
+                                                for (int i = 0; i < delete_from_appp.size(); i++) {
+
+                                                    String myPath = delete_from_appp.get(i);
+                                                    ContentResolver contentResolver = getContentResolver();
+                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                                                    myDB.deleteimagepath(delete_from_appp.get(i));
+                                                }
+                                                UpdateUI();
+                                            }
+                                        }
+                                    });
+
+                    alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+
+                }else
+                {
+                    if(delete_from_appp.size()!=0){
+
+                        for (int i = 0; i < delete_from_appp.size(); i++) {
+
+                            String myPath = delete_from_appp.get(i);
+                            ContentResolver contentResolver = getContentResolver();
+                            contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                    MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                            myDB.deleteimagepath(delete_from_appp.get(i));
+                        }
+                        UpdateUI();
                     }
-                    UpdateUI();
                 }
+
             }
         });
 
