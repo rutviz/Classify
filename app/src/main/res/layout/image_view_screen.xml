@@ -27,6 +27,7 @@
         android:drawableTop="@drawable/ic_delete_sweep_white_24dp"
         android:textStyle="bold"/>
 
+
     <Button
         android:id="@+id/btnShare"
         android:layout_width="192dp"
@@ -34,8 +35,9 @@
         android:padding="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:text="Share it"
         android:textColor="#ffffff"
+        android:text="Share"
+        android:drawableTop="@drawable/ic_share_white_24dp"
         android:background="@color/colorPrimaryDark"
         android:textStyle="bold"
          />
