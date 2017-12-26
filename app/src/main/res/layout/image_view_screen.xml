@@ -16,7 +16,7 @@
 
     <Button
         android:id="@+id/btnDelete"
-        android:layout_width="match_parent"
+        android:layout_width="192dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:padding="10dp"
@@ -26,6 +26,19 @@
         android:text="Delete"
         android:drawableTop="@drawable/ic_delete_sweep_white_24dp"
         android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnShare"
+        android:layout_width="192dp"
+        android:layout_height="61dp"
+        android:padding="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="Share it"
+        android:textColor="#ffffff"
+        android:background="@color/colorPrimaryDark"
+        android:textStyle="bold"
+         />
 
     <ImageView
         android:id="@+id/btnBack"

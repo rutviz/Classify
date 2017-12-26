@@ -3,9 +3,11 @@ package com.classify.classify;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -19,6 +21,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +66,7 @@ public class Image_View_Adapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, final int position) {
         ImageViewTouch imgDisplay;
-        Button btnDelete;
+        Button btnDelete,btnShare;
         ImageView back;
         TextView category_title;
 
@@ -72,6 +80,7 @@ public class Image_View_Adapter extends PagerAdapter {
         imgDisplay = (ImageViewTouch) viewLayout.findViewById(R.id.imgDisplay);
         category_title = (TextView) viewLayout.findViewById(R.id.category_title);
         btnDelete = (Button) viewLayout.findViewById(R.id.btnDelete);
+        btnShare = (Button) viewLayout.findViewById(R.id.btnShare);
         back = (ImageView) viewLayout.findViewById(R.id.btnBack);
 
 
@@ -117,6 +126,20 @@ public class Image_View_Adapter extends PagerAdapter {
                 _activity.finish();
             }
         });
+
+
+
+        btnShare.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Uri mediaUri = Uri.parse(_imagePaths.get(position));
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("image/jpeg");
+                sharingIntent.putExtra(Intent.EXTRA_STREAM,mediaUri);
+                _activity.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+            }
+        });
+
 
         ((ViewPager) container).addView(viewLayout);
 
