@@ -125,10 +125,8 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
 
-                if (all_selected==1)
-                {
 
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                     alertDialogBuilder.setMessage("Are you sure you want to delete all photos");
                             alertDialogBuilder.setPositiveButton("yes",
                                     new DialogInterface.OnClickListener() {
@@ -153,28 +151,14 @@ public class MainActivity extends AppCompatActivity  {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                            Category_change();
+                            imageadapter.notifyDataSetChanged();
                         }
                     });
 
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
 
-                }else
-                {
-                    if(delete_from_appp.size()!=0){
-
-                        for (int i = 0; i < delete_from_appp.size(); i++) {
-
-                            String myPath = delete_from_appp.get(i);
-                            ContentResolver contentResolver = getContentResolver();
-                            contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                    MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                            myDB.deleteimagepath(delete_from_appp.get(i));
-                        }
-                        UpdateUI();
-                    }
-                }
 
             }
         });
