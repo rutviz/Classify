@@ -2,6 +2,7 @@ package com.classify.classify;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -273,47 +274,34 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void addNotification(String title,int rate) {
-
-
         String rates = "Total "+rate+ " images Classify out of " +total_image ;
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.logo_white)
-                        .setContentTitle(title)
-                        .setContentText(rates)
-                        .setProgress(total_image,rate,false);
-
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(contentIntent);
-
-        // Add as notification
+        Notification n  = new Notification.Builder(this)
+                .setContentTitle(title)
+                .setContentText(rates)
+                .setSmallIcon(R.drawable.logo_white)
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setStyle(new Notification.BigTextStyle().bigText("")).build();
+        n.flags |= Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(0, builder.build());
-
+        manager.notify(0, n);
 
         if(rate == total_image)
         {
-
-            NotificationCompat.Builder builder2 =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.logo_white)
-                            .setContentTitle("Classify")
-                            .setContentText("All new images are successfully classified.");
-
-            Intent notificationIntent2 = new Intent(this, MainActivity.class);
-            PendingIntent contentIntent2 = PendingIntent.getActivity(this, 0, notificationIntent2,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(contentIntent2);
-
-            // Add as notification
+            n  = new Notification.Builder(this)
+                    .setContentTitle("Classify")
+                    .setContentText("All new images are successfully classified.")
+                    .setSmallIcon(R.drawable.logo_white)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .setStyle(new Notification.BigTextStyle().bigText("")).build();
+            n.flags |= Notification.FLAG_AUTO_CANCEL;
             NotificationManager manager2 = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager2.notify(0, builder2.build());
-
-
+            manager2.notify(0, n);
         }
-
     }
 
     private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
