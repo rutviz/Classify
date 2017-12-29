@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -37,7 +36,6 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -101,6 +99,7 @@ public class MainActivity extends AppCompatActivity  {
     String notification_title = "Classify in progress...";
     int notification_rate = 0;
     int total_image;
+    ImageButton menu;
 
 
     @Override
@@ -116,8 +115,17 @@ public class MainActivity extends AppCompatActivity  {
         delete_btn = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
+        menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
         //myDB.createtable();
+
+        menu.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this,RecycleBin.class);
+                startActivity(i);
+            }
+        });
 
         t = new Thread(new Runnable() {
             @Override
@@ -150,10 +158,10 @@ public class MainActivity extends AppCompatActivity  {
 
                                                     String myPath = delete_from_appp.get(i);
                                                     recyclerbin(myPath);
-//                                                    ContentResolver contentResolver = getContentResolver();
-//                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-//                                                    myDB.deleteimagepath(delete_from_appp.get(i));
+                                                    ContentResolver contentResolver = getContentResolver();
+                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                                                    myDB.deleteimagepath(delete_from_appp.get(i));
                                                 }
                                                 UpdateUI();
                                             }
@@ -638,6 +646,9 @@ public class MainActivity extends AppCompatActivity  {
         Uri mediaUri = Uri.parse("file://"+ path);
         File imagepath =new File(mediaUri.getPath());
         String imagename = imagepath.getName().toString();
+        Long tsLong = System.currentTimeMillis()/1000;
+        String timestamp = tsLong.toString();
+        Log.d("hey1",timestamp);
         try {
 
             //create output directory if it doesn't exist
@@ -664,6 +675,8 @@ public class MainActivity extends AppCompatActivity  {
             out.flush();
             out.close();
             out = null;
+
+            myDB.recyclebinaddData(path,timestamp,outputPath);
 
             // delete the original file
          //   new File(inputPath + inputFile).delete();
@@ -701,4 +714,3 @@ public class MainActivity extends AppCompatActivity  {
         System.loadLibrary("native-lib");
     }
 }
-

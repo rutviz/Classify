@@ -110,6 +110,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         db1.close();
     }
+    public List<String> recyclebingetdata(){
+        List<String> paths = new ArrayList<>();
+       String temp;
+        String query = "SELECT "+newpath+" FROM "+ table_name_recyclebin ;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                temp = cursor.getString(0);
+                paths.add(temp);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return paths;
+    }
+
+
 
     public void addData(Classify_path classify) {
         SQLiteDatabase db = this.getWritableDatabase();
