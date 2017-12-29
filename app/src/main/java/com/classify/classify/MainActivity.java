@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity  {
 //                Log.d("c1124","db_  Size: "+paths_of_image_db.size());
 //                Log.d("c1124","im_  Size: "+paths_of_images.size());
              paths_of_images.removeAll(paths_of_image_db);
-             Log.d("c1124","Size: "+paths_of_images.size());
+   //          Log.d("c1124","Size: "+paths_of_images.size());
                 for (int j =0;j<paths_of_images.size();j++) {
                     Uri mediaUri = Uri.parse(paths_of_images.get(j));
                     File imagePath = new File(mediaUri.getPath());
@@ -372,7 +372,7 @@ public class MainActivity extends AppCompatActivity  {
                             addNotification(notification_title,notification_rate);
                         }
                     }
-
+                    Count_new = mmediaStorecursor.getCount();
                     new_images = Count_new - myDB.getDataCount();
                     init++;
                     if(new_images==0)
