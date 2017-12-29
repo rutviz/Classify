@@ -42,6 +42,11 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -628,9 +633,53 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void recyclerbin(String path){
-        File from = new File(path);
-        File to = new File("/storage/emulated/0/classifyrecycle/123.jpeg");
-        from.renameTo(to);
+        InputStream in = null;
+        OutputStream out = null;
+        Uri mediaUri = Uri.parse("file://"+ path);
+        File imagepath =new File(mediaUri.getPath());
+        String imagename = imagepath.getName().toString();
+        try {
+
+            //create output directory if it doesn't exist
+            String outputPath = "/storage/emulated/0/Classifyrecycle/"+imagename+".classify";
+            File dir = new File ("/storage/emulated/0/Classifyrecycle");
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+
+
+            in = new FileInputStream(path);
+            out = new FileOutputStream(outputPath);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+
+            // write the output file
+            out.flush();
+            out.close();
+            out = null;
+
+            // delete the original file
+         //   new File(inputPath + inputFile).delete();
+
+
+        }
+
+        catch (FileNotFoundException fnfe1) {
+            Log.e("tag", fnfe1.getMessage());
+        }
+        catch (Exception e) {
+            Log.e("tag", e.getMessage());
+        }
+
+
+
     }
 
     List<String> convert(ArrayList<Classify_path> Specific)
