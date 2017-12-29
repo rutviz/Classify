@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity  {
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
     DatabaseHandler myDB;
-    DatabaseHandler myDBHandler;
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
@@ -97,7 +96,6 @@ public class MainActivity extends AppCompatActivity  {
     String notification_title = "Classify in progress...";
     int notification_rate = 0;
     int total_image;
-    int delete_flag=0;
 
 
     @Override
@@ -105,7 +103,6 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDB = new DatabaseHandler(MainActivity.this);
-        myDBHandler = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         final String[] projection = {MediaStore.Images.Media.DATA};
@@ -134,7 +131,8 @@ public class MainActivity extends AppCompatActivity  {
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                delete_flag=1;
+
+
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                     alertDialogBuilder.setMessage("Are you sure you want to delete all photos");
                             alertDialogBuilder.setPositiveButton("yes",
@@ -142,15 +140,16 @@ public class MainActivity extends AppCompatActivity  {
                                         @Override
                                         public void onClick(DialogInterface arg0, int arg1) {
                                             if(delete_from_appp.size()!=0){
+
                                                 for (int i = 0; i < delete_from_appp.size(); i++) {
-                                                    Log.d("121212","hi");
+
                                                     String myPath = delete_from_appp.get(i);
-                                                    ContentResolver contentResolver = getContentResolver();
-                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                                                    myDBHandler.deleteimagepath(delete_from_appp.get(i));
+                                                    recyclerbin(myPath);
+//                                                    ContentResolver contentResolver = getContentResolver();
+//                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+//                                                    myDB.deleteimagepath(delete_from_appp.get(i));
                                                 }
-                                                delete_flag=0;
                                                 UpdateUI();
                                             }
                                         }
@@ -160,7 +159,6 @@ public class MainActivity extends AppCompatActivity  {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            delete_flag=0;
                             Category_change();
                             imageadapter.notifyDataSetChanged();
                         }
@@ -287,7 +285,6 @@ public class MainActivity extends AppCompatActivity  {
                 .setSmallIcon(R.drawable.logo_white)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
-                .setProgress(total_image,rate,false)
                 .setStyle(new Notification.BigTextStyle().bigText("")).build();
         n.flags |= Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -312,91 +309,85 @@ public class MainActivity extends AppCompatActivity  {
         @Override
         protected Void doInBackground(String... params) {
 
-                while (true) {
-                    if(delete_flag==0)
-                    {
-                    Log.d("121212","hi1");
-                    final String[] projection = {MediaStore.Images.Media.DATA};
-                    Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                    mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
-                    Count_new = mmediaStorecursor.getCount();
-                    int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                    paths_of_images = new ArrayList<String>();
-                    Log.d("c1124","beforesize"+paths_of_images.size());
-                    date_list = new ArrayList<String>();
-                    for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
-                        mmediaStorecursor.moveToPosition(i);
-                        String dataString = mmediaStorecursor.getString(dataIndex);
-                        Uri mediaUri = Uri.parse("file://" + dataString);
-                        File imagePath = new File(mediaUri.getPath());
-                        paths_of_images.add(imagePath.getAbsolutePath());
-                    }
+            while (true) {
+                final String[] projection = {MediaStore.Images.Media.DATA};
+                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+                Count_new = mmediaStorecursor.getCount();
+                int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                paths_of_images = new ArrayList<String>();
+                Log.d("c1124","beforesize"+paths_of_images.size());
+                date_list = new ArrayList<String>();
+                for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
+                    mmediaStorecursor.moveToPosition(i);
+                    String dataString = mmediaStorecursor.getString(dataIndex);
+                    Uri mediaUri = Uri.parse("file://" + dataString);
+                    File imagePath = new File(mediaUri.getPath());
+                                        paths_of_images.add(imagePath.getAbsolutePath());
+                }
 //               Log.d("currentmedia: ",Count_new+"");
-                    updatedbimagepath();
-                    int new_images = Count_new - myDB.getDataCount();
-                    total_image = new_images;
-                    //              Log.d("new_media: ",new_images+"");
-                    int init = 0;
-                    List<String> paths_of_image_db = new ArrayList<String>();
-                    paths_of_image_db = myDB.getImagepathlist();
+                updatedbimagepath();
+                int new_images = Count_new - myDB.getDataCount();
+                total_image = new_images;
+  //              Log.d("new_media: ",new_images+"");
+                int init = 0;
+             List<String> paths_of_image_db = new ArrayList<String>();
+             paths_of_image_db = myDB.getImagepathlist();
 //                Log.d("c1124","db_  Size: "+paths_of_image_db.size());
 //                Log.d("c1124","im_  Size: "+paths_of_images.size());
-                    paths_of_images.removeAll(paths_of_image_db);
-                    Log.d("c1124","Size: "+paths_of_images.size());
-                    for (int j =0;j<paths_of_images.size();j++) {
-                        Uri mediaUri = Uri.parse(paths_of_images.get(j));
-                        File imagePath = new File(mediaUri.getPath());
-                        File file = new File(imagePath.getAbsolutePath());
-                        Date lastModDate = new Date(file.lastModified());
-                        String date = lastModDate.getTime() + "";
-                        date_list.add(date);
+             paths_of_images.removeAll(paths_of_image_db);
+   //          Log.d("c1124","Size: "+paths_of_images.size());
+                for (int j =0;j<paths_of_images.size();j++) {
+                    Uri mediaUri = Uri.parse(paths_of_images.get(j));
+                    File imagePath = new File(mediaUri.getPath());
+                    File file = new File(imagePath.getAbsolutePath());
+                    Date lastModDate = new Date(file.lastModified());
+                    String date = lastModDate.getTime() + "";
+                    date_list.add(date);
+                }
+
+                while (new_images > 0) {
+                  //  Log.d("heyy","1");
+//                    Log.d("c1124",init+"");
+                    if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
+                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
+                        try {
+                            final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                            if (results.size() != 0) {
+                                myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                notification_title = "Classify in progress...";
+                                notification_rate = init+1;
+                                addNotification(notification_title,notification_rate);
+//                                Log.d("class","category:"+results.get(0).toString());
+                            } else {
+                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                notification_title = "Classify in progress...";
+                                notification_rate = init+1;
+                                addNotification(notification_title,notification_rate);
+                            }
+                      //      Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
+                        } catch (Exception e) {
+                            myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                            notification_title = "Classify in progress...";
+                            notification_rate = init+1;
+                            addNotification(notification_title,notification_rate);
+                        }
                     }
 
-                    while (new_images > 0) {
-                        if(delete_flag==1)
-                        {
-                            break;
-                        }
-                        //  Log.d("heyy","1");
-//                    Log.d("c1124",init+"");
-                        if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
-                            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
-                            try {
-                                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                                if (results.size() != 0) {
-                                    myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
-                                    notification_title = "Classify in progress...";
-                                    notification_rate = init+1;
-                                    addNotification(notification_title,notification_rate);
-//                                Log.d("class","category:"+results.get(0).toString());
-                                } else {
-                                    myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                                    notification_title = "Classify in progress...";
-                                    notification_rate = init+1;
-                                    addNotification(notification_title,notification_rate);
-                                }
-                                //      Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
-                            } catch (Exception e) {
-                                Log.d("deletee","1");
-                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                    new_images = Count_new - myDB.getDataCount();
+                    init++;
+                    if(new_images==0)
+                    {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                UpdateLists();
+                                imageadapter.notifyDataSetChanged();
                             }
-                        }
-                        new_images = Count_new - myDB.getDataCount();
-                        init++;
-                        if(new_images==0)
-                        {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    UpdateLists();
-                                    imageadapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
+                        });
                     }
                 }
             }
-
         }
 
 
@@ -587,7 +578,7 @@ public class MainActivity extends AppCompatActivity  {
         delete_from_appp.clear();
         for(int i = 0; i<Specific_data.size();i++)
             visible.add(0);
-        hide_button();
+       hide_button();
     }
     void hide_button()
     {
@@ -623,20 +614,23 @@ public class MainActivity extends AppCompatActivity  {
         types.addAll(databaseHandler.getCategory());
         type.notifyDataSetChanged();
         imageadapter.notifyDataSetChanged();
+
     }
     public void updatedbimagepath() {
         List<String> paths_of_image_db = new ArrayList<String>();
         paths_of_image_db = myDB.getImagepathlist();
-//        Log.d("c1124","update_db_Size: "+paths_of_image_db.size());
-//        Log.d("c1124","update_im_Size: "+paths_of_images.size());
         paths_of_image_db.removeAll(paths_of_images);
-//        Log.d("c1124","update_db_Size: "+paths_of_image_db.size());
         if(paths_of_image_db.size()!=0){
             for (int i = 0; i < paths_of_image_db.size(); i++) {
                 myDB.deleteimagepath(paths_of_image_db.get(i));
             }
         }
+    }
 
+    public void recyclerbin(String path){
+        File from = new File(path);
+        File to = new File("/storage/emulated/0/classifyrecycle/123.jpeg");
+        from.renameTo(to);
     }
 
     List<String> convert(ArrayList<Classify_path> Specific)
