@@ -372,7 +372,7 @@ public class MainActivity extends AppCompatActivity  {
                             addNotification(notification_title,notification_rate);
                         }
                     }
-                    Count_new = mmediaStorecursor.getCount();
+
                     new_images = Count_new - myDB.getDataCount();
                     init++;
                     if(new_images==0)
