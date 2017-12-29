@@ -144,10 +144,11 @@ public class MainActivity extends AppCompatActivity  {
                                                 for (int i = 0; i < delete_from_appp.size(); i++) {
 
                                                     String myPath = delete_from_appp.get(i);
-                                                    ContentResolver contentResolver = getContentResolver();
-                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                                                    myDB.deleteimagepath(delete_from_appp.get(i));
+                                                    recyclerbin(myPath);
+//                                                    ContentResolver contentResolver = getContentResolver();
+//                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+//                                                    myDB.deleteimagepath(delete_from_appp.get(i));
                                                 }
                                                 UpdateUI();
                                             }
@@ -618,15 +619,18 @@ public class MainActivity extends AppCompatActivity  {
     public void updatedbimagepath() {
         List<String> paths_of_image_db = new ArrayList<String>();
         paths_of_image_db = myDB.getImagepathlist();
-//        Log.d("c1124","update_db_Size: "+paths_of_image_db.size());
-//        Log.d("c1124","update_im_Size: "+paths_of_images.size());
         paths_of_image_db.removeAll(paths_of_images);
-//        Log.d("c1124","update_db_Size: "+paths_of_image_db.size());
         if(paths_of_image_db.size()!=0){
             for (int i = 0; i < paths_of_image_db.size(); i++) {
                 myDB.deleteimagepath(paths_of_image_db.get(i));
             }
         }
+    }
+
+    public void recyclerbin(String path){
+        File from = new File(path);
+        File to = new File("/storage/emulated/0/classifyrecycle/123.jpeg");
+        from.renameTo(to);
     }
 
     List<String> convert(ArrayList<Classify_path> Specific)
