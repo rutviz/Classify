@@ -21,7 +21,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "Classify";
     private static final String table_name = "Classification";
     private static final String table_name_global = "Global";
-    private static final String table_name_recyclebin = "Recyclebin";
 
     private static final String id = "id";
     private static final String path = "path";
@@ -29,9 +28,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String date = "date";
     private static final String variablename = "variable";
     private static final String variablevalue = "variablevalue";
-    private static final String oldpath = "oldpath";
-    private static final String delete_time = "deletetime";
-    private static final String newpath = "newpath";
 
 
     public DatabaseHandler(Context context) {
@@ -46,11 +42,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + category + " TEXT" + ","+date+" TEXT )";
         String Create_table2 = "CREATE TABLE " + table_name_global + "("
                 +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
-        String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
-                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+ newpath + " VARCHAR2 )";
         sqLiteDatabase.execSQL(Create_table);
         sqLiteDatabase.execSQL(Create_table2);
-        sqLiteDatabase.execSQL(Create_table3);
     }
 
     @Override
@@ -61,13 +54,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void createtable(){
         SQLiteDatabase db = this.getWritableDatabase();
-//        String droptable = "DROP TABLE "+ table_name_global;
-//        db.execSQL(droptable);
-        String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
-                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+ newpath + " VARCHAR2 )";
-        db.execSQL(Create_table3);
+        String droptable = "DROP TABLE "+ table_name_global;
+        db.execSQL(droptable);
+        String Create_table2 = "CREATE TABLE " + table_name_global + "("
+                +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
+        db.execSQL(Create_table2);
     }
-
 
     public void globaladdData(String variable_name,String value) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -89,45 +81,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         db1.close();
     }
-    public void recyclebinaddData(String old_path,String deletetime,String new_path) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        SQLiteDatabase db1 = this.getReadableDatabase();
-        String query = "SELECT "+oldpath+" FROM "+table_name_recyclebin+" WHERE "+oldpath+" = '"+old_path+"'";
-        Cursor cursor = db1.rawQuery(query, null);
-        int count = cursor.getCount();
-        cursor.close();
-        if(count==0)
-        {
-            ContentValues values = new ContentValues();
-            values.put(oldpath, old_path);
-            values.put(delete_time, deletetime);
-            values.put(newpath, new_path);
-            db.insert(table_name_recyclebin, null, values);
-            getData();
-        }
-        else {
-        }
-        db.close();
-        db1.close();
-    }
-    public List<String> recyclebingetdata(){
-        List<String> paths = new ArrayList<>();
-       String temp;
-        String query = "SELECT "+newpath+" FROM "+ table_name_recyclebin ;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                temp = cursor.getString(0);
-                paths.add(temp);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return paths;
-    }
-
-
 
     public void addData(Classify_path classify) {
         SQLiteDatabase db = this.getWritableDatabase();

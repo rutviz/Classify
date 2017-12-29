@@ -2,13 +2,8 @@ package com.classify.classify;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
@@ -18,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -62,9 +56,7 @@ public class Image_classify extends AppCompatActivity  {
     int Mydbcount ;
     int Mediacount ;
     final Handler handler = new Handler();
-    String notification_title = "Classify in progress...";
-    int notification_rate = 0;
-    int total_image;
+
     final String TAG = "Image_Classify";
 
 
@@ -109,65 +101,33 @@ public class Image_classify extends AppCompatActivity  {
     private void startTimerThread() {
         runnable = new Runnable() {
             private long startTime = System.currentTimeMillis();
-
             public void run() {
 
                 Mediacount = findcount();
-                while (Mydbcount < Mediacount) {
-                    Mydbcount = databaseHandlerCount.getDataCount();
-                    handler.post(new Runnable() {
-                        public void run() {
-                            dbcount.setText(Mydbcount + "");
-                            mediacount.setText(Mediacount + "");
-                            loader_bar.setMax(Mediacount);
-                            loader_bar.setProgress(Mydbcount);
-                        }
-                    });
-                }
-                handler.post(new Runnable() {
+               while (Mydbcount < Mediacount) {
+                   Mydbcount = databaseHandlerCount.getDataCount();
+                   handler.post(new Runnable() {
+                       public void run() {
+                           dbcount.setText(Mydbcount + "");
+                           mediacount.setText(Mediacount + "");
+                           loader_bar.setMax(Mediacount);
+                           loader_bar.setProgress(Mydbcount);
+                       }
+                   });
+               }
+               handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        databaseHandler.globalsetvalue("firstrun", "1");
-                        Intent i = new Intent(Image_classify.this, MainActivity.class);
-                        startActivity(i);
+                        databaseHandler.globalsetvalue("firstrun","1");
+            Intent i = new Intent(Image_classify.this, MainActivity.class);
+            startActivity(i);
 
-                    }
-                });
-            }
+        }
+    });
+}
         };
         new Thread(runnable).start();
     }
-    private void addNotification(String title,int rate) {
-        String rates = "Total "+rate+ " images Classify out of " +total_image ;
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification n  = new Notification.Builder(this)
-                .setContentTitle(title)
-                .setContentText(rates)
-                .setSmallIcon(R.drawable.logo_white)
-                .setContentIntent(contentIntent)
-                .setAutoCancel(true)
-                .setStyle(new Notification.BigTextStyle().bigText("")).build();
-        n.flags |= Notification.FLAG_AUTO_CANCEL;
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(0, n);
-
-        if(rate == total_image)
-        {
-            n  = new Notification.Builder(this)
-                    .setContentTitle("Classify")
-                    .setContentText("All new images are successfully classified.")
-                    .setSmallIcon(R.drawable.logo_white)
-                    .setContentIntent(contentIntent)
-                    .setAutoCancel(true)
-                    .setStyle(new Notification.BigTextStyle().bigText("")).build();
-            n.flags |= Notification.FLAG_AUTO_CANCEL;
-            NotificationManager manager2 = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager2.notify(0, n);
-        }
-    }
-
 
     void ClassifyImage()
     {
@@ -176,7 +136,6 @@ public class Image_classify extends AppCompatActivity  {
             public void run() {
 
                 int Count_new = findcount();
-                total_image=Count_new;
 
                 if(databaseHandler.getDataCount()<1)
                 {
@@ -186,18 +145,10 @@ public class Image_classify extends AppCompatActivity  {
                         final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
                         if(results.size()!=0){
                             databaseHandler.addData(new Classify_path(Image_path.get(z),results.get(0).toString(),Date_list.get(z)));
-                            notification_title = "Classify in progress...";
-                            notification_rate = z+1;
-                            addNotification(notification_title,notification_rate);
-
                         }
                         else
                         {
                             databaseHandler.addData(new Classify_path(Image_path.get(z),"none",Date_list.get(z)));
-                            notification_title = "Classify in progress...";
-                            notification_rate = z+1;
-                            addNotification(notification_title,notification_rate);
-
                         }
 
                     }
@@ -215,28 +166,16 @@ public class Image_classify extends AppCompatActivity  {
                                 final List<Recognition> results = classifier.recognizeImage(bitmap);
                                 if(results.size()!=0){
                                     databaseHandler.addData(new Classify_path(Image_path.get(init),results.get(0).toString(),Date_list.get(init)));
-                                    notification_title = "Classify in progress...";
-                                    notification_rate = init+1;
-                                    addNotification(notification_title,notification_rate);
-
                                 }
                                 else
                                 {
                                     databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
-                                    notification_title = "Classify in progress...";
-                                    notification_rate = init+1;
-                                    addNotification(notification_title,notification_rate);
-
                                 }
 
                             }
                             catch (Exception e)
                             {
                                 databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
-                                notification_title = "Classify in progress...";
-                                notification_rate = init+1;
-                                addNotification(notification_title,notification_rate);
-
                             }
                         }
                         new_images = Count_new - databaseHandler.getDataCount();
@@ -320,6 +259,7 @@ public class Image_classify extends AppCompatActivity  {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
+
                 startTimerThread();
             } else {
                 if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {

@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity  {
     List<String> delete_from_appp = new ArrayList<String>();
     List<String> paths_of_image = new ArrayList<String>();
     List<Integer> visible = new ArrayList<Integer>();
-    type_adapter type ;
+    type_adapter typeadapter ;
 
     public static ImageButton delete_btn,select_all,close;
     TextView count_selected;
@@ -262,8 +265,8 @@ public class MainActivity extends AppCompatActivity  {
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
 //        mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
-        type = new type_adapter(types);
-        recyclerView_types.setAdapter(type);
+        typeadapter = new type_adapter(types);
+        recyclerView_types.setAdapter(typeadapter);
         mThumbnailRecyclerView.setAdapter(imageadapter);
 //        mMediaStoreAdapter.notifyDataSetChanged();
 
@@ -451,6 +454,18 @@ public class MainActivity extends AppCompatActivity  {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             if(type.size()!=0)
             {
+                if(type.get(position).equals(CurrentCategory))
+                {
+                    holder.type_name.setBackgroundResource(R.drawable.corner_accent);
+                    holder.type_name.setTextColor(Color.parseColor("#FFFFFF"));
+                    holder.type_name.setTypeface(null, Typeface.BOLD);
+                }
+                else
+                {
+                    holder.type_name.setTextColor(Color.parseColor("#000000"));
+                    holder.type_name.setTypeface(null, Typeface.NORMAL);
+                    holder.type_name.setBackgroundResource(R.drawable.corner_tag);
+                }
                 holder.type_name.setText(type.get(position));
                 holder.type_name.setOnClickListener(new OnClickListener() {
                     @Override
@@ -460,6 +475,7 @@ public class MainActivity extends AppCompatActivity  {
                         CurrentCategory = SEARCH;
                         //databaseHandler = new DatabaseHandler(mActivity);
                         Specific_data = databaseHandler.getUniqueData(SEARCH);
+                        typeadapter.notifyDataSetChanged();
                         imageadapter.notifyDataSetChanged();
                         Category_change();
                     }
@@ -513,6 +529,11 @@ public class MainActivity extends AppCompatActivity  {
                 holder.chk.setVisibility(View.VISIBLE);
 
             Log.d(TAG,""+visible.get(position));
+
+            LayoutParams params = holder.image.getLayoutParams();
+            params.width = (width-6)/3;
+            params.height = (width-6)/3;
+            holder.image.setLayoutParams(params);
 
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
@@ -619,13 +640,13 @@ public class MainActivity extends AppCompatActivity  {
         {
             Specific_data = databaseHandler.getUniqueData("All");
             CurrentCategory = "All";
-            recyclerView_types.setAdapter(type);
+            recyclerView_types.setAdapter(typeadapter);
         }
         for(int i = 0; i<Specific_data.size();i++)
             visible.add(0);
         types.add("All");
         types.addAll(databaseHandler.getCategory());
-        type.notifyDataSetChanged();
+        typeadapter.notifyDataSetChanged();
         imageadapter.notifyDataSetChanged();
 
     }
