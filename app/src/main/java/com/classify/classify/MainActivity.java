@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity  {
         select_all = (ImageButton) findViewById(R.id.check);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
-        //myDB.createtable();
+        myDB.createtable();
 
         menu.setOnClickListener(new OnClickListener() {
             @Override
@@ -645,6 +645,8 @@ public class MainActivity extends AppCompatActivity  {
         OutputStream out = null;
         Uri mediaUri = Uri.parse("file://"+ path);
         File imagepath =new File(mediaUri.getPath());
+        Date date = new Date(imagepath.lastModified());
+        String time = String.valueOf(date.getTime());
         String imagename = imagepath.getName().toString();
         Long tsLong = System.currentTimeMillis()/1000;
         String timestamp = tsLong.toString();
@@ -676,7 +678,7 @@ public class MainActivity extends AppCompatActivity  {
             out.close();
             out = null;
 
-            myDB.recyclebinaddData(path,timestamp,outputPath);
+            myDB.recyclebinaddData(path,timestamp,time,outputPath);
 
             // delete the original file
          //   new File(inputPath + inputFile).delete();
