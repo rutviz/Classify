@@ -2,6 +2,7 @@ package com.classify.classify;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -22,10 +23,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.classify.classify.Global_Share.CurrentCategory;
 
 public class RecycleBin extends AppCompatActivity {
 
@@ -33,10 +38,10 @@ public class RecycleBin extends AppCompatActivity {
     private final static int MEDIASTORE_LOADER_ID = 0;
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
-    DatabaseHandler myDB;
+
+
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
-    ArrayList<String> types = new ArrayList<>();
     int width,height;
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 117;
@@ -49,10 +54,10 @@ public class RecycleBin extends AppCompatActivity {
     private static final String LABEL_FILE =
             "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
-    DatabaseHandler databaseHandler;
+
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
-    ArrayList<Classify_path> Specific_data = new ArrayList<>();
+
     int Mydbcount ;
     int Mediacount ;
     final Handler handler = new Handler();
@@ -63,8 +68,8 @@ public class RecycleBin extends AppCompatActivity {
     public static ImageButton delete_btn,select_all,close;
     TextView count_selected;
     final String TAG = "Image_Classify";
-    ArrayList<String> date_list = new ArrayList<>();
-    List<String> paths_of_images = new ArrayList<String>();
+
+
     image_adapter imageadapter;
     int all_selected=0,flag=0;
     int Count_new;
@@ -94,8 +99,70 @@ public class RecycleBin extends AppCompatActivity {
         delete_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                for(int init=0;init<delete_from_appp.size();init++){
+                String path = delete_from_appp.get(init);
+                    Log.d("oldpath",path);
+                    String oldpath = myDb.recyclegetvalue(path);
+                    String modtime = myDb.recyclegetdatevalue(path);
+                    InputStream in = null;
+                    OutputStream out = null;
+                    Uri mediaUri = Uri.parse("file://"+ path);
+                    File imagepath =new File(mediaUri.getPath());
+                    String imagename = imagepath.getName().toString();
+                    int length = imagename.length();
 
-                
+                    imagename = imagename.substring(0,length-9);
+                    Long tsLong = System.currentTimeMillis()/1000;
+                    String timestamp = tsLong.toString();
+                    Log.d("hey1",timestamp);
+                    try {
+
+                        //create output directory if it doesn't exist
+                        String outputPath = oldpath;
+//                        File dir = new File ("/storage/emulated/0/Classifyrecycle");
+//                        if (!dir.exists())
+//                        {
+//                            dir.mkdirs();
+//                        }
+
+
+                        in = new FileInputStream(delete_from_appp.get(init));
+                        out = new FileOutputStream(outputPath);
+
+                        byte[] buffer = new byte[1024];
+                        int read;
+                        while ((read = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, read);
+                        }
+                        in.close();
+                        in = null;
+
+                        // write the output file
+                        out.flush();
+                        out.close();
+                        out = null;
+
+
+                        new File(oldpath).setLastModified(Long.parseLong(modtime));
+                        // delete the original file
+                        //   new File(inputPath + inputFile).delete();
+
+
+                    }
+
+                    catch (FileNotFoundException fnfe1) {
+                        Log.e("tag", fnfe1.getMessage());
+                    }
+                    catch (Exception e) {
+                        Log.e("tag", e.getMessage());
+                    }
+                    Uri uri1 = Uri.parse("file://"+delete_from_appp.get(init));
+                    File delete = new File(uri1.getPath());
+                    delete.delete();
+                    myDb.deleteimagepathfromrecycle(delete_from_appp.get(init));
+                    imageadapter.notifyDataSetChanged();
+
+                }
 
             }
         });
@@ -116,10 +183,10 @@ public class RecycleBin extends AppCompatActivity {
                     select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_white_24dp));
                     visible.clear();
                     delete_from_appp.clear();
-                    for(int i = 0; i<Specific_data.size();i++)
+                    for(int i = 0; i<paths_of_image.size();i++)
                     {
                         visible.add(1);
-                        delete_from_appp.add(Specific_data.get(i).getPath());
+                        delete_from_appp.add(paths_of_image.get(i));
                     }
                     count_selected.setText(delete_from_appp.size()+"");
                     imageadapter.notifyDataSetChanged();
@@ -130,7 +197,7 @@ public class RecycleBin extends AppCompatActivity {
                     UpdateUI();
                     all_selected = 0;
                 }
-                Log.d(TAG,delete_from_appp.size()+" "+Delete_mode[0]+" "+Specific_data.size()+" "+visible.size()+" "+all_selected);
+                Log.d(TAG,delete_from_appp.size()+" "+Delete_mode[0]+" "+paths_of_image.size()+" "+visible.size()+" "+all_selected);
 
                 for(int i :visible)
                     Log.d(TAG,""+i);
@@ -264,18 +331,12 @@ public class RecycleBin extends AppCompatActivity {
     }
 
     private void UpdateLists() {
-        types.clear();
+
         visible.clear();
-        Specific_data = databaseHandler.getUniqueData(CurrentCategory);
-        if(Specific_data.size()==0)
-        {
-            Specific_data = databaseHandler.getUniqueData("All");
-            CurrentCategory = "All";
-        }
-        for(int i = 0; i<Specific_data.size();i++)
+        paths_of_image = myDb.recyclebingetdata();
+
+        for(int i = 0; i<paths_of_image.size();i++)
             visible.add(0);
-        types.add("All");
-        types.addAll(databaseHandler.getCategory());
         imageadapter.notifyDataSetChanged();
     }
 }
