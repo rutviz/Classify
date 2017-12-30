@@ -1,7 +1,9 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,7 +59,7 @@ public class RecycleBin extends AppCompatActivity {
 
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
-
+    Context context;
     int Mydbcount ;
     int Mediacount ;
     final Handler handler = new Handler();
@@ -100,6 +102,7 @@ public class RecycleBin extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 for(int init=0;init<delete_from_appp.size();init++){
+
                 String path = delete_from_appp.get(init);
                     Log.d("oldpath",path);
                     String oldpath = myDb.recyclegetvalue(path);
@@ -160,10 +163,38 @@ public class RecycleBin extends AppCompatActivity {
                     File delete = new File(uri1.getPath());
                     delete.delete();
                     myDb.deleteimagepathfromrecycle(delete_from_appp.get(init));
+                    Uri urii = Uri.parse("file://"+oldpath);
+//                    ContentValues values = new ContentValues();
+//                    values.put(MediaStore.Images.Media.DATA, delete.getAbsolutePath());
+//                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg"); // setar isso
+//                    getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                   // sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, urii));
+                    File file = new File(urii.getPath());
+//                    Intent intent =
+//                            new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//                    intent.setData(Uri.fromFile(file));
+//                    sendBroadcast(intent);
+//                    Log.d("complete","completed");
+                    MediaScannerConnection.scanFile(
+                            getApplicationContext(),
+                            new String[]{file.getAbsolutePath()},
+                            null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                @Override
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.d("complete",
+                                            "file " + path + " was scanned seccessfully: " + uri);
+                                }
+
+
+
+
+
+                            });
                     imageadapter.notifyDataSetChanged();
-
                 }
-
+                Intent i =new Intent(RecycleBin.this,MainActivity.class);
+                startActivity(i);
             }
         });
 

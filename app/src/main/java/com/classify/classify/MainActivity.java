@@ -121,6 +121,8 @@ public class MainActivity extends AppCompatActivity  {
         count_selected = (TextView) findViewById(R.id.count_selelcted);
        // myDB.createtable();
 
+
+
         menu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -328,10 +330,24 @@ public class MainActivity extends AppCompatActivity  {
                 final String[] projection = {MediaStore.Images.Media.DATA};
                 Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    Intent mediaScanIntent = new Intent(
+                            Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    Uri contentUri = uri;
+                    mediaScanIntent.setData(contentUri);
+                    mActivity.sendBroadcast(mediaScanIntent);
+                } else {
+                    sendBroadcast(new Intent(
+                            Intent.ACTION_MEDIA_MOUNTED,
+                            Uri.parse("file://"
+                                    + Environment.getExternalStorageDirectory())));
+                }*/
                 Count_new = mmediaStorecursor.getCount();
                 int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                 paths_of_images = new ArrayList<String>();
                 Log.d("c1124","beforesize"+paths_of_images.size());
+                Log.d("c1124","beforesize"+Count_new);
                 date_list = new ArrayList<String>();
                 for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
                     mmediaStorecursor.moveToPosition(i);
