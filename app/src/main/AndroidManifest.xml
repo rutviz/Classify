@@ -38,5 +38,4 @@
         <activity android:name=".RecycleBin"></activity>
     </application>
 
-
 </manifest>

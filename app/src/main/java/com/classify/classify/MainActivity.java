@@ -11,23 +11,32 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,14 +62,13 @@ import static com.classify.classify.Global_Share.CurrentCategory;
 import static com.classify.classify.Global_Share.classifier;
 import static com.classify.classify.Global_Share.mmediaStorecursor;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
     private final static int MEDIASTORE_LOADER_ID = 0;
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
     DatabaseHandler myDB;
-    DatabaseHandler myDBForRecycle;
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
@@ -86,7 +94,7 @@ public class MainActivity extends AppCompatActivity  {
     List<String> delete_from_appp = new ArrayList<String>();
     List<String> paths_of_image = new ArrayList<String>();
     List<Integer> visible = new ArrayList<Integer>();
-    type_adapter type ;
+    type_adapter typeadapter ;
 
     public static ImageButton delete_btn,select_all,close;
     TextView count_selected;
@@ -101,14 +109,21 @@ public class MainActivity extends AppCompatActivity  {
     int notification_rate = 0;
     int total_image;
     ImageButton menu;
+    DrawerLayout mDrawerLayout;
+    NavigationView navigationView;
 
+
+    @Override
+    protected void onResume() {
+        navigationView.setCheckedItem(R.id.nav_Images);
+        super.onResume();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDB = new DatabaseHandler(MainActivity.this);
-        myDBForRecycle = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         final String[] projection = {MediaStore.Images.Media.DATA};
@@ -119,15 +134,20 @@ public class MainActivity extends AppCompatActivity  {
         select_all = (ImageButton) findViewById(R.id.check);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
-       // myDB.createtable();
+        //myDB.createtable();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView.setCheckedItem(R.id.nav_Images);
 
 
 
         menu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this,RecycleBin.class);
-                startActivity(i);
+                mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
 
@@ -266,8 +286,8 @@ public class MainActivity extends AppCompatActivity  {
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
 //        mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
-        type = new type_adapter(types);
-        recyclerView_types.setAdapter(type);
+        typeadapter = new type_adapter(types);
+        recyclerView_types.setAdapter(typeadapter);
         mThumbnailRecyclerView.setAdapter(imageadapter);
 //        mMediaStoreAdapter.notifyDataSetChanged();
 
@@ -289,6 +309,38 @@ public class MainActivity extends AppCompatActivity  {
         catch (final Exception e) {
             throw new RuntimeException("Error initializing TensorFlow!", e);
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_Document)
+        {
+            // Handle the camera action
+        }
+        else if(id == R.id.nav_Images)
+        {
+            Intent i = new Intent(MainActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+        else if (id == R.id.nav_Trash)
+        {
+            Intent i = new Intent(MainActivity.this,RecycleBin.class);
+            startActivity(i);
+        }
+        else if (id == R.id.nav_Auto_delete)
+        {
+
+        }
+        else if (id == R.id.nav_Notification)
+        {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     private void addNotification(String title,int rate) {
@@ -374,7 +426,6 @@ public class MainActivity extends AppCompatActivity  {
                     File file = new File(imagePath.getAbsolutePath());
                     Date lastModDate = new Date(file.lastModified());
                     String date = lastModDate.getTime() + "";
-                    Log.d("datee",date);
                     date_list.add(date);
                 }
 
@@ -470,6 +521,18 @@ public class MainActivity extends AppCompatActivity  {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             if(type.size()!=0)
             {
+                if(type.get(position).equals(CurrentCategory))
+                {
+                    holder.type_name.setBackgroundResource(R.drawable.corner_accent);
+                    holder.type_name.setTextColor(Color.parseColor("#FFFFFF"));
+                    holder.type_name.setTypeface(null, Typeface.BOLD);
+                }
+                else
+                {
+                    holder.type_name.setTextColor(Color.parseColor("#000000"));
+                    holder.type_name.setTypeface(null, Typeface.NORMAL);
+                    holder.type_name.setBackgroundResource(R.drawable.corner_tag);
+                }
                 holder.type_name.setText(type.get(position));
                 holder.type_name.setOnClickListener(new OnClickListener() {
                     @Override
@@ -479,6 +542,7 @@ public class MainActivity extends AppCompatActivity  {
                         CurrentCategory = SEARCH;
                         //databaseHandler = new DatabaseHandler(mActivity);
                         Specific_data = databaseHandler.getUniqueData(SEARCH);
+                        typeadapter.notifyDataSetChanged();
                         imageadapter.notifyDataSetChanged();
                         Category_change();
                     }
@@ -532,6 +596,11 @@ public class MainActivity extends AppCompatActivity  {
                 holder.chk.setVisibility(View.VISIBLE);
 
             Log.d(TAG,""+visible.get(position));
+
+            LayoutParams params = holder.image.getLayoutParams();
+            params.width = (width-6)/3;
+            params.height = (width-6)/3;
+            holder.image.setLayoutParams(params);
 
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
@@ -638,13 +707,13 @@ public class MainActivity extends AppCompatActivity  {
         {
             Specific_data = databaseHandler.getUniqueData("All");
             CurrentCategory = "All";
-            recyclerView_types.setAdapter(type);
+            recyclerView_types.setAdapter(typeadapter);
         }
         for(int i = 0; i<Specific_data.size();i++)
             visible.add(0);
         types.add("All");
         types.addAll(databaseHandler.getCategory());
-        type.notifyDataSetChanged();
+        typeadapter.notifyDataSetChanged();
         imageadapter.notifyDataSetChanged();
 
     }
@@ -664,8 +733,6 @@ public class MainActivity extends AppCompatActivity  {
         OutputStream out = null;
         Uri mediaUri = Uri.parse("file://"+ path);
         File imagepath =new File(mediaUri.getPath());
-        Date date = new Date(imagepath.lastModified());
-        String time = String.valueOf(date.getTime());
         String imagename = imagepath.getName().toString();
         Long tsLong = System.currentTimeMillis()/1000;
         String timestamp = tsLong.toString();
@@ -696,8 +763,8 @@ public class MainActivity extends AppCompatActivity  {
             out.flush();
             out.close();
             out = null;
-            Log.d("oldpath",path + "main");
-            myDBForRecycle.recyclebinaddData(path,timestamp,time,outputPath);
+
+            myDB.recyclebinaddData(path,timestamp,outputPath);
 
             // delete the original file
          //   new File(inputPath + inputFile).delete();
@@ -728,8 +795,15 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     @Override
-    public void onBackPressed() {
-        MainActivity.this.finishAffinity();
+    public void onBackPressed()
+    {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+            MainActivity.this.finishAffinity();
+        }
     }
     static {
         System.loadLibrary("native-lib");

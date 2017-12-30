@@ -31,7 +31,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String variablevalue = "variablevalue";
     private static final String oldpath = "oldpath";
     private static final String delete_time = "deletetime";
-    private static final String modified_date = "modifieddate";
     private static final String newpath = "newpath";
 
 
@@ -47,9 +46,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + category + " TEXT" + ","+date+" TEXT )";
         String Create_table2 = "CREATE TABLE " + table_name_global + "("
                 +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
-
         String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
-                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+modified_date + " VARCHAR2,"+ newpath + " VARCHAR2 )";
+                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+ newpath + " VARCHAR2 )";
         sqLiteDatabase.execSQL(Create_table);
         sqLiteDatabase.execSQL(Create_table2);
         sqLiteDatabase.execSQL(Create_table3);
@@ -63,10 +61,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void createtable(){
         SQLiteDatabase db = this.getWritableDatabase();
-        String droptable = "DROP TABLE "+ table_name_recyclebin;
-        db.execSQL(droptable);
+//        String droptable = "DROP TABLE "+ table_name_global;
+//        db.execSQL(droptable);
         String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
-                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+modified_date + " VARCHAR2,"+ newpath + " VARCHAR2 )";
+                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+ newpath + " VARCHAR2 )";
         db.execSQL(Create_table3);
     }
 
@@ -91,7 +89,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         db1.close();
     }
-    public void recyclebinaddData(String old_path,String deletetime,String modifieddate,String new_path) {
+    public void recyclebinaddData(String old_path,String deletetime,String new_path) {
         SQLiteDatabase db = this.getWritableDatabase();
         SQLiteDatabase db1 = this.getReadableDatabase();
         String query = "SELECT "+oldpath+" FROM "+table_name_recyclebin+" WHERE "+oldpath+" = '"+old_path+"'";
@@ -103,7 +101,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(oldpath, old_path);
             values.put(delete_time, deletetime);
-            values.put(modified_date, modifieddate);
             values.put(newpath, new_path);
             db.insert(table_name_recyclebin, null, values);
             getData();
@@ -129,43 +126,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return paths;
     }
-    public String recyclegetdatevalue(String path){
-        String value = "";
-        String query = "SELECT "+modified_date+" FROM "+ table_name_recyclebin + " WHERE " +newpath+" = '"+path+"'";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                value = cursor.getString(0);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return value;
-    }
-    public String recyclegetvalue(String path){
-        String value = "";
-        String query = "SELECT "+oldpath+" FROM "+ table_name_recyclebin + " WHERE " +newpath+" = '"+path+"'";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                value = cursor.getString(0);
-                Log.d("valuee", value);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return value;
-    }
-
-
-    void deleteimagepathfromrecycle(String value){
-        String query = "DELETE FROM " + table_name_recyclebin +" WHERE "+ newpath +" = '"+value+"'";
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL(query);
-    }
-
 
 
 

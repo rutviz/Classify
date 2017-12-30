@@ -3,6 +3,7 @@
     <color name="colorPrimary">#FFF</color>
     <color name="colorPrimaryDark">@color/my_bg</color>
     <color name="colorAccent">@color/my_bg</color>
+    <color name="transparent">#00000000</color>
 
     <!--Light Background Dark Text-->
 

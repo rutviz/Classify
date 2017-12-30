@@ -16,4 +16,5 @@ public class Global_Share {
     static final String TAG = "Image_Classify";
     static Classifier classifier;
     static Cursor mmediaStorecursor;
+    static int Flag_hide_layout = 0;
 }
