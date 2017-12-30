@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity  {
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
     DatabaseHandler myDB;
+    DatabaseHandler myDBForRecycle;
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDB = new DatabaseHandler(MainActivity.this);
+        myDBForRecycle = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         final String[] projection = {MediaStore.Images.Media.DATA};
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity  {
         select_all = (ImageButton) findViewById(R.id.check);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
-        myDB.createtable();
+       // myDB.createtable();
 
         menu.setOnClickListener(new OnClickListener() {
             @Override
@@ -356,6 +358,7 @@ public class MainActivity extends AppCompatActivity  {
                     File file = new File(imagePath.getAbsolutePath());
                     Date lastModDate = new Date(file.lastModified());
                     String date = lastModDate.getTime() + "";
+                    Log.d("datee",date);
                     date_list.add(date);
                 }
 
@@ -677,8 +680,8 @@ public class MainActivity extends AppCompatActivity  {
             out.flush();
             out.close();
             out = null;
-
-            myDB.recyclebinaddData(path,timestamp,time,outputPath);
+            Log.d("oldpath",path + "main");
+            myDBForRecycle.recyclebinaddData(path,timestamp,time,outputPath);
 
             // delete the original file
          //   new File(inputPath + inputFile).delete();

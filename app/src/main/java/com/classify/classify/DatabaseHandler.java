@@ -47,8 +47,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + category + " TEXT" + ","+date+" TEXT )";
         String Create_table2 = "CREATE TABLE " + table_name_global + "("
                 +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
+
         String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
-                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+ newpath + " VARCHAR2 )";
+                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+modified_date + " VARCHAR2,"+ newpath + " VARCHAR2 )";
         sqLiteDatabase.execSQL(Create_table);
         sqLiteDatabase.execSQL(Create_table2);
         sqLiteDatabase.execSQL(Create_table3);
@@ -151,11 +152,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 value = cursor.getString(0);
+                Log.d("valuee", value);
             } while (cursor.moveToNext());
         }
         cursor.close();
         return value;
     }
+
+
+    void deleteimagepathfromrecycle(String value){
+        String query = "DELETE FROM " + table_name_recyclebin +" WHERE "+ newpath +" = '"+value+"'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+    }
+
 
 
 

@@ -32,15 +32,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.classify.classify.Global_Share.CurrentCategory;
-
 public class RecycleBin extends AppCompatActivity {
 
     DatabaseHandler myDb;private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
     private final static int MEDIASTORE_LOADER_ID = 0;
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
-    DatabaseHandler myDB;
+
+
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
     int width,height;
@@ -55,7 +54,7 @@ public class RecycleBin extends AppCompatActivity {
     private static final String LABEL_FILE =
             "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
-    DatabaseHandler databaseHandler;
+
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
 
@@ -102,8 +101,9 @@ public class RecycleBin extends AppCompatActivity {
             public void onClick(View view) {
                 for(int init=0;init<delete_from_appp.size();init++){
                 String path = delete_from_appp.get(init);
-                    String oldpath = databaseHandler.recyclegetvalue(path);
-                    String modtime = databaseHandler.recyclegetdatevalue(path);
+                    Log.d("oldpath",path);
+                    String oldpath = myDb.recyclegetvalue(path);
+                    String modtime = myDb.recyclegetdatevalue(path);
                     InputStream in = null;
                     OutputStream out = null;
                     Uri mediaUri = Uri.parse("file://"+ path);
@@ -159,6 +159,8 @@ public class RecycleBin extends AppCompatActivity {
                     Uri uri1 = Uri.parse("file://"+delete_from_appp.get(init));
                     File delete = new File(uri1.getPath());
                     delete.delete();
+                    myDb.deleteimagepathfromrecycle(delete_from_appp.get(init));
+                    imageadapter.notifyDataSetChanged();
 
                 }
 
@@ -331,7 +333,7 @@ public class RecycleBin extends AppCompatActivity {
     private void UpdateLists() {
 
         visible.clear();
-        paths_of_image = databaseHandler.recyclebingetdata();
+        paths_of_image = myDb.recyclebingetdata();
 
         for(int i = 0; i<paths_of_image.size();i++)
             visible.add(0);
