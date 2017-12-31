@@ -63,8 +63,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void createtable(){
         SQLiteDatabase db = this.getWritableDatabase();
-        String droptable = "DROP TABLE "+ table_name_recyclebin;
-        db.execSQL(droptable);
+//        String droptable = "DROP TABLE "+ table_name_recyclebin;
+//        db.execSQL(droptable);
         String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
                 +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+modified_date + " VARCHAR2,"+ newpath + " VARCHAR2 )";
         db.execSQL(Create_table3);

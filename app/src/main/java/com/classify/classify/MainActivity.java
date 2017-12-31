@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         select_all = (ImageButton) findViewById(R.id.check);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
-        //myDB.createtable();
+//        myDB.createtable();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -604,6 +604,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             params.width = (width-6)/3;
             params.height = (width-6)/3;
             holder.image.setLayoutParams(params);
+
+            LayoutParams params1 = holder.chk.getLayoutParams();
+            params1.width = (width-6)/3;
+            params1.height = (width-6)/3;
+            holder.image.setLayoutParams(params1);
 
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
