@@ -116,7 +116,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<String> recyclebingetdata(){
         List<String> paths = new ArrayList<>();
         String temp;
-        String query = "SELECT "+newpath+" FROM "+ table_name_recyclebin ;
+        String query = "SELECT "+newpath+" FROM "+ table_name_recyclebin+" ORDER BY "+delete_time+" DESC" ;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 

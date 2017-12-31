@@ -1,18 +1,28 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
@@ -23,6 +33,8 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.DisplayType;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
+import static com.classify.classify.Global_Share.CurrentCategory;
+import static com.classify.classify.Global_Share.Flag_hide_layout;
 
 /**
  * Created by Rutviz Vyas on 19-12-2017.
@@ -31,7 +43,6 @@ import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 public class Image_View_Adapter extends PagerAdapter {
 
     DatabaseHandler db;
-    int Photo_index=0;
     private Activity _activity;
     private List<String> _imagePaths = new ArrayList<>();
     private LayoutInflater inflater;
@@ -209,6 +220,67 @@ public class Image_View_Adapter extends PagerAdapter {
         return viewLayout;
     }
 
+    public void recyclerbin(String path){
+        InputStream in = null;
+        OutputStream out = null;
+
+        Uri mediaUri = Uri.parse("file://"+ path);
+        File imagepath =new File(mediaUri.getPath());
+        Date date = new Date(imagepath.lastModified());
+        String time = String.valueOf(date.getTime());
+        String imagename = imagepath.getName().toString();
+        Long tsLong = System.currentTimeMillis()/1000;
+        String timestamp = tsLong.toString();
+        Log.d("hey1",timestamp);
+        try {
+
+            //create output directory if it doesn't exist
+            String outputPath = "/storage/emulated/0/Classifyrecycle/"+imagename+".classify";
+            File dir = new File ("/storage/emulated/0/Classifyrecycle");
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+
+
+            in = new FileInputStream(path);
+            out = new FileOutputStream(outputPath);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+
+            // write the output file
+            out.flush();
+            out.close();
+            out = null;
+
+            Log.d("oldpath",path + "main");
+            myDBForRecycle.recyclebinaddData(path,timestamp,time,outputPath);
+
+
+            // delete the original file
+            //   new File(inputPath + inputFile).delete();
+
+
+        }
+
+        catch (FileNotFoundException fnfe1) {
+            Log.e("tag", fnfe1.getMessage());
+        }
+        catch (Exception e) {
+            Log.e("tag", e.getMessage());
+        }
+
+
+
+    }
+
+
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         ((ViewPager) container).removeView((RelativeLayout) object);
@@ -246,6 +318,7 @@ public class Image_View_Adapter extends PagerAdapter {
             public void onAnimationRepeat(Animation animation) {}
             public void onAnimationStart(Animation animation) {}
         });
+
         img.startAnimation(fadeOut);
     }
 }

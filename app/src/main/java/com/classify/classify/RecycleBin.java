@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,20 +41,8 @@ import java.util.List;
 
 public class RecycleBin extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    DatabaseHandler myDb;private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
-    private final static int MEDIASTORE_LOADER_ID = 0;
+    DatabaseHandler myDb;
     private RecyclerView mThumbnailRecyclerView;
-    private MediaStoreAdapter mMediaStoreAdapter;
-
-
-    private AutoCompleteTextView search;
-    RecyclerView recyclerView_types;
-    int width,height;
-    private static final int INPUT_SIZE = 224;
-    private static final int IMAGE_MEAN = 117;
-    private static final float IMAGE_STD = 1;
-    private static final String INPUT_NAME = "input";
-    private static final String OUTPUT_NAME = "output";
     final int[] Delete_mode = {0};
 
     private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
@@ -140,15 +127,7 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                     Log.d("hey1",timestamp);
                     try {
 
-                        //create output directory if it doesn't exist
                         String outputPath = oldpath;
-//                        File dir = new File ("/storage/emulated/0/Classifyrecycle");
-//                        if (!dir.exists())
-//                        {
-//                            dir.mkdirs();
-//                        }
-
-
                     try {
                         in = new FileInputStream(delete_from_appp.get(init));
                     } catch (FileNotFoundException e) {
@@ -163,20 +142,19 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                         }
                         in.close();
                         in = null;
-
-                        // write the output file
                         out.flush();
                         out.close();
                         out = null;
-
-
-                        new File(oldpath).setLastModified(Long.parseLong(modtime));
-                        // delete the original file
-                        //   new File(inputPath + inputFile).delete();
-
-
+                        Uri uria = Uri.parse(oldpath);
+                       File f = new File(uria.getPath());
+                       Log.d("date",modtime);
+                       long l = Long.parseLong(modtime);
+                        boolean b = f.setLastModified(l);
+                        if(b)
+                        {
+                            Log.d("booll","true");
+                        }
                     }
-
                     catch (FileNotFoundException fnfe1) {
                         Log.e("tag", fnfe1.getMessage());
                     }
@@ -188,37 +166,21 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                     delete.delete();
                     myDb.deleteimagepathfromrecycle(delete_from_appp.get(init));
                     Uri urii = Uri.parse("file://"+oldpath);
-//                    ContentValues values = new ContentValues();
-//                    values.put(MediaStore.Images.Media.DATA, delete.getAbsolutePath());
-//                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg"); // setar isso
-//                    getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                   // sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, urii));
-                    File file = new File(urii.getPath());
-//                    Intent intent =
-//                            new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-//                    intent.setData(Uri.fromFile(file));
-//                    sendBroadcast(intent);
-//                    Log.d("complete","completed");
+                    final File file = new File(urii.getPath());
+
                     MediaScannerConnection.scanFile(
                             getApplicationContext(),
                             new String[]{file.getAbsolutePath()},
                             null,
                             new MediaScannerConnection.OnScanCompletedListener() {
                                 @Override
-                                public void onScanCompleted(String path, Uri uri) {
-                                    Log.d("complete",
-                                            "file " + path + " was scanned seccessfully: " + uri);
+                                public void onScanCompleted(String s, Uri uri) {
+                                    Log.d("complete","file "+ s +" scanned "+ uri );
                                 }
-
-
-
-
-
-                            });
-                    imageadapter.notifyDataSetChanged();
+                            }
+                    );
                 }
-                Intent i =new Intent(RecycleBin.this,MainActivity.class);
-                startActivity(i);
+                UpdateUI();
             }
         });
 
@@ -331,10 +293,9 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                         }
                         count_selected.setText(delete_from_appp.size()+"");
                     } else {
-                        Intent i = new Intent(mActivity, Photo_Viewer.class);
+                        Intent i = new Intent(mActivity, Photo_Viewer_recycle.class);
                         Global_Share.paths_of_image = paths_of_image;
                         i.putExtra("id", position+"");
-                        i.putExtra("category","");
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
                         mActivity.startActivity(i, options.toBundle());
                     }

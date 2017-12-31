@@ -10,10 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,6 +50,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
     private final static int MEDIASTORE_LOADER_ID = 0;
+    private static final int THUMBNAIL_SIZE = 224;
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
     DatabaseHandler myDB;
@@ -111,7 +111,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     int total_image;
     ImageButton menu;
     DrawerLayout mDrawerLayout;
+    int delete_flag=0;
     NavigationView navigationView;
+    AsyncTaskRunner runner;
 
 
     @Override
@@ -162,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     initTensorFlowAndLoadModel();
                     flag=1;
                 }
-                AsyncTaskRunner runner = new AsyncTaskRunner();
+                runner = new AsyncTaskRunner();
                 runner.execute();
             }
         });
@@ -171,8 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
+                    delete_flag=1;
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                     alertDialogBuilder.setMessage("Are you sure you want to delete all photos");
                             alertDialogBuilder.setPositiveButton("yes",
@@ -189,8 +190,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                                             MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
                                                     myDB.deleteimagepath(delete_from_appp.get(i));
+
                                                 }
                                                 UpdateUI();
+                                                delete_flag=0;
                                             }
                                         }
                                     });
@@ -201,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         public void onClick(DialogInterface dialog, int which) {
                             Category_change();
                             imageadapter.notifyDataSetChanged();
+                            delete_flag=0;
                         }
                     });
 
@@ -299,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initTensorFlowAndLoadModel() {
         try {
+            Log.d("tensors","init");
             classifier = TensorFlowImageClassifier.create(
                     getAssets(),
                     MODEL_FILE,
@@ -329,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_Trash)
         {
+            runner.cancel(true);
             Intent i = new Intent(MainActivity.this,RecycleBin.class);
             startActivity(i);
         }
@@ -382,98 +388,104 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected Void doInBackground(String... params) {
 
             while (true) {
-                final String[] projection = {MediaStore.Images.Media.DATA};
-                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+                if(isCancelled())
+                    break;
+                if(delete_flag==0)
+                {
+                    final String[] projection = {MediaStore.Images.Media.DATA};
+                    Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+                    Count_new = mmediaStorecursor.getCount();
+                    int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                    paths_of_images = new ArrayList<String>();
+                    Log.d("c1124","beforesize"+paths_of_images.size());
+                    Log.d("c1124","beforesize"+Count_new);
+                    date_list = new ArrayList<String>();
+                    for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
+                        mmediaStorecursor.moveToPosition(i);
+                        String dataString = mmediaStorecursor.getString(dataIndex);
+                        Uri mediaUri = Uri.parse("file://" + dataString);
+                        File imagePath = new File(mediaUri.getPath());
+                        paths_of_images.add(imagePath.getAbsolutePath());
+                    }
+                    updatedbimagepath();
+                    int new_images = Count_new - myDB.getDataCount();
+                    total_image = new_images;
+                    int init = 0;
+                    List<String> paths_of_image_db = new ArrayList<String>();
+                    paths_of_image_db = myDB.getImagepathlist();
+                    paths_of_images.removeAll(paths_of_image_db);
+                    for (int j =0;j<paths_of_images.size();j++) {
+                        Uri mediaUri = Uri.parse(paths_of_images.get(j));
+                        File imagePath = new File(mediaUri.getPath());
+                        File file = new File(imagePath.getAbsolutePath());
+                        Date lastModDate = new Date(file.lastModified());
+                        String date = lastModDate.getTime() + "";
+                        Log.d("date",date);
+                        date_list.add(date);
+                    }
 
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    Intent mediaScanIntent = new Intent(
-                            Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                    Uri contentUri = uri;
-                    mediaScanIntent.setData(contentUri);
-                    mActivity.sendBroadcast(mediaScanIntent);
-                } else {
-                    sendBroadcast(new Intent(
-                            Intent.ACTION_MEDIA_MOUNTED,
-                            Uri.parse("file://"
-                                    + Environment.getExternalStorageDirectory())));
-                }*/
-                Count_new = mmediaStorecursor.getCount();
-                int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                paths_of_images = new ArrayList<String>();
-                Log.d("c1124","beforesize"+paths_of_images.size());
-                Log.d("c1124","beforesize"+Count_new);
-                date_list = new ArrayList<String>();
-                for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
-                    mmediaStorecursor.moveToPosition(i);
-                    String dataString = mmediaStorecursor.getString(dataIndex);
-                    Uri mediaUri = Uri.parse("file://" + dataString);
-                    File imagePath = new File(mediaUri.getPath());
-                                        paths_of_images.add(imagePath.getAbsolutePath());
-                }
-//               Log.d("currentmedia: ",Count_new+"");
-                updatedbimagepath();
-                int new_images = Count_new - myDB.getDataCount();
-                total_image = new_images;
-  //              Log.d("new_media: ",new_images+"");
-                int init = 0;
-             List<String> paths_of_image_db = new ArrayList<String>();
-             paths_of_image_db = myDB.getImagepathlist();
-//                Log.d("c1124","db_  Size: "+paths_of_image_db.size());
-//                Log.d("c1124","im_  Size: "+paths_of_images.size());
-             paths_of_images.removeAll(paths_of_image_db);
-   //          Log.d("c1124","Size: "+paths_of_images.size());
-                for (int j =0;j<paths_of_images.size();j++) {
-                    Uri mediaUri = Uri.parse(paths_of_images.get(j));
-                    File imagePath = new File(mediaUri.getPath());
-                    File file = new File(imagePath.getAbsolutePath());
-                    Date lastModDate = new Date(file.lastModified());
-                    String date = lastModDate.getTime() + "";
-                    date_list.add(date);
-                }
+                    while (new_images > 0) {
+                        if(delete_flag==1)
+                        {
+                            break;
+                        }
+                        if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
+                            //Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
 
-                while (new_images > 0) {
-                  //  Log.d("heyy","1");
-//                    Log.d("c1124",init+"");
-                    if (myDB.getpathCount(paths_of_images.get(init)) == 0) {
-                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
-                        try {
-                            final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                            if (results.size() != 0) {
-                                myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
-                                notification_title = "Classify in progress...";
-                                notification_rate = init+1;
-                                addNotification(notification_title,notification_rate);
+                            Bitmap bitmap = null;
+                                Log.d("class_e",paths_of_images.get(init).toString());
+                                Uri uri1 = Uri.parse("file://"+paths_of_images.get(init));
+
+                                try {
+                                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri1);
+                                    bitmap = Bitmap.createScaledBitmap(
+                                            bitmap, 224, 224, false);
+                                }
+                                  catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            try {
+                                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                                if (results.size() != 0) {
+                                    myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                    notification_title = "Classify in progress...";
+                                    notification_rate = init+1;
+                                    addNotification(notification_title,notification_rate);
 //                                Log.d("class","category:"+results.get(0).toString());
-                            } else {
+                                } else {
+                                    myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                    notification_title = "Classify in progress...";
+                                    notification_rate = init+1;
+                                    addNotification(notification_title,notification_rate);
+                                }
+                                //      Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
+                            } catch (Exception e) {
+                                Log.d("class_e",e.getMessage());
                                 myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
                                 notification_title = "Classify in progress...";
                                 notification_rate = init+1;
                                 addNotification(notification_title,notification_rate);
                             }
-                      //      Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
-                        } catch (Exception e) {
-                            myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                            notification_title = "Classify in progress...";
-                            notification_rate = init+1;
-                            addNotification(notification_title,notification_rate);
+                        }
+
+                        new_images = Count_new - myDB.getDataCount();
+                        init++;
+                        if(new_images==0)
+                        {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    UpdateLists();
+                                    imageadapter.notifyDataSetChanged();
+                                }
+                            });
                         }
                     }
-
-                    new_images = Count_new - myDB.getDataCount();
-                    init++;
-                    if(new_images==0)
-                    {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                UpdateLists();
-                                imageadapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
                 }
+
             }
+            return null;
         }
 
 
@@ -488,7 +500,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onProgressUpdate(String... text) {
         }
     }
-    
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
