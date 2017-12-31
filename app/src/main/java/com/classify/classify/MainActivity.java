@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                     delete_flag=1;
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                    alertDialogBuilder.setMessage("Are you sure you want to delete all photos");
+                    alertDialogBuilder.setMessage("Move to Trash");
                             alertDialogBuilder.setPositiveButton("yes",
                                     new DialogInterface.OnClickListener() {
                                         @Override
@@ -185,12 +185,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                 for (int i = 0; i < delete_from_appp.size(); i++) {
 
                                                     String myPath = delete_from_appp.get(i);
-                                                    recyclerbin(myPath);
-                                                    ContentResolver contentResolver = getContentResolver();
-                                                    contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                                            MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                                                    myDB.deleteimagepath(delete_from_appp.get(i));
-
+                                                    try{
+                                                        recyclerbin(myPath);
+                                                        ContentResolver contentResolver = getContentResolver();
+                                                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                                                        myDB.deleteimagepath(delete_from_appp.get(i));
+                                                    }
+                                                    catch(Exception e){
+                                                        StorageProblem(delete_from_appp.get(i));
+                                                    }
                                                 }
                                                 UpdateUI();
                                                 delete_flag=0;
@@ -298,6 +302,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mThumbnailRecyclerView.setAdapter(imageadapter);
 //        mMediaStoreAdapter.notifyDataSetChanged();
 
+
+    }
+
+    public  void StorageProblem(final String s)
+    {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder.setMessage("Image will not been stored in Trash. Are you sure you want to delete?");
+        alertDialogBuilder.setPositiveButton("yes",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+
+                        ContentResolver contentResolver = getContentResolver();
+                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ s });
+                        myDB.deleteimagepath(s);
+
+                            UpdateUI();
+
+                    }
+                });
+
+        alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Category_change();
+                imageadapter.notifyDataSetChanged();
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
 
     }
 
