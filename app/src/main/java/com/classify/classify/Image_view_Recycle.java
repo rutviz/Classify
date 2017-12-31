@@ -2,14 +2,11 @@ package com.classify.classify;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -21,7 +18,6 @@ import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +25,6 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.DisplayType;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
-import static com.classify.classify.Global_Share.Flag_hide_layout;
 
 /**
  * Created by Rutviz Vyas on 19-12-2017.
@@ -78,8 +73,7 @@ public class Image_view_Recycle extends PagerAdapter {
         RelativeLayout rlv = (RelativeLayout) viewLayout.findViewById(R.id.all_id_recycle);
         imgDisplay = (ImageViewTouch) viewLayout.findViewById(R.id.imgDisplay_recycle);
 
-        btnDelete = (Button) viewLayout.findViewById(R.id.btnDelete_recycle);
-        back = (ImageView) viewLayout.findViewById(R.id.btnBack_recycle);
+
         top = (RelativeLayout)viewLayout.findViewById(R.id.toplayer_recycle);
         bottom = (RelativeLayout)viewLayout.findViewById(R.id.bottomlayer_recycle);
 
@@ -89,84 +83,84 @@ public class Image_view_Recycle extends PagerAdapter {
         Glide.with(_activity).load(_imagePaths.get(position)).skipMemoryCache(true).override(width,height-200).fitCenter().into(imgDisplay);
 
         // close button click event
-        Log.d(Global_Share.TAG,Flag_hide_layout+" outside");
-
-        imgDisplay.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Log.d(Global_Share.TAG,Flag_hide_layout+" clicked");
-                if(Flag_hide_layout == 1)
-                {
-                    top.setVisibility(View.GONE);
-                    bottom.setVisibility(View.GONE);
-//                    fadeOutAndHideImage(top);
-//                    fadeOutAndHideImage(bottom);
-                    Flag_hide_layout = 0;
-                }
-                else
-                {
-                    top.setVisibility(View.VISIBLE);
-                    bottom.setVisibility(View.VISIBLE);
-//                    fadeInAndHideImage(top);
-//                    fadeInAndHideImage(bottom);
-                    Flag_hide_layout = 1;
-                }
-                return false;
-            }
-
-        });
-
-
-        rlv.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(Global_Share.TAG,Flag_hide_layout+" clicked");
-                if(Flag_hide_layout == 1)
-                {
-                    top.setVisibility(View.GONE);
-                    bottom.setVisibility(View.GONE);
-//                    fadeOutAndHideImage(top);
-//                    fadeOutAndHideImage(bottom);
-                    Flag_hide_layout = 0;
-                }
-                else
-                {
-                    top.setVisibility(View.VISIBLE);
-                    bottom.setVisibility(View.VISIBLE);
-//                    fadeInAndHideImage(top);
-//                    fadeInAndHideImage(bottom);
-                    Flag_hide_layout = 1;
-                }
-            }
-        });
-
-
-        btnDelete.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String deletePath = _imagePaths.get(position);
-                Uri uri= Uri.parse("file://"+deletePath);
-                File delete = new File(uri.getPath());
-                delete.delete();
-                db.deleteimagepathfromrecycle(deletePath);
-                Global_Share.paths_of_image.remove(deletePath);
-                Photo_Viewer_recycle.viewPager.setAdapter(new Image_view_Recycle(_activity,Global_Share.paths_of_image));
-                if(Global_Share.paths_of_image.size() == 0)
-                    _activity.finish();
-                if(position==Global_Share.paths_of_image.size())
-                    Photo_Viewer_recycle.viewPager.setCurrentItem(position-1);
-                else
-                    Photo_Viewer_recycle.viewPager.setCurrentItem(position);
-            }
-        });
-
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                _activity.finish();
-            }
-        });
-
+//        Log.d(Global_Share.TAG,Flag_hide_layout+" outside");
+//
+//        imgDisplay.setOnLongClickListener(new OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//                Log.d(Global_Share.TAG,Flag_hide_layout+" clicked");
+//                if(Flag_hide_layout == 1)
+//                {
+//                    top.setVisibility(View.GONE);
+//                    bottom.setVisibility(View.GONE);
+////                    fadeOutAndHideImage(top);
+////                    fadeOutAndHideImage(bottom);
+//                    Flag_hide_layout = 0;
+//                }
+//                else
+//                {
+//                    top.setVisibility(View.VISIBLE);
+//                    bottom.setVisibility(View.VISIBLE);
+////                    fadeInAndHideImage(top);
+////                    fadeInAndHideImage(bottom);
+//                    Flag_hide_layout = 1;
+//                }
+//                return false;
+//            }
+//
+//        });
+//
+//
+//        rlv.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.d(Global_Share.TAG,Flag_hide_layout+" clicked");
+//                if(Flag_hide_layout == 1)
+//                {
+//                    top.setVisibility(View.GONE);
+//                    bottom.setVisibility(View.GONE);
+////                    fadeOutAndHideImage(top);
+////                    fadeOutAndHideImage(bottom);
+//                    Flag_hide_layout = 0;
+//                }
+//                else
+//                {
+//                    top.setVisibility(View.VISIBLE);
+//                    bottom.setVisibility(View.VISIBLE);
+////                    fadeInAndHideImage(top);
+////                    fadeInAndHideImage(bottom);
+//                    Flag_hide_layout = 1;
+//                }
+//            }
+//        });
+//
+//
+//        btnDelete.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String deletePath = _imagePaths.get(position);
+//                Uri uri= Uri.parse("file://"+deletePath);
+//                File delete = new File(uri.getPath());
+//                delete.delete();
+//                db.deleteimagepathfromrecycle(deletePath);
+//                Global_Share.paths_of_image.remove(deletePath);
+//                Photo_Viewer_recycle.viewPager.setAdapter(new Image_view_Recycle(_activity,Global_Share.paths_of_image));
+//                if(Global_Share.paths_of_image.size() == 0)
+//                    _activity.finish();
+//                if(position==Global_Share.paths_of_image.size())
+//                    Photo_Viewer_recycle.viewPager.setCurrentItem(position-1);
+//                else
+//                    Photo_Viewer_recycle.viewPager.setCurrentItem(position);
+//            }
+//        });
+//
+//        back.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                _activity.finish();
+//            }
+//        });
+//
 
 
         ((ViewPager) container).addView(viewLayout);
