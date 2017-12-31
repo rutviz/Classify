@@ -16,6 +16,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+
 import static com.classify.classify.Global_Share.CurrentCategory;
 
 public class Photo_Viewer extends AppCompatActivity{
@@ -28,6 +36,7 @@ public class Photo_Viewer extends AppCompatActivity{
     static TextView category_title;
     DatabaseHandler db;
     static int index;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +91,12 @@ public class Photo_Viewer extends AppCompatActivity{
         btnDelete.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Log.d(Global_Share.TAG,"pager "+viewPager.getCurrentItem());
                 int position = viewPager.getCurrentItem();
 
                 String deletePath = Global_Share.paths_of_image.get(position);
+                recyclerbin(deletePath);
                 ContentResolver contentResolver = Photo_Viewer.this.getContentResolver();
                 contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ deletePath });
@@ -122,6 +133,66 @@ public class Photo_Viewer extends AppCompatActivity{
 
             }
         });
+
+    }
+
+    public void recyclerbin(String path){
+        InputStream in = null;
+        OutputStream out = null;
+
+        Uri mediaUri = Uri.parse("file://"+ path);
+        File imagepath =new File(mediaUri.getPath());
+        Date date = new Date(imagepath.lastModified());
+        String time = String.valueOf(date.getTime());
+        String imagename = imagepath.getName().toString();
+        Long tsLong = System.currentTimeMillis()/1000;
+        String timestamp = tsLong.toString();
+        Log.d("hey1",timestamp);
+        try {
+
+            //create output directory if it doesn't exist
+            String outputPath = "/storage/emulated/0/Classifyrecycle/"+imagename+".classify";
+            File dir = new File ("/storage/emulated/0/Classifyrecycle");
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+
+
+            in = new FileInputStream(path);
+            out = new FileOutputStream(outputPath);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+
+            // write the output file
+            out.flush();
+            out.close();
+            out = null;
+
+            Log.d("oldpath",path + "main");
+            db.recyclebinaddData(path,timestamp,time,outputPath);
+
+
+            // delete the original file
+            //   new File(inputPath + inputFile).delete();
+
+
+        }
+
+        catch (FileNotFoundException fnfe1) {
+            Log.e("tag", fnfe1.getMessage());
+        }
+        catch (Exception e) {
+            Log.e("tag", e.getMessage());
+        }
+
+
 
     }
 }

@@ -53,7 +53,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
     Context context;
-    ArrayList<Classify_path> Specific_data = new ArrayList<>();
     int Mydbcount ;
     int Mediacount ;
     final Handler handler = new Handler();
@@ -200,10 +199,10 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                     select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_white_24dp));
                     visible.clear();
                     delete_from_appp.clear();
-                    for(int i = 0; i<Specific_data.size();i++)
+                    for(int i = 0; i<paths_of_image.size();i++)
                     {
                         visible.add(1);
-                        delete_from_appp.add(Specific_data.get(i).getPath());
+                        delete_from_appp.add(paths_of_image.get(i));
                     }
                     count_selected.setText(delete_from_appp.size()+"");
                     imageadapter.notifyDataSetChanged();
@@ -214,8 +213,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                     UpdateUI();
                     all_selected = 0;
                 }
-                Log.d(TAG,delete_from_appp.size()+" "+Delete_mode[0]+" "+Specific_data.size()+" "+visible.size()+" "+all_selected);
-
                 for(int i :visible)
                     Log.d(TAG,""+i);
             }
