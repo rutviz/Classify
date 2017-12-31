@@ -17,4 +17,5 @@ public class Global_Share {
     static Classifier classifier;
     static Cursor mmediaStorecursor;
     static int Flag_hide_layout = 0;
+    static int Flag_for_recycle = 0;
 }
