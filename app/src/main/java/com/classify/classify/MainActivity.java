@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
+    DatabaseHandler myDBForRecycle;
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
     ArrayList<Classify_path> Specific_data = new ArrayList<>();
@@ -127,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         final String[] projection = {MediaStore.Images.Media.DATA};
+        myDBForRecycle = new DatabaseHandler(MainActivity.this);
+
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
         delete_btn = (ImageButton) findViewById(R.id.delete);
@@ -731,8 +734,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void recyclerbin(String path){
         InputStream in = null;
         OutputStream out = null;
+
         Uri mediaUri = Uri.parse("file://"+ path);
         File imagepath =new File(mediaUri.getPath());
+        Date date = new Date(imagepath.lastModified());
+        String time = String.valueOf(date.getTime());
         String imagename = imagepath.getName().toString();
         Long tsLong = System.currentTimeMillis()/1000;
         String timestamp = tsLong.toString();
@@ -764,7 +770,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             out.close();
             out = null;
 
-            myDB.recyclebinaddData(path,timestamp,outputPath);
+            Log.d("oldpath",path + "main");
+            myDBForRecycle.recyclebinaddData(path,timestamp,time,outputPath);
+
 
             // delete the original file
          //   new File(inputPath + inputFile).delete();

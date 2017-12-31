@@ -1,17 +1,25 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -32,7 +40,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecycleBin extends AppCompatActivity {
+public class RecycleBin extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     DatabaseHandler myDb;private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
     private final static int MEDIASTORE_LOADER_ID = 0;
@@ -104,7 +112,7 @@ public class RecycleBin extends AppCompatActivity {
         menu = (ImageButton) findViewById(R.id.menu_delete);
         navigationView.setCheckedItem(R.id.nav_Trash);
 
-        menu.setOnClickListener(new OnClickListener() {
+        menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrawerLayout.openDrawer(Gravity.LEFT);
@@ -126,12 +134,27 @@ public class RecycleBin extends AppCompatActivity {
                     File imagepath =new File(mediaUri.getPath());
                     String imagename = imagepath.getName().toString();
                     int length = imagename.length();
+                    imagename = imagename.substring(0,length-9);
+                    Long tsLong = System.currentTimeMillis()/1000;
+                    String timestamp = tsLong.toString();
+                    Log.d("hey1",timestamp);
+                    try {
+
+                        //create output directory if it doesn't exist
+                        String outputPath = oldpath;
+//                        File dir = new File ("/storage/emulated/0/Classifyrecycle");
+//                        if (!dir.exists())
+//                        {
+//                            dir.mkdirs();
+//                        }
 
 
-
-
+                    try {
                         in = new FileInputStream(delete_from_appp.get(init));
-                        out = new FileOutputStream(outputPath);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    out = new FileOutputStream(outputPath);
 
                         byte[] buffer = new byte[1024];
                         int read;
