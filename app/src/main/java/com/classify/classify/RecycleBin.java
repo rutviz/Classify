@@ -21,8 +21,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -60,8 +63,11 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     List<String> paths_of_image = new ArrayList<String>();
     List<Integer> visible = new ArrayList<Integer>();
 
-    public static ImageButton delete_btn,select_all,close;
-    TextView count_selected;
+    public static Button delete_btn;
+    public static ImageButton select_all;
+    public static ImageButton close;
+    public static ImageButton delete_per;
+    TextView count_selected,trash_logo;
     final String TAG = "Image_Classify";
     ArrayList<String> date_list = new ArrayList<>();
     List<String> paths_of_images = new ArrayList<String>();
@@ -73,7 +79,9 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     int notification_rate = 0;
     DrawerLayout mDrawerLayout;
     int total_image;
+    ImageView noImage;
     ImageView menu;
+    int width,height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,21 +90,40 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         myDb = new DatabaseHandler(this);
         paths_of_image = myDb.recyclebingetdata();
         mActivity = this;
+        width = getWindowManager().getDefaultDisplay().getWidth();
+        height = getWindowManager().getDefaultDisplay().getHeight();
         mThumbnailRecyclerView = (RecyclerView) findViewById(R.id.recycler__recycle_view_photos);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         mThumbnailRecyclerView.setHasFixedSize(true);
         imageadapter = new image_adapter();
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
         mThumbnailRecyclerView.setAdapter(imageadapter);
-        delete_btn = (ImageButton) findViewById(R.id.delete);
+        noImage = (ImageView) findViewById(R.id.no_photos);
+        delete_btn = (Button) findViewById(R.id.restore);
+        delete_per = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
+        trash_logo = (TextView) findViewById(R.id.trash_logo);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         navigationView.setCheckedItem(R.id.nav_Trash);
+
+        delete_per.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for(int init=0;init<delete_from_appp.size();init++) {
+                    String path = delete_from_appp.get(init);
+                    Uri uri= Uri.parse("file://"+path);
+                    File delete = new File(uri.getPath());
+                    delete.delete();
+                    myDb.deleteimagepathfromrecycle(path);
+                }
+                UpdateUI();
+            }
+        });
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,7 +292,15 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
             else
                 holder.chk.setVisibility(View.VISIBLE);
 
+            LayoutParams params = holder.image.getLayoutParams();
+            params.width = (width-6)/3;
+            params.height = (width-6)/3;
+            holder.image.setLayoutParams(params);
 
+            LayoutParams params1 = holder.chk.getLayoutParams();
+            params1.width = (width-6)/3;
+            params1.height = (width-6)/3;
+            holder.image.setLayoutParams(params1);
 
             Glide.with(mActivity).load(paths_of_image.get(position)).centerCrop().into(holder.image);
             holder.image.setOnClickListener(new View.OnClickListener() {
@@ -305,8 +340,11 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                     if(Delete_mode[0] == 0){
                         visible.set(position,1);
                         delete_btn.setVisibility(View.VISIBLE);
+                        delete_per.setVisibility(View.VISIBLE);
                         select_all.setVisibility(View.VISIBLE);
                         close.setVisibility(View.VISIBLE);
+                        trash_logo.setVisibility(View.GONE);
+                        menu.setVisibility(View.GONE);
                         count_selected.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
                         Log.d(TAG,position+"");
@@ -319,7 +357,12 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
             });
         }
         @Override
-        public int getItemCount() {
+        public int getItemCount()
+        {
+            if(paths_of_image.size() == 0)
+                noImage.setVisibility(View.VISIBLE);
+            else
+                noImage.setVisibility(View.GONE);
             return paths_of_image.size();
         }
 
@@ -360,7 +403,10 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     {
         select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_outline_blank_white_24dp));
         delete_btn.setVisibility(View.GONE);
+        delete_per.setVisibility(View.GONE);
         close.setVisibility(View.GONE);
+        trash_logo.setVisibility(View.VISIBLE);
+        menu.setVisibility(View.VISIBLE);
         select_all.setVisibility(View.GONE);
         count_selected.setVisibility(View.GONE);
         count_selected.setText("0");
@@ -380,5 +426,11 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         for(int i = 0; i<paths_of_image.size();i++)
             visible.add(0);
         imageadapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        UpdateUI();
     }
 }

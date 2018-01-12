@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
@@ -30,12 +31,14 @@ public class Photo_Viewer extends AppCompatActivity{
 
     int width,height;
      public ViewPager viewPager;
+    RelativeLayout UpperLayer,BottomLayer;
 
       Button btnDelete,btnShare;
      ImageView back;
     static TextView category_title;
     DatabaseHandler db;
     static int index;
+    private ImageView hide,unhide;
 
 
     @Override
@@ -47,10 +50,15 @@ public class Photo_Viewer extends AppCompatActivity{
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
 
+
+        UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
+        BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
         category_title = (TextView)findViewById(R.id.category_title);
         btnDelete = (Button) findViewById(R.id.btnDelete);
         btnShare = (Button) findViewById(R.id.btnShare);
         back = (ImageView) findViewById(R.id.btnBack);
+        hide = (ImageView) findViewById(R.id.hide);
+        unhide = (ImageView) findViewById(R.id.unhide);
 
 //        category_title = (TextView) findViewById(R.id.category_title);
 
@@ -69,6 +77,24 @@ public class Photo_Viewer extends AppCompatActivity{
         viewPager.setAdapter(new Image_View_Adapter(this,Global_Share.paths_of_image));
         viewPager.setCurrentItem(id);
 
+        hide.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                UpperLayer.setVisibility(View.INVISIBLE);
+                BottomLayer.setVisibility(View.INVISIBLE);
+                unhide.setVisibility(View.VISIBLE);
+                Log.d(Global_Share.TAG,"touched");
+            }
+        });
+        unhide.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                unhide.setVisibility(View.GONE);
+                UpperLayer.setVisibility(View.VISIBLE);
+                BottomLayer.setVisibility(View.VISIBLE);
+                Log.d(Global_Share.TAG,"touched");
+            }
+        });
 
         back.setOnClickListener(new OnClickListener() {
             @Override
