@@ -18,6 +18,7 @@
         android:clickable="true"
         tools:layout_editor_absoluteY="8dp"
         tools:layout_editor_absoluteX="8dp">
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,8 +26,7 @@
             android:textColor="#fff"
             android:background="#000"
             android:visibility="gone"
-            android:id="@+id/skip"
-            />
+            android:id="@+id/skip" />
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/imageView20"
