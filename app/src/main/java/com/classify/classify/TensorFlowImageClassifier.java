@@ -18,8 +18,6 @@ package com.classify.classify;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.os.Trace;
-import android.util.Log;
 
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
@@ -155,6 +153,7 @@ public class TensorFlowImageClassifier implements Classifier {
                         });
         for (int i = 0; i < outputs.length; ++i) {
             if (outputs[i] > THRESHOLD) {
+
                 pq.add(
                         new Recognition(
                                 "" + i, labels.size() > i ? labels.get(i) : "unknown", outputs[i], null));

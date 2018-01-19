@@ -91,10 +91,7 @@ public class Image_classify extends AppCompatActivity  {
             classifier.close();
         }
         catch (Exception e){
-
         }
-
-
         initTensorFlowAndLoadModel();
         databaseHandler.globaladdData("firstrun","0");
         Log.d("globalvalue",databaseHandler.globalgetvalue("firstrun"));
