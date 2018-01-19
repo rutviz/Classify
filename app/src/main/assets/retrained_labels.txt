@@ -1,0 +1,15 @@
+animals
+appliances
+building
+documents
+food
+god
+group photo
+meme
+nature
+person
+screenshots
+streets
+thoughts
+vehicles
+wishes

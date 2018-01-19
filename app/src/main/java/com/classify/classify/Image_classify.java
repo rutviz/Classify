@@ -41,12 +41,19 @@ public class Image_classify extends AppCompatActivity  {
     ArrayList<String> Date_list = new ArrayList<>();
     int width,height;
     private static final int INPUT_SIZE = 224;
-    private static final int IMAGE_MEAN = 117;
-    private static final float IMAGE_STD = 1;
+    private static final int IMAGE_MEAN = 128;
+    private static final float IMAGE_STD = 128.0f;
     private static final String INPUT_NAME = "input";
-    private static final String OUTPUT_NAME = "output";
-    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
-    private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+    private static final String OUTPUT_NAME = "final_result";
+    private static final String MODEL_FILE = "file:///android_asset/optimized_graph.pb";
+    private static final String LABEL_FILE = "file:///android_asset/retrained_labels.txt";
+//    private static final int INPUT_SIZE = 224;
+//    private static final int IMAGE_MEAN = 117;
+//    private static final float IMAGE_STD = 1;
+//    private static final String INPUT_NAME = "input";
+//    private static final String OUTPUT_NAME = "output";
+//    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+//    private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
     DatabaseHandler databaseHandlerCount;
@@ -80,7 +87,7 @@ public class Image_classify extends AppCompatActivity  {
         catch (Exception e){
 
         }
-        checkReadExternalStoragePermission();
+
 
         initTensorFlowAndLoadModel();
         databaseHandler.globaladdData("firstrun","0");
@@ -92,7 +99,7 @@ public class Image_classify extends AppCompatActivity  {
         }
         else{
             Log.d("Skip","0");
-            getPath();
+            checkReadExternalStoragePermission();
         }
 
 
@@ -141,16 +148,18 @@ public class Image_classify extends AppCompatActivity  {
                 {
                     for(int z =0; z < Image_path.size();z++)
                     {
-                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(z)),224,224);
-                        final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                        if(results.size()!=0){
-                            databaseHandler.addData(new Classify_path(Image_path.get(z),results.get(0).toString(),Date_list.get(z)));
+                        try {
+                            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(z)), 224, 224);
+                            final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                            if (results.size() != 0) {
+                                databaseHandler.addData(new Classify_path(Image_path.get(z), results.get(0).toString(), Date_list.get(z)));
+                            } else {
+                                databaseHandler.addData(new Classify_path(Image_path.get(z), "none", Date_list.get(z)));
+                            }
                         }
-                        else
-                        {
-                            databaseHandler.addData(new Classify_path(Image_path.get(z),"none",Date_list.get(z)));
+                        catch(Exception e){
+                            databaseHandler.addData(new Classify_path(Image_path.get(z), "none", Date_list.get(z)));
                         }
-
                     }
                 }
                 else
@@ -261,6 +270,7 @@ public class Image_classify extends AppCompatActivity  {
                     PackageManager.PERMISSION_GRANTED) {
 
                 startTimerThread();
+                getPath();
             } else {
                 if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     Toast.makeText(this, "App needs to view thumbnails", Toast.LENGTH_SHORT).show();
@@ -271,6 +281,7 @@ public class Image_classify extends AppCompatActivity  {
         } else {
 
             startTimerThread();
+            getPath();
         }
     }
 }

@@ -36,6 +36,8 @@
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager_recycle"
+        android:layout_below="@id/toplayer_recycle"
+        android:layout_above="@+id/bottomlayer_recycle"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

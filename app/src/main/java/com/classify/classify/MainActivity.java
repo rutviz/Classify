@@ -74,15 +74,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ArrayList<String> types = new ArrayList<>();
     int width,height;
     private static final int INPUT_SIZE = 224;
-    private static final int IMAGE_MEAN = 117;
-    private static final float IMAGE_STD = 1;
+    private static final int IMAGE_MEAN = 128;
+    private static final float IMAGE_STD = 128.0f;
     private static final String INPUT_NAME = "input";
-    private static final String OUTPUT_NAME = "output";
+    private static final String OUTPUT_NAME = "final_result";
+    private static final String MODEL_FILE = "file:///android_asset/optimized_graph.pb";
+    private static final String LABEL_FILE = "file:///android_asset/retrained_labels.txt";
     final int[] Delete_mode = {0};
 
-    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
-    private static final String LABEL_FILE =
-            "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+//    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+//    private static final String LABEL_FILE =
+//            "file:///android_asset/imagenet_comp_graph_label_strings.txt";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
     DatabaseHandler myDBForRecycle;
@@ -595,7 +597,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //databaseHandler = new DatabaseHandler(mActivity);
                         Specific_data = databaseHandler.getUniqueData(SEARCH);
                         typeadapter.notifyDataSetChanged();
-                        imageadapter.notifyDataSetChanged();
+//                        imageadapter.notifyDataSetChanged();
+                        mThumbnailRecyclerView.setAdapter(imageadapter);
                         Category_change();
                     }
                 });
@@ -699,6 +702,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         visible.set(position,1);
                         delete_btn.setVisibility(View.VISIBLE);
                         select_all.setVisibility(View.VISIBLE);
+                        menu.setVisibility(View.GONE);
                         close.setVisibility(View.VISIBLE);
                         count_selected.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
@@ -743,6 +747,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_outline_blank_white_24dp));
         delete_btn.setVisibility(View.GONE);
         close.setVisibility(View.GONE);
+        menu.setVisibility(View.VISIBLE);
         select_all.setVisibility(View.GONE);
         count_selected.setVisibility(View.GONE);
         count_selected.setText("0");
