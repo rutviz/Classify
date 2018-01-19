@@ -473,39 +473,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
 
                             Bitmap bitmap = null;
-                                Log.d("class_e",paths_of_images.get(init).toString());
-                                Uri uri1 = Uri.parse("file://"+paths_of_images.get(init));
-
                                 try {
+                                    Log.d("class_e",paths_of_images.get(init).toString());
+                                    Uri uri1 = Uri.parse("file://"+paths_of_images.get(init));
                                     bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri1);
                                     bitmap = Bitmap.createScaledBitmap(
                                             bitmap, 224, 224, false);
+                                    final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                                    if (results.size() != 0) {
+                                        myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                        notification_title = "Classify in progress...";
+                                        notification_rate = init+1;
+                                        addNotification(notification_title,notification_rate);
+                                    } else {
+                                        myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                        notification_title = "Classify in progress...";
+                                        notification_rate = init+1;
+                                        addNotification(notification_title,notification_rate);
+                                    }
                                 }
                                   catch (IOException e) {
+                                      Log.d("class_e",e.getMessage());
+                                      myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                      notification_title = "Classify in progress...";
+                                      notification_rate = init+1;
+                                      addNotification(notification_title,notification_rate);
                                     e.printStackTrace();
                                 }
-                            try {
-                                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                                if (results.size() != 0) {
-                                    myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
-                                    notification_title = "Classify in progress...";
-                                    notification_rate = init+1;
-                                    addNotification(notification_title,notification_rate);
-//                                Log.d("class","category:"+results.get(0).toString());
-                                } else {
-                                    myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                                    notification_title = "Classify in progress...";
-                                    notification_rate = init+1;
-                                    addNotification(notification_title,notification_rate);
-                                }
-                                //      Log.d("CLassifying", results.toString() + " " + paths_of_images.get(init));
-                            } catch (Exception e) {
-                                Log.d("class_e",e.getMessage());
-                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                                notification_title = "Classify in progress...";
-                                notification_rate = init+1;
-                                addNotification(notification_title,notification_rate);
-                            }
+
                         }
 
                         new_images = Count_new - myDB.getDataCount();

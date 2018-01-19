@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/relt"
     tools:context="com.classify.classify.Image_classify">
+
+
 
     <RelativeLayout
         android:elevation="20dp"
@@ -15,7 +18,15 @@
         android:clickable="true"
         tools:layout_editor_absoluteY="8dp"
         tools:layout_editor_absoluteX="8dp">
-
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SKIP"
+            android:textColor="#fff"
+            android:background="#000"
+            android:visibility="gone"
+            android:id="@+id/skip"
+            />
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/imageView20"

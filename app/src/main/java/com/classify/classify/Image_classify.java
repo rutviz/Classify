@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +17,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +39,7 @@ public class Image_classify extends AppCompatActivity  {
     private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
     private TextView dbcount;
     private TextView mediacount;
+    private Button skip;
     private ProgressBar loader_bar;
     ArrayList<String> types = new ArrayList<>();
     ArrayList<String> Image_path = new ArrayList<>();
@@ -57,13 +62,13 @@ public class Image_classify extends AppCompatActivity  {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
     DatabaseHandler databaseHandlerCount;
-
+    AsyncTaskRunner runner;
     Runnable runnable;
     Activity mActivity;
     int Mydbcount ;
     int Mediacount ;
     final Handler handler = new Handler();
-
+    RelativeLayout relativeLayout;
     final String TAG = "Image_Classify";
 
 
@@ -75,11 +80,12 @@ public class Image_classify extends AppCompatActivity  {
         height = getWindowManager().getDefaultDisplay().getHeight();
         dbcount = (TextView) findViewById(R.id.dbcount0);
         mediacount = (TextView) findViewById(R.id.mediacount0);
+        skip = (Button) findViewById(R.id.skip);
         loader_bar = (ProgressBar) findViewById(R.id.progressBar0);
         mActivity = this;
         databaseHandler = new DatabaseHandler(this);
         databaseHandlerCount = new DatabaseHandler(this);
-
+        relativeLayout = (RelativeLayout)findViewById(R.id.relt);
         Mydbcount = databaseHandler.getDataCount();
         try{
             classifier.close();
@@ -102,6 +108,15 @@ public class Image_classify extends AppCompatActivity  {
             checkReadExternalStoragePermission();
         }
 
+        skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                runner.cancel(true);
+                databaseHandler.globalsetvalue("firstrun","1");
+                Intent i = new Intent(Image_classify.this, MainActivity.class);
+                startActivity(i);
+            }
+        });
 
     }
 
@@ -113,6 +128,16 @@ public class Image_classify extends AppCompatActivity  {
                 Mediacount = findcount();
                while (Mydbcount < Mediacount) {
                    Mydbcount = databaseHandlerCount.getDataCount();
+
+                   if(Mydbcount==10)
+                   {
+                       handler.post(new Runnable() {
+                           @Override
+                           public void run() {
+                               skip.setVisibility(View.VISIBLE);
+                           }
+                       });
+                   }
                    handler.post(new Runnable() {
                        public void run() {
                            dbcount.setText(Mydbcount + "");
@@ -136,7 +161,79 @@ public class Image_classify extends AppCompatActivity  {
         new Thread(runnable).start();
     }
 
-    void ClassifyImage()
+
+    private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+
+            int Count_new = findcount();
+
+            if(databaseHandler.getDataCount()<1)
+            {
+                for(int z =0; z < Image_path.size();z++)
+                {
+                    try {
+                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(z)), 224, 224);
+                        final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                        if (results.size() != 0) {
+                            databaseHandler.addData(new Classify_path(Image_path.get(z), results.get(0).toString(), Date_list.get(z)));
+                        } else {
+                            databaseHandler.addData(new Classify_path(Image_path.get(z), "none", Date_list.get(z)));
+                        }
+                    }
+                    catch(Exception e){
+                        databaseHandler.addData(new Classify_path(Image_path.get(z), "none", Date_list.get(z)));
+                    }
+                }
+            }
+            else
+            {
+                int new_images = Count_new - databaseHandler.getDataCount();
+                int init = 0;
+                while(new_images>0)
+                {
+                    if(databaseHandler.getpathCount(Image_path.get(init))==0)
+                    {
+                        try{
+                            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(init)),224,224);
+                            final List<Recognition> results = classifier.recognizeImage(bitmap);
+                            if(results.size()!=0){
+                                databaseHandler.addData(new Classify_path(Image_path.get(init),results.get(0).toString(),Date_list.get(init)));
+                            }
+                            else
+                            {
+                                databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
+                        }
+                    }
+                    new_images = Count_new - databaseHandler.getDataCount();
+                    init++;
+                }
+
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+        }
+        @Override
+        protected void onPreExecute() {
+        }
+        @Override
+        protected void onProgressUpdate(String... text) {
+        }
+    }
+
+    /*void ClassifyImage()
     {
         Runnable classify = new Runnable() {
 //            private long startTime = System.currentTimeMillis();
@@ -170,8 +267,8 @@ public class Image_classify extends AppCompatActivity  {
                     {
                         if(databaseHandler.getpathCount(Image_path.get(init))==0)
                         {
-                            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(init)),224,224);
                             try{
+                                Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(Image_path.get(init)),224,224);
                                 final List<Recognition> results = classifier.recognizeImage(bitmap);
                                 if(results.size()!=0){
                                     databaseHandler.addData(new Classify_path(Image_path.get(init),results.get(0).toString(),Date_list.get(init)));
@@ -196,7 +293,7 @@ public class Image_classify extends AppCompatActivity  {
         };
         new Thread(classify).start();
     }
-
+*/
     int findcount(){
         int count = 0;
         final String[] projection = {MediaStore.Images.Media.DATA};
@@ -232,7 +329,9 @@ public class Image_classify extends AppCompatActivity  {
 
             }
         }
-        ClassifyImage();
+        //ClassifyImage();
+        runner = new AsyncTaskRunner();
+        runner.execute();
     }
     private void initTensorFlowAndLoadModel() {
         try {
