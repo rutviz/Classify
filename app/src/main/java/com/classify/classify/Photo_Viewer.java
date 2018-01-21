@@ -1,5 +1,6 @@
 package com.classify.classify;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,10 +13,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.eftimoff.viewpagertransformers.FlipHorizontalTransformer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,9 +29,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 
 import static com.classify.classify.Global_Share.CurrentCategory;
+import static com.classify.classify.Global_Share.paths_of_image;
 
 public class Photo_Viewer extends AppCompatActivity{
 
@@ -33,14 +41,18 @@ public class Photo_Viewer extends AppCompatActivity{
      public ViewPager viewPager;
     RelativeLayout UpperLayer,BottomLayer;
 
-      Button btnDelete,btnShare;
-     ImageView back;
+    Button btnDelete,btnShare;
+    Spinner dropdown;
+    ImageView btnInfo;
+    ImageView back;
     static TextView category_title;
     DatabaseHandler db;
     static int index;
+    int pos;
+    String path;
     private ImageView hide,unhide;
 
-
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,12 +61,17 @@ public class Photo_Viewer extends AppCompatActivity{
         db = new DatabaseHandler(Photo_Viewer.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
-
+        dropdown = (Spinner) findViewById(R.id.spinner1);
+        ArrayList<String> category_list = db.getCategory();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, category_list);
+        dropdown.setAdapter(adapter);
+        dropdown.setSelected(false);
 
         UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
         BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
         category_title = (TextView)findViewById(R.id.category_title);
         btnDelete = (Button) findViewById(R.id.btnDelete);
+        btnInfo = (ImageView) findViewById(R.id.btninfo);
         btnShare = (Button) findViewById(R.id.btnShare);
         back = (ImageView) findViewById(R.id.btnBack);
         hide = (ImageView) findViewById(R.id.hide);
@@ -76,6 +93,31 @@ public class Photo_Viewer extends AppCompatActivity{
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(new Image_View_Adapter(this,Global_Share.paths_of_image));
         viewPager.setCurrentItem(id);
+        viewPager.setPageTransformer(false, new FlipHorizontalTransformer());
+
+        btnInfo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pos = viewPager.getCurrentItem();
+                path = paths_of_image.get(pos);
+                dropdown.setVisibility(View.VISIBLE);
+                dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view,
+                                               int position, long id) {
+
+                        String cate = (String) parent.getItemAtPosition(position);
+                        change_category(cate,path);
+                        dropdown.setSelected(false);
+                        dropdown.setVisibility(View.GONE);
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        // TODO Auto-generated method stub
+                    }
+                });
+            }
+        });
 
         hide.setOnClickListener(new OnClickListener() {
             @Override
@@ -161,6 +203,20 @@ public class Photo_Viewer extends AppCompatActivity{
         });
 
     }
+    public void change_category(String category,String path)
+    {
+        int position = viewPager.getCurrentItem();
+        db.update_category(category,path);
+        Global_Share.paths_of_image=db.getUniqueDataPath(Global_Share.CurrentCategory);
+        viewPager.setAdapter(new Image_View_Adapter(Photo_Viewer.this,Global_Share.paths_of_image));
+        if(Global_Share.paths_of_image.size() == 0)
+            Photo_Viewer.this.finish();
+        if(position==Global_Share.paths_of_image.size())
+            viewPager.setCurrentItem(position-1);
+        else
+            viewPager.setCurrentItem(position);
+
+    }
 
     public void recyclerbin(String path){
         InputStream in = null;
@@ -175,7 +231,7 @@ public class Photo_Viewer extends AppCompatActivity{
         String timestamp = tsLong.toString();
         Log.d("hey1",timestamp);
         try {
-
+            Log.d("path123",path);
             //create output directory if it doesn't exist
             String outputPath = "/storage/emulated/0/Classifyrecycle/"+imagename+".classify";
             File dir = new File ("/storage/emulated/0/Classifyrecycle");

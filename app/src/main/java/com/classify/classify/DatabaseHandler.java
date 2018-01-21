@@ -206,6 +206,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(query);
 
     }
+    public void update_category(String New_category,String oldpath){
+        String query = "UPDATE "+table_name+" SET "+ category +"= '" +New_category+ "' WHERE " +path+" = '"+oldpath+"'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+
+    }
 
 
     public int getDataCount() {
@@ -281,6 +287,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // return contact list
         return Data;
     }
+
+    public ArrayList<String> getUniqueDataPath(String Search) {
+        ArrayList<String> Data = new ArrayList<>();
+        String selectQuery;
+        if(Search.equals("All"))
+        {
+            selectQuery = "SELECT  "+path+" FROM " + table_name + " ORDER BY "+date+" DESC";
+        }
+        else
+        {
+            selectQuery = "SELECT  "+path+" FROM " + table_name + " WHERE "+category+" = '"+Search+"' ORDER BY "+date+" DESC";
+        }
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                // Adding contact to list
+                Data.add(cursor.getString(0));
+//                Log.d("Database",classify.getPath());
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        // return contact list
+        return Data;
+    }
+
     ArrayList<String> getCategory(){
         ArrayList<String> category_list= new ArrayList<>();
 
@@ -298,6 +334,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return category_list;
     }
+
+
+
     String getSingleCategory(String image_path)
     {
         String category="";

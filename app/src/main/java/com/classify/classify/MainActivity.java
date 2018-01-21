@@ -1,14 +1,17 @@
 package com.classify.classify;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -19,6 +22,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -69,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
     DatabaseHandler myDB;
+    ProgressDialog progressDialog;
     private AutoCompleteTextView search;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
@@ -80,12 +85,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String OUTPUT_NAME = "final_result";
     private static final String MODEL_FILE = "file:///android_asset/optimized_graph.pb";
     private static final String LABEL_FILE = "file:///android_asset/retrained_labels.txt";
+    static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 99;
     final int[] Delete_mode = {0};
 
 //    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
 //    private static final String LABEL_FILE =
 //            "file:///android_asset/imagenet_comp_graph_label_strings.txt";
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
+   // private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
     DatabaseHandler databaseHandler;
     DatabaseHandler myDBForRecycle;
     Activity mActivity;
@@ -116,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     int delete_flag=0;
     NavigationView navigationView;
     AsyncTaskRunner runner;
+    AsyncTaskRunnerForDelete run;
 
 
     @Override
@@ -142,14 +149,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
 //        myDB.createtable();
-
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Deleting...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView.setCheckedItem(R.id.nav_Images);
 
-
+        checkPermission();
 
         menu.setOnClickListener(new OnClickListener() {
             @Override
@@ -182,25 +191,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface arg0, int arg1) {
-                                            if(delete_from_appp.size()!=0){
-
-                                                for (int i = 0; i < delete_from_appp.size(); i++) {
-
-                                                    String myPath = delete_from_appp.get(i);
-                                                    try{
-                                                        recyclerbin(myPath);
-                                                        ContentResolver contentResolver = getContentResolver();
-                                                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                                                        myDB.deleteimagepath(delete_from_appp.get(i));
-                                                    }
-                                                    catch(Exception e){
-                                                        StorageProblem(delete_from_appp.get(i));
-                                                    }
-                                                }
-                                                UpdateUI();
-                                                delete_flag=0;
-                                            }
+                                            Log.d("yess","6");
+                                           run = new AsyncTaskRunnerForDelete();
+                                            Log.d("yess","5");
+                                            runner.cancel(true);
+                                            progressDialog.show();
+                                            run.execute();
+                                            Log.d("yess","4");
                                         }
                                     });
 
@@ -339,6 +336,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alertDialog.show();
 
     }
+    private void checkPermission(){
+        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
 
     private void initTensorFlowAndLoadModel() {
         try {
@@ -422,6 +443,57 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public class AsyncTaskRunnerForDelete extends AsyncTask<String, String, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            if(delete_from_appp.size()!=0){
+               progressDialog.setMax(delete_from_appp.size());
+                for (int i = 0; i < delete_from_appp.size(); i++) {
+                  progressDialog.setProgress(i);
+                   // Log.d("yess","2");
+                    String myPath = delete_from_appp.get(i);
+                    try{
+
+                        recyclerbin(myPath);
+                        ContentResolver contentResolver = getContentResolver();
+                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                        myDB.deleteimagepath(delete_from_appp.get(i));
+                    }
+                    catch(Exception e){
+                       // StorageProblem(delete_from_appp.get(i));
+                        Log.d("yes",e.getMessage());
+                    }
+                }
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        UpdateUI();
+                    }
+                });
+                progressDialog.dismiss();
+                delete_flag=0;
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void result) {
+            run.cancel(true);
+            runner = new AsyncTaskRunner();
+            runner.execute();
+        }
+        @Override
+        protected void onPreExecute() {
+            Log.d("yess","pre");
+        }
+        @Override
+        protected void onProgressUpdate(String... text) {
+            Log.d("yess","update");
+        }
+    }
     private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
         @Override
         protected Void doInBackground(String... params) {
@@ -437,8 +509,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Count_new = mmediaStorecursor.getCount();
                     int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                     paths_of_images = new ArrayList<String>();
-                    Log.d("c1124","beforesize"+paths_of_images.size());
-                    Log.d("c1124","beforesize"+Count_new);
+//                    Log.d("c1124","beforesize"+paths_of_images.size());
+//                    Log.d("c1124","beforesize"+Count_new);
                     date_list = new ArrayList<String>();
                     for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
                         mmediaStorecursor.moveToPosition(i);
@@ -460,7 +532,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         File file = new File(imagePath.getAbsolutePath());
                         Date lastModDate = new Date(file.lastModified());
                         String date = lastModDate.getTime() + "";
-                        Log.d("date",date);
+//                        Log.d("date",date);
                         date_list.add(date);
                     }
 
@@ -474,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             Bitmap bitmap = null;
                                 try {
-                                    Log.d("class_e",paths_of_images.get(init).toString());
+//                                    Log.d("class_e",paths_of_images.get(init).toString());
                                     Uri uri1 = Uri.parse("file://"+paths_of_images.get(init));
                                     bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri1);
                                     bitmap = Bitmap.createScaledBitmap(
@@ -493,7 +565,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     }
                                 }
                                   catch (IOException e) {
-                                      Log.d("class_e",e.getMessage());
+//                                      Log.d("class_e",e.getMessage());
                                       myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
                                       notification_title = "Classify in progress...";
                                       notification_rate = init+1;
@@ -645,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else
                 holder.chk.setVisibility(View.VISIBLE);
 
-            Log.d(TAG,""+visible.get(position));
+//            Log.d(TAG,""+visible.get(position));
 
             LayoutParams params = holder.image.getLayoutParams();
             params.width = (width-6)/3;
@@ -687,7 +759,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
                         mActivity.startActivity(i, options.toBundle());
                     }
-                    Log.d(TAG,""+Delete_mode[0]+" "+visible.get(position));
+//                    Log.d(TAG,""+Delete_mode[0]+" "+visible.get(position));
                 }
             });
             holder.image.setOnLongClickListener(new View.OnLongClickListener() {
@@ -701,7 +773,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         close.setVisibility(View.VISIBLE);
                         count_selected.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
-                        Log.d(TAG,position+"");
+//                        Log.d(TAG,position+"");
                         holder.chk.setVisibility(View.VISIBLE);
                         delete_from_appp.add(Specific_data.get(position).getPath());
                         count_selected.setText(delete_from_appp.size()+"");
@@ -796,7 +868,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String imagename = imagepath.getName().toString();
         Long tsLong = System.currentTimeMillis()/1000;
         String timestamp = tsLong.toString();
-        Log.d("hey1",timestamp);
+//        Log.d("hey1",timestamp);
         try {
 
             //create output directory if it doesn't exist
@@ -824,7 +896,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             out.close();
             out = null;
 
-            Log.d("oldpath",path + "main");
+//            Log.d("oldpath",path + "main");
             myDBForRecycle.recyclebinaddData(path,timestamp,time,outputPath);
 
 
@@ -835,10 +907,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         catch (FileNotFoundException fnfe1) {
-            Log.e("tag", fnfe1.getMessage());
+//            Log.e("tag", fnfe1.getMessage());
         }
         catch (Exception e) {
-            Log.e("tag", e.getMessage());
+//            Log.e("tag", e.getMessage());
         }
 
 
@@ -852,7 +924,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             temp.add(Specific.get(i).getPath());
         }
-        Log.d(TAG,temp.size()+" Main");
+//        Log.d(TAG,temp.size()+" Main");
         return temp;
     }
 

@@ -1,6 +1,7 @@
 package com.classify.classify;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
@@ -57,6 +58,7 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     ArrayAdapter<String> searchadapter;
     Context context;
     int Mydbcount ;
+    ProgressDialog progressDialog;
     int Mediacount ;
     final Handler handler = new Handler();
     List<String> delete_from_appp = new ArrayList<String>();
@@ -105,6 +107,11 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         select_all = (ImageButton) findViewById(R.id.check);
         trash_logo = (TextView) findViewById(R.id.trash_logo);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
+
+        progressDialog = new ProgressDialog(RecycleBin.this);
+
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -114,13 +121,19 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         delete_per.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                progressDialog.setTitle("Deleting...");
+                progressDialog.show();
+
+                progressDialog.setMax(delete_from_appp.size());
                 for(int init=0;init<delete_from_appp.size();init++) {
+                  //  progressDialog.setProgress(init);
                     String path = delete_from_appp.get(init);
                     Uri uri= Uri.parse("file://"+path);
                     File delete = new File(uri.getPath());
                     delete.delete();
                     myDb.deleteimagepathfromrecycle(path);
                 }
+                progressDialog.dismiss();
                 UpdateUI();
             }
         });
@@ -135,9 +148,12 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         delete_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                progressDialog.setTitle("Restoring...");
+                progressDialog.show();
+                progressDialog.setMax(delete_from_appp.size());
                 for(int init=0;init<delete_from_appp.size();init++){
-
-                String path = delete_from_appp.get(init);
+                    progressDialog.setProgress(init);
+                    String path = delete_from_appp.get(init);
                     Log.d("oldpath",path);
                     String oldpath = myDb.recyclegetvalue(path);
                     String modtime = myDb.recyclegetdatevalue(path);
@@ -206,6 +222,7 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                             }
                     );
                 }
+                progressDialog.dismiss();
                 UpdateUI();
             }
         });
