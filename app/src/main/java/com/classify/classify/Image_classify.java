@@ -126,15 +126,6 @@ public class Image_classify extends AppCompatActivity  {
                while (Mydbcount < Mediacount) {
                    Mydbcount = databaseHandlerCount.getDataCount();
 
-                   if(Mydbcount==10)
-                   {
-                       handler.post(new Runnable() {
-                           @Override
-                           public void run() {
-                               skip.setVisibility(View.VISIBLE);
-                           }
-                       });
-                   }
                    handler.post(new Runnable() {
                        public void run() {
                            dbcount.setText(Mydbcount + "");

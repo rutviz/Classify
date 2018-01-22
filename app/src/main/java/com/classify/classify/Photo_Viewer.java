@@ -1,6 +1,5 @@
 package com.classify.classify;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,7 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.eftimoff.viewpagertransformers.FlipHorizontalTransformer;
+import com.eftimoff.viewpagertransformers.StackTransformer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,8 +36,9 @@ import static com.classify.classify.Global_Share.paths_of_image;
 
 public class Photo_Viewer extends AppCompatActivity{
 
+    private static int FLAG_POPUP = 0;
     int width,height;
-     public ViewPager viewPager;
+    public ViewPager viewPager;
     RelativeLayout UpperLayer,BottomLayer;
 
     Button btnDelete,btnShare;
@@ -52,7 +52,6 @@ public class Photo_Viewer extends AppCompatActivity{
     String path;
     private ImageView hide,unhide;
 
-    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,9 +62,8 @@ public class Photo_Viewer extends AppCompatActivity{
         height = getWindowManager().getDefaultDisplay().getHeight();
         dropdown = (Spinner) findViewById(R.id.spinner1);
         ArrayList<String> category_list = db.getCategory();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, category_list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_list, category_list);
         dropdown.setAdapter(adapter);
-        dropdown.setSelected(false);
 
         UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
         BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
@@ -93,7 +91,7 @@ public class Photo_Viewer extends AppCompatActivity{
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(new Image_View_Adapter(this,Global_Share.paths_of_image));
         viewPager.setCurrentItem(id);
-        viewPager.setPageTransformer(false, new FlipHorizontalTransformer());
+        viewPager.setPageTransformer(true, new StackTransformer());
 
         btnInfo.setOnClickListener(new OnClickListener() {
             @Override
@@ -101,21 +99,25 @@ public class Photo_Viewer extends AppCompatActivity{
                 pos = viewPager.getCurrentItem();
                 path = paths_of_image.get(pos);
                 dropdown.setVisibility(View.VISIBLE);
-                dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view,
-                                               int position, long id) {
+                dropdown.showContextMenu();
+                dropdown.performClick();
+            }
+        });
 
-                        String cate = (String) parent.getItemAtPosition(position);
-                        change_category(cate,path);
-                        dropdown.setSelected(false);
-                        dropdown.setVisibility(View.GONE);
-                    }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // TODO Auto-generated method stub
-                    }
-                });
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+
+                String cate = (String) parent.getItemAtPosition(position);
+                change_category(cate,path);
+                Log.d(Global_Share.TAG,"select");
+                dropdown.setVisibility(View.GONE);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                dropdown.setVisibility(View.GONE);
+                // TODO Auto-generated method stub
             }
         });
 
@@ -251,16 +253,12 @@ public class Photo_Viewer extends AppCompatActivity{
             }
             in.close();
             in = null;
-
             // write the output file
             out.flush();
             out.close();
             out = null;
-
             Log.d("oldpath",path + "main");
             db.recyclebinaddData(path,timestamp,time,outputPath);
-
-
             // delete the original file
             //   new File(inputPath + inputFile).delete();
 
