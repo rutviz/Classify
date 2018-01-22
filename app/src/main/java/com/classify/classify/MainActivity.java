@@ -150,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         count_selected = (TextView) findViewById(R.id.count_selelcted);
 //        myDB.createtable();
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Deleting...");
+        progressDialog.setTitle("Moving to trash...");
+        progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);

@@ -48,7 +48,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     DatabaseHandler myDb;
     private RecyclerView mThumbnailRecyclerView;
     final int[] Delete_mode = {0};
-
     private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
     private static final String LABEL_FILE =
             "file:///android_asset/imagenet_comp_graph_label_strings.txt";
@@ -58,7 +57,7 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     ArrayAdapter<String> searchadapter;
     Context context;
     int Mydbcount ;
-    ProgressDialog progressDialog;
+    ProgressDialog progressDialog,pr;
     int Mediacount ;
     final Handler handler = new Handler();
     List<String> delete_from_appp = new ArrayList<String>();
@@ -108,9 +107,15 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         trash_logo = (TextView) findViewById(R.id.trash_logo);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
 
-        progressDialog = new ProgressDialog(RecycleBin.this);
-
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Deleting permanently...");
+        progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
+        pr = new ProgressDialog(this);
+        pr.setTitle("Restoring...");
+        pr.setCancelable(false);
+        pr.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -121,20 +126,31 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         delete_per.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                progressDialog.setTitle("Deleting...");
                 progressDialog.show();
-
                 progressDialog.setMax(delete_from_appp.size());
-                for(int init=0;init<delete_from_appp.size();init++) {
-                  //  progressDialog.setProgress(init);
-                    String path = delete_from_appp.get(init);
-                    Uri uri= Uri.parse("file://"+path);
-                    File delete = new File(uri.getPath());
-                    delete.delete();
-                    myDb.deleteimagepathfromrecycle(path);
-                }
-                progressDialog.dismiss();
-                UpdateUI();
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for(int init=0;init<delete_from_appp.size();init++) {
+                            progressDialog.setProgress(init);
+                            String path = delete_from_appp.get(init);
+                            Uri uri= Uri.parse("file://"+path);
+                            File delete = new File(uri.getPath());
+                            delete.delete();
+                            myDb.deleteimagepathfromrecycle(path);
+                        }
+                        progressDialog.dismiss();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                UpdateUI();
+                            }
+                        });
+
+                    }
+                });
+                t.start();
+
             }
         });
 
@@ -148,82 +164,8 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         delete_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                progressDialog.setTitle("Restoring...");
-                progressDialog.show();
-                progressDialog.setMax(delete_from_appp.size());
-                for(int init=0;init<delete_from_appp.size();init++){
-                    progressDialog.setProgress(init);
-                    String path = delete_from_appp.get(init);
-                    Log.d("oldpath",path);
-                    String oldpath = myDb.recyclegetvalue(path);
-                    String modtime = myDb.recyclegetdatevalue(path);
-                    InputStream in = null;
-                    OutputStream out = null;
-                    Uri mediaUri = Uri.parse("file://"+ path);
-                    File imagepath =new File(mediaUri.getPath());
-                    String imagename = imagepath.getName().toString();
-                    int length = imagename.length();
-                    imagename = imagename.substring(0,length-9);
-                    Long tsLong = System.currentTimeMillis()/1000;
-                    String timestamp = tsLong.toString();
-                    Log.d("hey1",timestamp);
-                    try {
-
-                        String outputPath = oldpath;
-                    try {
-                        in = new FileInputStream(delete_from_appp.get(init));
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    out = new FileOutputStream(outputPath);
-
-                        byte[] buffer = new byte[1024];
-                        int read;
-                        while ((read = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, read);
-                        }
-                        in.close();
-                        in = null;
-                        out.flush();
-                        out.close();
-                        out = null;
-                        Uri uria = Uri.parse(oldpath);
-                       File f = new File(uria.getPath());
-                       Log.d("date",modtime);
-                       long l = Long.parseLong(modtime);
-                        boolean b = f.setLastModified(l);
-                        if(b)
-                        {
-                            Log.d("booll","true");
-                        }
-                    }
-                    catch (FileNotFoundException fnfe1) {
-                        Log.e("tag", fnfe1.getMessage());
-                    }
-                    catch (Exception e) {
-                        Log.e("tag", e.getMessage());
-                    }
-                    Uri uri1 = Uri.parse("file://"+delete_from_appp.get(init));
-                    File delete = new File(uri1.getPath());
-                    delete.delete();
-                    myDb.deleteimagepathfromrecycle(delete_from_appp.get(init));
-                    Uri urii = Uri.parse("file://"+oldpath);
-                    final File file = new File(urii.getPath());
-
-                    MediaScannerConnection.scanFile(
-                            getApplicationContext(),
-                            new String[]{file.getAbsolutePath()},
-                            null,
-                            new MediaScannerConnection.OnScanCompletedListener() {
-                                @Override
-                                public void onScanCompleted(String s, Uri uri) {
-                                    Log.d("complete","file "+ s +" scanned "+ uri );
-                                }
-                            }
-                    );
-                }
-                progressDialog.dismiss();
-                UpdateUI();
+                pr.show();
+                restore();
             }
         });
 
@@ -262,6 +204,100 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
             }
         });
     }
+
+
+    public void restore()
+    {
+        pr.setMax(delete_from_appp.size());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for(int init=0;init<delete_from_appp.size();init++){
+                    pr.setProgress(init);
+                    String path = delete_from_appp.get(init);
+                    Log.d("oldpath",path);
+                    String oldpath = myDb.recyclegetvalue(path);
+                    String modtime = myDb.recyclegetdatevalue(path);
+                    InputStream in = null;
+                    OutputStream out = null;
+                    Uri mediaUri = Uri.parse("file://"+ path);
+                    File imagepath =new File(mediaUri.getPath());
+                    String imagename = imagepath.getName().toString();
+                    int length = imagename.length();
+                    imagename = imagename.substring(0,length-9);
+                    Long tsLong = System.currentTimeMillis()/1000;
+                    String timestamp = tsLong.toString();
+                    Log.d("hey1",timestamp);
+                    try {
+
+                        String outputPath = oldpath;
+                        try {
+                            in = new FileInputStream(delete_from_appp.get(init));
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        out = new FileOutputStream(outputPath);
+
+                        byte[] buffer = new byte[1024];
+                        int read;
+                        while ((read = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, read);
+                        }
+                        in.close();
+                        in = null;
+                        out.flush();
+                        out.close();
+                        out = null;
+                        Uri uria = Uri.parse(oldpath);
+                        File f = new File(uria.getPath());
+                        Log.d("date",modtime);
+                        long l = Long.parseLong(modtime);
+                        boolean b = f.setLastModified(l);
+                        if(b)
+                        {
+                            Log.d("booll","true");
+                        }
+                    }
+                    catch (FileNotFoundException fnfe1) {
+                        Log.e("tag", fnfe1.getMessage());
+                    }
+                    catch (Exception e) {
+                        Log.e("tag", e.getMessage());
+                    }
+                    Uri uri1 = Uri.parse("file://"+delete_from_appp.get(init));
+                    File delete = new File(uri1.getPath());
+                    delete.delete();
+                    myDb.deleteimagepathfromrecycle(delete_from_appp.get(init));
+                    Uri urii = Uri.parse("file://"+oldpath);
+                    final File file = new File(urii.getPath());
+
+                    MediaScannerConnection.scanFile(
+                            getApplicationContext(),
+                            new String[]{file.getAbsolutePath()},
+                            null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                @Override
+                                public void onScanCompleted(String s, Uri uri) {
+                                    Log.d("complete","file "+ s +" scanned "+ uri );
+                                }
+                            }
+                    );
+                }
+                pr.dismiss();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        UpdateUI();
+                    }
+                });
+
+            }
+        });
+        thread.start();
+
+
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
