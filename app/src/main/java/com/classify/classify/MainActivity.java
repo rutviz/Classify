@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,7 +55,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int THUMBNAIL_SIZE = 224;
     private RecyclerView mThumbnailRecyclerView;
     private MediaStoreAdapter mMediaStoreAdapter;
+    ImageButton share;
     DatabaseHandler myDB;
     ProgressDialog progressDialog;
     private AutoCompleteTextView search;
@@ -146,12 +147,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         delete_btn = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
+        share = (ImageButton) findViewById(R.id.share);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
 //        myDB.createtable();
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Moving to trash...");
-        progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -181,6 +182,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         t.start();
+
+        share.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                    ArrayList<Uri> uris = new ArrayList<>();
+                    for(int i=0;i<delete_from_appp.size();i++)
+                    {
+                        uris.add(Uri.parse("file://"+delete_from_appp.get(i)));
+                    }
+                    Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                    sharingIntent.setType("image/jpeg");
+                    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Shared via Classify");
+                    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Shared via Classify ");
+                    //sharingIntent.putExtra(Intent.EXTRA_STREAM,mediaUri);
+                    sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,uris);
+                    MainActivity.this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                    Category_change();
+                    imageadapter.notifyDataSetChanged();
+            }
+        });
 
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
@@ -431,12 +453,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(rate == total_image)
         {
+            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             n  = new Notification.Builder(this)
                     .setContentTitle("Classify")
                     .setContentText("All new images are successfully classified.")
                     .setSmallIcon(R.drawable.logo_white)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
+                    .setSound(alarmSound)
                     .setStyle(new Notification.BigTextStyle().bigText("")).build();
             n.flags |= Notification.FLAG_AUTO_CANCEL;
             NotificationManager manager2 = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -565,7 +589,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         addNotification(notification_title,notification_rate);
                                     }
                                 }
-                                  catch (IOException e) {
+                                  catch (Exception e) {
 //                                      Log.d("class_e",e.getMessage());
                                       myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
                                       notification_title = "Classify in progress...";
@@ -770,6 +794,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         visible.set(position,1);
                         delete_btn.setVisibility(View.VISIBLE);
                         select_all.setVisibility(View.VISIBLE);
+                        share.setVisibility(View.VISIBLE);
                         menu.setVisibility(View.GONE);
                         close.setVisibility(View.VISIBLE);
                         count_selected.setVisibility(View.VISIBLE);
@@ -814,6 +839,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         select_all.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_check_box_outline_blank_white_24dp));
         delete_btn.setVisibility(View.GONE);
+        share.setVisibility(View.GONE);
         close.setVisibility(View.GONE);
         menu.setVisibility(View.VISIBLE);
         select_all.setVisibility(View.GONE);

@@ -355,7 +355,6 @@ public class Image_classify extends AppCompatActivity  {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-
                 startTimerThread();
                 getPath();
             } else {
@@ -366,7 +365,6 @@ public class Image_classify extends AppCompatActivity  {
                         READ_EXTERNAL_STORAGE_PERMMISSION_RESULT);
             }
         } else {
-
             startTimerThread();
             getPath();
         }

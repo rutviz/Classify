@@ -8,12 +8,14 @@ import android.provider.MediaStore;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -40,8 +42,9 @@ public class Photo_Viewer extends AppCompatActivity{
     int width,height;
     public ViewPager viewPager;
     RelativeLayout UpperLayer,BottomLayer;
-
-    Button btnDelete,btnShare;
+    RecyclerView EditRecycle;
+    int flag=0;
+    Button btnDelete,btnShare,btnEdit;
     Spinner dropdown;
     ImageView btnInfo;
     ImageView back;
@@ -51,6 +54,7 @@ public class Photo_Viewer extends AppCompatActivity{
     int pos;
     String path;
     private ImageView hide,unhide;
+    ArrayList<String> category_list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +65,13 @@ public class Photo_Viewer extends AppCompatActivity{
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         dropdown = (Spinner) findViewById(R.id.spinner1);
-        ArrayList<String> category_list = db.getCategory();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_list, category_list);
-        dropdown.setAdapter(adapter);
+        category_list = db.getCategory();
+        EditRecycle = (RecyclerView) findViewById(R.id.editRecycle);
+        EditRecycle.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        Edit_adapter adapters = new Edit_adapter(category_list);
+        EditRecycle.setAdapter(adapters);
+        /*ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_list, category_list);
+        dropdown.setAdapter(adapter);*/
 
         UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
         BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
@@ -71,6 +79,7 @@ public class Photo_Viewer extends AppCompatActivity{
         btnDelete = (Button) findViewById(R.id.btnDelete);
         btnInfo = (ImageView) findViewById(R.id.btninfo);
         btnShare = (Button) findViewById(R.id.btnShare);
+        btnEdit = (Button) findViewById(R.id.btnEditCategory);
         back = (ImageView) findViewById(R.id.btnBack);
         hide = (ImageView) findViewById(R.id.hide);
         unhide = (ImageView) findViewById(R.id.unhide);
@@ -85,39 +94,30 @@ public class Photo_Viewer extends AppCompatActivity{
 //        Glide.with(this).load(path).into(imageView);
 
         LayoutParams params = btnShare.getLayoutParams();
-        params.width = width/2;
+        params.width = width/3;
+        LayoutParams params2 = btnDelete.getLayoutParams();
+        params2.width = width/3;
         btnShare.setLayoutParams(params);
+        btnDelete.setLayoutParams(params2);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(new Image_View_Adapter(this,Global_Share.paths_of_image));
         viewPager.setCurrentItem(id);
         viewPager.setPageTransformer(true, new StackTransformer());
 
-        btnInfo.setOnClickListener(new OnClickListener() {
+        btnEdit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                pos = viewPager.getCurrentItem();
-                path = paths_of_image.get(pos);
-                dropdown.setVisibility(View.VISIBLE);
-                dropdown.showContextMenu();
-                dropdown.performClick();
-            }
-        });
-
-        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-
-                String cate = (String) parent.getItemAtPosition(position);
-                change_category(cate,path);
-                Log.d(Global_Share.TAG,"select");
-                dropdown.setVisibility(View.GONE);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                dropdown.setVisibility(View.GONE);
-                // TODO Auto-generated method stub
+                if(flag==0)
+                {
+                    EditRecycle.setVisibility(View.VISIBLE);
+                    flag=1;
+                }
+                else if(flag==1)
+                {
+                    EditRecycle.setVisibility(View.GONE);
+                    flag=0;
+                }
             }
         });
 
@@ -128,6 +128,19 @@ public class Photo_Viewer extends AppCompatActivity{
                 BottomLayer.setVisibility(View.INVISIBLE);
                 unhide.setVisibility(View.VISIBLE);
                 Log.d(Global_Share.TAG,"touched");
+                int pos = viewPager.getCurrentItem();
+                String path = paths_of_image.get(pos);
+                File file = new File(path);
+                long length = file.length();
+                length = length/1024;
+                Log.d("11111",file.getName());
+                Log.d("11111",file.getAbsolutePath());
+                Log.d("11111",file.getAbsoluteFile()+"");
+                Log.d("11111",file.lastModified()+"");
+                Log.d("11111",file.getUsableSpace()+"");
+                Log.d("11111",length+"");
+                Uri uri = Uri.parse(path);
+
             }
         });
         unhide.setOnClickListener(new OnClickListener() {
@@ -149,7 +162,8 @@ public class Photo_Viewer extends AppCompatActivity{
         btnShare.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Uri mediaUri = Uri.parse(Global_Share.paths_of_image.get(viewPager.getCurrentItem()));
+                String path = "file://"+Global_Share.paths_of_image.get(viewPager.getCurrentItem());
+                Uri mediaUri = Uri.parse("file://"+Global_Share.paths_of_image.get(viewPager.getCurrentItem()));
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("image/jpeg");
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Shared via Classify");
@@ -179,6 +193,21 @@ public class Photo_Viewer extends AppCompatActivity{
                     viewPager.setCurrentItem(position-1);
                 else
                     viewPager.setCurrentItem(position);
+            }
+        });
+
+        viewPager.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Log.d(Global_Share.TAG,"clicked");
+                return true;
+            }
+        });
+
+        viewPager.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(Global_Share.TAG,"clicked");
             }
         });
 
@@ -217,7 +246,6 @@ public class Photo_Viewer extends AppCompatActivity{
             viewPager.setCurrentItem(position-1);
         else
             viewPager.setCurrentItem(position);
-
     }
 
     public void recyclerbin(String path){
@@ -271,8 +299,54 @@ public class Photo_Viewer extends AppCompatActivity{
         catch (Exception e) {
             Log.e("tag", e.getMessage());
         }
-
-
-
     }
+
+    private class Edit_adapter extends RecyclerView.Adapter<Edit_adapter.ViewHolder>
+    {
+        ArrayList<String> category_list = new ArrayList<>();
+
+        public Edit_adapter(ArrayList<String> category_list) {
+            this.category_list = category_list;
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.spinner_list,parent,false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, final int position)
+        {
+            holder.editCategory.setText(category_list.get(position));
+            holder.editCategory.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int pos = viewPager.getCurrentItem();
+                    String paths = paths_of_image.get(pos);
+                    String category = category_list.get(position);
+                    change_category(category,paths);
+                    EditRecycle.setVisibility(View.GONE);
+                }
+            });
+        }
+        @Override
+        public int getItemCount() {
+            return category_list.size();
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder
+        {
+            TextView editCategory;
+            public ViewHolder(View itemView) {
+                super(itemView);
+                editCategory = (TextView)itemView.findViewById(R.id.editText1);
+
+            }
+        }
+    }
+
+
+
+
 }
