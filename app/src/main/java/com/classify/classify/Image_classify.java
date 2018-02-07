@@ -93,11 +93,13 @@ public class Image_classify extends AppCompatActivity  {
         catch (Exception e){
         }
         initTensorFlowAndLoadModel();
+
         databaseHandler.globaladdData("firstrun","0");
+        databaseHandler.globaladdData("Flag_for_recycle","0");
         Log.d("globalvalue",databaseHandler.globalgetvalue("firstrun"));
         if(databaseHandler.globalgetvalue("firstrun").equals("1")){
             Log.d("Skip","1");
-            Intent i = new Intent(Image_classify.this, MainActivity.class);
+            Intent i = new Intent(Image_classify.this, PermissionActivity.class);
             startActivity(i);
         }
         else{
@@ -110,7 +112,7 @@ public class Image_classify extends AppCompatActivity  {
             public void onClick(View view) {
                 runner.cancel(true);
                 databaseHandler.globalsetvalue("firstrun","1");
-                Intent i = new Intent(Image_classify.this, MainActivity.class);
+                Intent i = new Intent(Image_classify.this, PermissionActivity.class);
                 startActivity(i);
             }
         });
@@ -139,7 +141,7 @@ public class Image_classify extends AppCompatActivity  {
                     @Override
                     public void run() {
                         databaseHandler.globalsetvalue("firstrun","1");
-            Intent i = new Intent(Image_classify.this, MainActivity.class);
+            Intent i = new Intent(Image_classify.this, PermissionActivity.class);
             startActivity(i);
 
         }

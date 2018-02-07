@@ -18,6 +18,7 @@ import android.graphics.Typeface;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -48,6 +49,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //    private static final String LABEL_FILE =
 //            "file:///android_asset/imagenet_comp_graph_label_strings.txt";
    // private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
-    DatabaseHandler databaseHandler;
+    DatabaseHandler databaseHandler,db2;
     DatabaseHandler myDBForRecycle;
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
@@ -136,14 +138,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        checkReadExternalStoragePermission();
         myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
-        final String[] projection = {MediaStore.Images.Media.DATA};
         myDBForRecycle = new DatabaseHandler(MainActivity.this);
-
-        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+        db2 = new DatabaseHandler(MainActivity.this);
         delete_btn = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
@@ -168,20 +168,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
-
-        t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if(flag==0)
-                {
-                    initTensorFlowAndLoadModel();
-                    flag=1;
-                }
-                runner = new AsyncTaskRunner();
-                runner.execute();
-            }
-        });
-        t.start();
 
         share.setOnClickListener(new OnClickListener() {
             @Override
@@ -215,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         @Override
                                         public void onClick(DialogInterface arg0, int arg1) {
                                             Log.d("yess","6");
-                                           run = new AsyncTaskRunnerForDelete();
+                                            run = new AsyncTaskRunnerForDelete();
                                             Log.d("yess","5");
                                             runner.cancel(true);
                                             progressDialog.show();
@@ -327,6 +313,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void AsynctaskAfterPermission()
+    {
+        final String[] projection = {MediaStore.Images.Media.DATA};
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        mmediaStorecursor = getContentResolver().query(uri,projection,null,null,null);
+        t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(flag==0)
+                {
+                    initTensorFlowAndLoadModel();
+                    flag=1;
+                }
+                runner = new AsyncTaskRunner();
+                runner.execute();
+            }
+        });
+        t.start();
+
+    }
+
     public  void StorageProblem(final String s)
     {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
@@ -358,30 +365,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
 
-    }
-    private void checkPermission(){
-        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        } else {
-
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-
-                }
-                break;
-
-            default:
-                break;
-        }
     }
 
     private void initTensorFlowAndLoadModel() {
@@ -428,6 +411,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_Notification)
         {
 
+        }
+        else if (id == R.id.nav_Settings)
+        {
+            runner.cancel(true);
+            Intent i = new Intent(MainActivity.this,AppSettings.class);
+            startActivity(i);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -479,11 +468,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     String myPath = delete_from_appp.get(i);
                     try{
 
-                        recyclerbin(myPath);
-                        ContentResolver contentResolver = getContentResolver();
-                        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
-                        myDB.deleteimagepath(delete_from_appp.get(i));
+                        String recycle_flag = db2.globalgetvalue("Flag_for_recycle");
+                        if(recycle_flag.equals("1"))
+                        {
+                            recyclerbin(myPath);
+                            ContentResolver contentResolver = getContentResolver();
+                            contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                    MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                            myDB.deleteimagepath(delete_from_appp.get(i));
+                        }
+                        else {
+                            ContentResolver contentResolver = getContentResolver();
+                            contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                    MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
+                            myDB.deleteimagepath(delete_from_appp.get(i));
+                        }
+
                     }
                     catch(Exception e){
                        // StorageProblem(delete_from_appp.get(i));
@@ -969,4 +969,69 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     static {
         System.loadLibrary("native-lib");
     }
+
+    private void checkReadExternalStoragePermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                AsynctaskAfterPermission();
+            } else {
+                if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    Toast.makeText(this, "App needs to view thumbnails", Toast.LENGTH_SHORT).show();
+                }
+                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                        READ_EXTERNAL_STORAGE_PERMMISSION_RESULT);
+            }
+        } else {
+            AsynctaskAfterPermission();
+        }
+    }
+    private void checkPermission(){
+        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode) {
+            case READ_EXTERNAL_STORAGE_PERMMISSION_RESULT:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    checkReadExternalStoragePermission();
+                }
+                else
+                {checkReadExternalStoragePermission();
+                }
+                break;
+                case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                    if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    }
+                    else
+                    {
+                        Intent i = new Intent(MainActivity.this, PermissionActivity.class);
+                        startActivity(i);
+                    }
+                    break;
+                default:
+                    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+/*
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+
+                }
+                break;
+
+            default:
+                break;
+        }
+    }*/
 }

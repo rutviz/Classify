@@ -91,6 +91,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         db1.close();
     }
+    public void globalEditaddData(String variable_name,String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db1 = this.getReadableDatabase();
+        String query = "SELECT "+variablename+" FROM "+table_name_global+" WHERE "+variablename+" = '"+variable_name+"'";
+            ContentValues values = new ContentValues();
+            values.put(variablename, variable_name);
+            values.put(variablevalue, value);
+            db.insert(table_name_global, null, values);
+            getData();
+        db.close();
+        db1.close();
+    }
     public void recyclebinaddData(String old_path,String deletetime,String modifieddate,String new_path) {
         SQLiteDatabase db = this.getWritableDatabase();
         SQLiteDatabase db1 = this.getReadableDatabase();

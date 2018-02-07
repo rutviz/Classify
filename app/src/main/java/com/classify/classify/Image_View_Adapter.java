@@ -83,6 +83,12 @@ public class Image_View_Adapter extends PagerAdapter {
 //        imgDisplay.setImageBitmap(bitmap);
         imgDisplay.setDisplayType(DisplayType.FIT_TO_SCREEN);
         Glide.with(_activity).load(_imagePaths.get(position)).skipMemoryCache(true).override(width,height-200).fitCenter().into(imgDisplay);
+        imgDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(Global_Share.TAG,"clicked");
+            }
+        });
 
         // close button click event
 

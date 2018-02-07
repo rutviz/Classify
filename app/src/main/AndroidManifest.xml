@@ -23,9 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity2" />
-        <activity
-            android:name=".Photo_Viewer"
-             />
+        <activity android:name=".Photo_Viewer" />
         <activity
             android:name=".Splash_screen"
             android:label="Classify"
@@ -44,8 +42,10 @@
         <activity
             android:name=".Image_view_Recycle"
             android:theme="@style/ImageViewer" />
-        <activity android:name=".Image_Detail"></activity>
-        <activity android:name=".ImageInfo"></activity>
+        <activity android:name=".Image_Detail" />
+        <activity android:name=".ImageInfo" />
+        <activity android:name=".PermissionActivity" />
+        <activity android:name=".AppSettings"></activity>
     </application>
 
 </manifest>

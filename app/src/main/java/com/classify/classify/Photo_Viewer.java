@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.classify.classify.Global_Share.CurrentCategory;
 import static com.classify.classify.Global_Share.paths_of_image;
@@ -121,6 +124,29 @@ public class Photo_Viewer extends AppCompatActivity{
             }
         });
 
+        btnInfo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int pos = viewPager.getCurrentItem();
+                String path = paths_of_image.get(pos);
+                File file = new File(path);
+                long length = file.length();
+                length = length/1024;
+                String imagename = file.getName();
+                String imagepath = file.getAbsolutePath();
+                String dates = getDateCurrentTimeZone(file.lastModified());
+                String size = length+"";
+                int poss  = viewPager.getCurrentItem();
+                Intent i = new Intent(Photo_Viewer.this,ImageInfo.class);
+                i.putExtra("name",imagename);
+                i.putExtra("path",imagepath);
+                i.putExtra("date",dates);
+                i.putExtra("size",size);
+                i.putExtra("category",db.getSingleCategory(Global_Share.paths_of_image.get(poss)));
+                startActivity(i);
+            }
+        });
+
         hide.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -128,18 +154,7 @@ public class Photo_Viewer extends AppCompatActivity{
                 BottomLayer.setVisibility(View.INVISIBLE);
                 unhide.setVisibility(View.VISIBLE);
                 Log.d(Global_Share.TAG,"touched");
-                int pos = viewPager.getCurrentItem();
-                String path = paths_of_image.get(pos);
-                File file = new File(path);
-                long length = file.length();
-                length = length/1024;
-                Log.d("11111",file.getName());
-                Log.d("11111",file.getAbsolutePath());
-                Log.d("11111",file.getAbsoluteFile()+"");
-                Log.d("11111",file.lastModified()+"");
-                Log.d("11111",file.getUsableSpace()+"");
-                Log.d("11111",length+"");
-                Uri uri = Uri.parse(path);
+
 
             }
         });
@@ -234,6 +249,26 @@ public class Photo_Viewer extends AppCompatActivity{
         });
 
     }
+
+    public  String getDateCurrentTimeZone(long timestamp) {
+
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(timestamp);
+        String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", cal).toString();
+        /*try{
+            Calendar calendar = Calendar.getInstance();
+            TimeZone tz = TimeZone.getDefault();
+            calendar.setTimeInMillis(timestamp * 1000);
+            calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date currenTimeZone = (Date) calendar.getTime();
+            return sdf.format(currenTimeZone);
+        }catch (Exception e) {
+        }
+        return "";*/
+        return date;
+    }
+
     public void change_category(String category,String path)
     {
         int position = viewPager.getCurrentItem();

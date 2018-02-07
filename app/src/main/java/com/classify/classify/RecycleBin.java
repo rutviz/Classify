@@ -324,6 +324,12 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         {
 
         }
+        else if (id == R.id.nav_Settings)
+        {
+
+            Intent i = new Intent(RecycleBin.this,AppSettings.class);
+            startActivity(i);
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
