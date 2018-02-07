@@ -156,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView.setCheckedItem(R.id.nav_Images);
 
@@ -193,22 +192,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         delete_btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                    delete_flag=1;
+                delete_flag=1;
+                runner.cancel(true);
+                String recycle_flag = db2.globalgetvalue("Flag_for_recycle");
+                if(recycle_flag.equals("1"))
+                {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                     alertDialogBuilder.setMessage("Move to Trash");
-                            alertDialogBuilder.setPositiveButton("yes",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface arg0, int arg1) {
-                                            Log.d("yess","6");
-                                            run = new AsyncTaskRunnerForDelete();
-                                            Log.d("yess","5");
-                                            runner.cancel(true);
-                                            progressDialog.show();
-                                            run.execute();
-                                            Log.d("yess","4");
-                                        }
-                                    });
+                    alertDialogBuilder.setPositiveButton("yes",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    run = new AsyncTaskRunnerForDelete();
+                                    runner.cancel(true);
+                                    progressDialog.show();
+                                    run.execute();
+                                }
+                            });
 
                     alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
 
@@ -223,7 +223,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
 
+                }
+                else{
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                    alertDialogBuilder.setMessage("Permanently delete");
+                    alertDialogBuilder.setPositiveButton("yes",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    run = new AsyncTaskRunnerForDelete();
+                                    runner.cancel(true);
+                                    progressDialog.show();
+                                    run.execute();
+                                }
+                            });
 
+                    alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Category_change();
+                            imageadapter.notifyDataSetChanged();
+                            delete_flag=0;
+                        }
+                    });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
             }
         });
 
@@ -342,14 +369,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-
                         ContentResolver contentResolver = getContentResolver();
                         contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ s });
                         myDB.deleteimagepath(s);
-
                             UpdateUI();
-
                     }
                 });
 
@@ -364,7 +388,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
-
     }
 
     private void initTensorFlowAndLoadModel() {
@@ -434,6 +457,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setContentText(rates)
                 .setSmallIcon(R.drawable.logo_white)
                 .setContentIntent(contentIntent)
+                .setProgress(total_image,rate,true)
                 .setAutoCancel(true)
                 .setStyle(new Notification.BigTextStyle().bigText("")).build();
         n.flags |= Notification.FLAG_AUTO_CANCEL;
@@ -483,6 +507,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
                             myDB.deleteimagepath(delete_from_appp.get(i));
                         }
+                        runner = new AsyncTaskRunner();
+                        runner.execute();
 
                     }
                     catch(Exception e){
@@ -534,8 +560,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Count_new = mmediaStorecursor.getCount();
                     int dataIndex = mmediaStorecursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                     paths_of_images = new ArrayList<String>();
-//                    Log.d("c1124","beforesize"+paths_of_images.size());
-//                    Log.d("c1124","beforesize"+Count_new);
                     date_list = new ArrayList<String>();
                     for (int i = 0; i < mmediaStorecursor.getCount(); i++) {
                         mmediaStorecursor.moveToPosition(i);
@@ -895,10 +919,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String imagename = imagepath.getName().toString();
         Long tsLong = System.currentTimeMillis()/1000;
         String timestamp = tsLong.toString();
-//        Log.d("hey1",timestamp);
         try {
-
-            //create output directory if it doesn't exist
             String outputPath = "/storage/emulated/0/Classifyrecycle/"+imagename+".classify";
             File dir = new File ("/storage/emulated/0/Classifyrecycle");
             if (!dir.exists())
@@ -918,26 +939,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             in.close();
             in = null;
 
-            // write the output file
             out.flush();
             out.close();
             out = null;
-
-//            Log.d("oldpath",path + "main");
             myDBForRecycle.recyclebinaddData(path,timestamp,time,outputPath);
-
-
-            // delete the original file
-         //   new File(inputPath + inputFile).delete();
-
-
         }
-
         catch (FileNotFoundException fnfe1) {
-//            Log.e("tag", fnfe1.getMessage());
         }
         catch (Exception e) {
-//            Log.e("tag", e.getMessage());
         }
 
 

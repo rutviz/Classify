@@ -5,76 +5,288 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.classify.classify.ImageInfo">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filename : "
-        android:id="@+id/nameTag"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/name"
-        android:text=" name"
-        android:layout_toRightOf="@+id/nameTag"/>
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="File category : "
-        android:layout_below="@+id/nameTag"
-        android:id="@+id/cateTag"/>
-    <TextView
+    <RelativeLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:id="@+id/toolbar"
+        android:layout_margin="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/category"
-        android:text=" path"
-        android:layout_below="@+id/nameTag"
-        android:layout_toRightOf="@+id/cateTag"/>
+        android:padding="5dp"
+        android:background="@drawable/toolbar_top">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filepath : "
-        android:layout_below="@+id/cateTag"
-        android:layout_marginTop="20dp"
-        android:id="@+id/pathTag"/>
-    <TextView
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="15dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back_white_24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/category_title"
+            android:layout_toRightOf="@+id/btnBack"
+            android:layout_alignParentTop="true"
+            android:text="Info"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18dp"
+            android:padding="10dp"
+            android:layout_centerVertical="true"
+            android:textAlignment="center"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:id="@+id/path"
-        android:text=" path"
-        android:layout_below="@+id/cateTag"
-        android:layout_toRightOf="@+id/pathTag"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filesize : "
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/pathTag"
-        android:id="@+id/sizeTag"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:id="@+id/size"
-        android:text=" size"
-        android:layout_below="@+id/pathTag"
-        android:layout_toRightOf="@+id/pathTag"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:padding="30dp"
+        android:background="@color/white">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filedate : "
-        android:layout_below="@+id/sizeTag"
-        android:id="@+id/dateTag"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/date"
-        android:text=" date"
-        android:layout_below="@+id/sizeTag"
-        android:layout_toRightOf="@+id/pathTag"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Details"
+            android:id="@+id/title"
+            android:layout_margin="10dp"
+            android:textColor="@color/grey_600"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/name"
+            android:layout_below="@+id/title"
+            android:text="Name of the image "
+            android:layout_margin="10dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/DateRL"
+            android:layout_below="@+id/name">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/dateicon"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_date_range_grey_600_48dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/dateicon"
+                android:id="@+id/date"
+                android:text="February 3, 2018"
+                android:paddingLeft="10dp"
+                android:textSize="20dp"
+                android:textColor="@color/black"
+                android:layout_marginLeft="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/dateicon"
+                android:layout_below="@+id/date"
+                android:text="Saturday 7:34 Am"
+                android:paddingLeft="10dp"
+                android:textSize="20dp"
+                android:layout_marginLeft="10dp"
+                android:id="@+id/textView" />
+
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/pathRL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/DateRL"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:id="@+id/imageicon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_burst_mode_grey_600_48dp" />
+
+            <TextView
+                android:id="@+id/path"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignStart="@+id/size"
+                android:paddingLeft="10dp"
+                android:text="path"
+                android:textColor="@color/black"
+                android:textSize="18dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/path"
+                android:layout_marginLeft="10dp"
+                android:id="@+id/size"
+                android:layout_toRightOf="@+id/imageicon"
+                android:paddingLeft="10dp"
+                android:text="4.7 MB"
+                android:textSize="20dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/CategoryRL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/pathRL"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:id="@+id/caticon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_visibility_grey_600_48dp" />
+
+            <TextView
+                android:id="@+id/category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/caticon"
+                android:paddingLeft="10dp"
+                android:text="Person"
+                android:textColor="@color/black"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/category"
+                android:layout_marginLeft="10dp"
+                android:id="@+id/no_of_images"
+                android:layout_toRightOf="@+id/caticon"
+                android:paddingLeft="10dp"
+                android:text="60 Images"
+                android:textSize="20dp" />
+        </RelativeLayout>
+        <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/dateico"-->
+            <!--android:src="@drawable/ic_date_range_white_24dp"/>-->
+        <!---->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Filename : "-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/black"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_toRightOf="@+id/dateico"-->
+            <!--android:id="@+id/nameTag"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/name"-->
+            <!--android:textSize="15dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:text="namehfgdjfj,fj,hf,jhgvjh,gvghhhgk,hghmghghgjhgjhgj,hgj"-->
+            <!--android:layout_toRightOf="@+id/nameTag"/>-->
+
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="File category : "-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_below="@+id/name"-->
+            <!--android:id="@+id/cateTag"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/category"-->
+            <!--android:text=" path"-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:layout_below="@+id/name"-->
+            <!--android:layout_toRightOf="@+id/cateTag"/>-->
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Filepath : "-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_below="@+id/cateTag"-->
+            <!--android:id="@+id/pathTag"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/path"-->
+            <!--android:text=" path"-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:layout_below="@+id/category"-->
+            <!--android:layout_toRightOf="@+id/pathTag"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Filesize : "-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_below="@+id/path"-->
+            <!--android:id="@+id/sizeTag"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/size"-->
+            <!--android:text=" size"-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:layout_below="@+id/path"-->
+            <!--android:layout_toRightOf="@+id/pathTag"/>-->
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Filedate : "-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_below="@+id/sizeTag"-->
+            <!--android:id="@+id/dateTag"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/date"-->
+            <!--android:text=" date"-->
+            <!--android:textSize="20dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:fontFamily="sans-serif"-->
+            <!--android:layout_below="@+id/sizeTag"-->
+            <!--android:layout_toRightOf="@+id/pathTag"/>-->
+
+    </RelativeLayout>
 
 </RelativeLayout>

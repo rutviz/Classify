@@ -67,15 +67,12 @@ public class Photo_Viewer extends AppCompatActivity{
         db = new DatabaseHandler(Photo_Viewer.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
-        dropdown = (Spinner) findViewById(R.id.spinner1);
+//        dropdown = (Spinner) findViewById(R.id.spinner1);
         category_list = db.getCategory();
         EditRecycle = (RecyclerView) findViewById(R.id.editRecycle);
         EditRecycle.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         Edit_adapter adapters = new Edit_adapter(category_list);
         EditRecycle.setAdapter(adapters);
-        /*ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_list, category_list);
-        dropdown.setAdapter(adapter);*/
-
         UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
         BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
         category_title = (TextView)findViewById(R.id.category_title);
@@ -87,15 +84,8 @@ public class Photo_Viewer extends AppCompatActivity{
         hide = (ImageView) findViewById(R.id.hide);
         unhide = (ImageView) findViewById(R.id.unhide);
 
-//        category_title = (TextView) findViewById(R.id.category_title);
-
-//        imageView = (ImageView)findViewById(R.id.imageView);
         Bundle bundle = getIntent().getExtras();
         int id = Integer.parseInt(bundle.getString("id"));
-//        String category = bundle.getString("category");
-//        category_title.setText(category);
-//        Glide.with(this).load(path).into(imageView);
-
         LayoutParams params = btnShare.getLayoutParams();
         params.width = width/3;
         LayoutParams params2 = btnDelete.getLayoutParams();
@@ -153,9 +143,7 @@ public class Photo_Viewer extends AppCompatActivity{
                 UpperLayer.setVisibility(View.INVISIBLE);
                 BottomLayer.setVisibility(View.INVISIBLE);
                 unhide.setVisibility(View.VISIBLE);
-                Log.d(Global_Share.TAG,"touched");
-
-
+                EditRecycle.setVisibility(View.INVISIBLE);
             }
         });
         unhide.setOnClickListener(new OnClickListener() {
@@ -164,7 +152,6 @@ public class Photo_Viewer extends AppCompatActivity{
                 unhide.setVisibility(View.GONE);
                 UpperLayer.setVisibility(View.VISIBLE);
                 BottomLayer.setVisibility(View.VISIBLE);
-                Log.d(Global_Share.TAG,"touched");
             }
         });
 
@@ -251,21 +238,9 @@ public class Photo_Viewer extends AppCompatActivity{
     }
 
     public  String getDateCurrentTimeZone(long timestamp) {
-
         Calendar cal = Calendar.getInstance(Locale.ENGLISH);
         cal.setTimeInMillis(timestamp);
         String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", cal).toString();
-        /*try{
-            Calendar calendar = Calendar.getInstance();
-            TimeZone tz = TimeZone.getDefault();
-            calendar.setTimeInMillis(timestamp * 1000);
-            calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date currenTimeZone = (Date) calendar.getTime();
-            return sdf.format(currenTimeZone);
-        }catch (Exception e) {
-        }
-        return "";*/
         return date;
     }
 
@@ -380,8 +355,4 @@ public class Photo_Viewer extends AppCompatActivity{
             }
         }
     }
-
-
-
-
 }

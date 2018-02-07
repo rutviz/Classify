@@ -2,10 +2,15 @@ package com.classify.classify;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -44,7 +49,8 @@ public class Image_classify extends AppCompatActivity  {
     ArrayList<String> types = new ArrayList<>();
     ArrayList<String> Image_path = new ArrayList<>();
     ArrayList<String> Date_list = new ArrayList<>();
-    int width,height;
+    int width,height,notification_rate,total_image;
+    String notification_title;
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 128;
     private static final float IMAGE_STD = 128.0f;
@@ -152,12 +158,47 @@ public class Image_classify extends AppCompatActivity  {
     }
 
 
+    private void addNotification(String title,int rate) {
+        String rates = "Total "+rate+ " images Classify out of " +total_image ;
+        Intent notificationIntent = new Intent(this, Image_classify.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification n  = new Notification.Builder(this)
+                .setContentTitle(title)
+                .setContentText(rates)
+                .setSmallIcon(R.drawable.logo_white)
+                .setContentIntent(contentIntent)
+                .setProgress(total_image,rate,true)
+                .setAutoCancel(true)
+                .setStyle(new Notification.BigTextStyle().bigText("")).build();
+        n.flags |= Notification.FLAG_AUTO_CANCEL;
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(0, n);
+
+        if(rate == total_image)
+        {
+            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            n  = new Notification.Builder(this)
+                    .setContentTitle("Classify")
+                    .setContentText("All new images are successfully classified.")
+                    .setSmallIcon(R.drawable.logo_white)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .setSound(alarmSound)
+                    .setStyle(new Notification.BigTextStyle().bigText("")).build();
+            n.flags |= Notification.FLAG_AUTO_CANCEL;
+            NotificationManager manager2 = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager2.notify(0, n);
+        }
+    }
+
+
     private class AsyncTaskRunner extends AsyncTask<String, String, Void> {
         @Override
         protected Void doInBackground(String... params) {
 
             int Count_new = findcount();
-
+            total_image = Count_new;
             if(databaseHandler.getDataCount()<1)
             {
                 for(int z =0; z < Image_path.size();z++)
@@ -167,18 +208,28 @@ public class Image_classify extends AppCompatActivity  {
                         final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
                         if (results.size() != 0) {
                             databaseHandler.addData(new Classify_path(Image_path.get(z), results.get(0).toString(), Date_list.get(z)));
+                            notification_title = "Classify in progress...";
+                            notification_rate = z+1;
+                            addNotification(notification_title,notification_rate);
                         } else {
                             databaseHandler.addData(new Classify_path(Image_path.get(z), "none", Date_list.get(z)));
+                            notification_title = "Classify in progress...";
+                            notification_rate = z+1;
+                            addNotification(notification_title,notification_rate);
                         }
                     }
                     catch(Exception e){
                         databaseHandler.addData(new Classify_path(Image_path.get(z), "none", Date_list.get(z)));
+                        notification_title = "Classify in progress...";
+                        notification_rate = z+1;
+                        addNotification(notification_title,notification_rate);
                     }
                 }
             }
             else
             {
                 int new_images = Count_new - databaseHandler.getDataCount();
+                total_image = new_images;
                 int init = 0;
                 while(new_images>0)
                 {
@@ -189,16 +240,25 @@ public class Image_classify extends AppCompatActivity  {
                             final List<Recognition> results = classifier.recognizeImage(bitmap);
                             if(results.size()!=0){
                                 databaseHandler.addData(new Classify_path(Image_path.get(init),results.get(0).toString(),Date_list.get(init)));
+                                notification_title = "Classify in progress...";
+                                notification_rate = init+1;
+                                addNotification(notification_title,notification_rate);
                             }
                             else
                             {
                                 databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
+                                notification_title = "Classify in progress...";
+                                notification_rate = init+1;
+                                addNotification(notification_title,notification_rate);
                             }
 
                         }
                         catch (Exception e)
                         {
                             databaseHandler.addData(new Classify_path(Image_path.get(init),"none",Date_list.get(init)));
+                            notification_title = "Classify in progress...";
+                            notification_rate = init+1;
+                            addNotification(notification_title,notification_rate);
                         }
                     }
                     new_images = Count_new - databaseHandler.getDataCount();
