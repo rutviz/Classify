@@ -18,6 +18,7 @@ package com.classify.classify;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
@@ -97,8 +98,14 @@ public class TensorFlowImageClassifier implements Classifier {
         BufferedReader br = null;
         br = new BufferedReader(new InputStreamReader(assetManager.open(actualFilename)));
         String line;
+        Global_Share.aList.clear();
         while ((line = br.readLine()) != null) {
             c.labels.add(line);
+            Global_Share.aList.add(line);
+        }
+        for(String cate : Global_Share.aList)
+        {
+            Log.d("catee",cate);
         }
         br.close();
 

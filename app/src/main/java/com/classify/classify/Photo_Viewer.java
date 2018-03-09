@@ -337,6 +337,7 @@ public class Photo_Viewer extends AppCompatActivity{
                     String category = category_list.get(position);
                     change_category(category,paths);
                     EditRecycle.setVisibility(View.GONE);
+                    flag=0;
                 }
             });
         }

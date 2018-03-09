@@ -5,21 +5,12 @@
 
     <ImageView
         android:id="@+id/image_all"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:background="@color/grey_100"
         android:scaleType="matrix"
         android:layout_margin="1dp"
         android:transitionName="image">
     </ImageView>
-
-    <ImageView
-        android:visibility="gone"
-        android:id="@+id/isSelected"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:background="#A6000000"
-        android:src="@drawable/ic_check_white_24dp"
-        android:scaleType="centerInside"/>
 
 </RelativeLayout>

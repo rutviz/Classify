@@ -18,4 +18,6 @@ public class Global_Share {
     static Cursor mmediaStorecursor;
     static int Flag_hide_layout = 0;
     static int Flag_for_recycle = 0;
+    static ArrayList<String> aList = new ArrayList();
+
 }

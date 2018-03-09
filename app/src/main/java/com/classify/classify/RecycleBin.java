@@ -318,7 +318,8 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         }
         else if (id == R.id.nav_Auto_delete)
         {
-
+            Intent i = new Intent(RecycleBin.this,AutoDelete.class);
+            startActivity(i);
         }
         else if (id == R.id.nav_Notification)
         {

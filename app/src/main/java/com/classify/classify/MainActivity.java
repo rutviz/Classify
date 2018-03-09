@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
     ArrayList<Classify_path> Specific_data = new ArrayList<>();
-    int Mydbcount ;
+    int Mydbcount,flag_of_activate=0 ;
     int Mediacount ;
     final Handler handler = new Handler();
     List<String> delete_from_appp = new ArrayList<String>();
@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkReadExternalStoragePermission();
+
         myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
@@ -150,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         share = (ImageButton) findViewById(R.id.share);
         menu = (ImageButton) findViewById(R.id.menu_delete);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
-//        myDB.createtable();
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Moving to trash...");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView.setCheckedItem(R.id.nav_Images);
+
+       // startActivity(new Intent(MainActivity.this,AutoDelete_Recommendation.class));
 
         checkPermission();
 
@@ -254,13 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        close.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Category_change();
-                imageadapter.notifyDataSetChanged();
-            }
-        });
+
 
         select_all.setOnClickListener(new OnClickListener() {
             @Override
@@ -328,6 +324,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     close.callOnClick();
             }
         });
+        close.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Category_change();
+                imageadapter.notifyDataSetChanged();
+            }
+        });
 
         recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
@@ -336,8 +339,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recyclerView_types.setAdapter(typeadapter);
         mThumbnailRecyclerView.setAdapter(imageadapter);
 //        mMediaStoreAdapter.notifyDataSetChanged();
-
-
     }
 
     public void AsynctaskAfterPermission()
@@ -414,7 +415,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_Document)
         {
-            // Handle the camera action
+            runner.cancel(true);
+            Intent i = new Intent(MainActivity.this,Documentation.class);
+            startActivity(i);
         }
         else if(id == R.id.nav_Images)
         {
@@ -429,6 +432,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_Auto_delete)
         {
+            runner.cancel(true);
+            Intent i = new Intent(MainActivity.this,AutoDelete.class);
+            startActivity(i);
 
         }
         else if (id == R.id.nav_Notification)
@@ -481,6 +487,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public void AutoDelete()
+    {
+        ArrayList<String> autoDelete = new ArrayList<>();
+        autoDelete = databaseHandler.getCategoryFromAutoDelete();
+        for(String ad : autoDelete)
+        {
+            int countOfCate = databaseHandler.getCategoryCountFromAutoDelete(ad);
+            if(countOfCate>5)
+            {
+                Log.d("countOf",countOfCate+" " +ad);
+                Intent notificationIntent = new Intent(this, AutoDelete_Recommendation.class);
+                PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                Notification n  = new Notification.Builder(this)
+                        .setContentTitle("Classify")
+                        .setContentText("Auto delete image Recommendation")
+                        .setSmallIcon(R.drawable.logo_white)
+                        .setContentIntent(contentIntent)
+                        .setAutoCancel(true)
+                        .setStyle(new Notification.BigTextStyle().bigText("")).build();
+                n.flags |= Notification.FLAG_AUTO_CANCEL;
+                NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                manager.notify(0, n);
+            }
+        }
+    }
+
     public class AsyncTaskRunnerForDelete extends AsyncTask<String, String, Void> {
         @Override
         protected Void doInBackground(String... params) {
@@ -507,8 +540,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ myPath });
                             myDB.deleteimagepath(delete_from_appp.get(i));
                         }
-                        runner = new AsyncTaskRunner();
-                        runner.execute();
 
                     }
                     catch(Exception e){
@@ -603,6 +634,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
                                     if (results.size() != 0) {
                                         myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                        Log.d("counts","13");
+                                        String value = myDB.AutoDeleteGetData(results.get(0).toString());
+                                        Log.d("counts",value + " 133");
+                                        if(value.equals("2"))
+                                        {
+                                            Log.d("counts","12");
+                                            myDB.addDataForAutoDelete(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                            flag_of_activate=1;
+                                        }
                                         notification_title = "Classify in progress...";
                                         notification_rate = init+1;
                                         addNotification(notification_title,notification_rate);
@@ -633,8 +673,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 public void run() {
                                     UpdateLists();
                                     imageadapter.notifyDataSetChanged();
+                                    if(flag_of_activate==1)
+                                    {
+                                        AutoDelete();
+                                        flag_of_activate=0;
+                                    }
                                 }
                             });
+
                         }
                     }
                 }
@@ -654,7 +700,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onProgressUpdate(String... text) {
         }
+
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        runner.cancel(true);
+    }
+
+
 
     @Override
     protected void onPostResume() {
@@ -948,9 +1003,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         catch (Exception e) {
         }
-
-
-
     }
 
     List<String> convert(ArrayList<Classify_path> Specific)

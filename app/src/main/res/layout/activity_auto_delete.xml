@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start"
+    tools:context="com.classify.classify.AutoDelete">
+
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/my_appbar_container2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_100"
+        app:elevation="0dp">
+
+        <RelativeLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:id="@+id/toolbar2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:background="@drawable/toolbar_top">
+            <!--app:layout_scrollFlags="scroll|enterAlways">-->
+
+            <ImageButton
+                android:id="@+id/menu_auto_delete1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:background="@color/transparent"
+                android:src="@drawable/ic_menu_white_24dp">
+            </ImageButton>
+
+
+            <TextView
+                android:id="@+id/auto_delete_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auto Delete"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:textColor="#FFF"
+                android:textSize="20dp"/>
+
+        </RelativeLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/my_appbar_container2"
+        android:id="@+id/show_recommend">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Delete Recommendation"
+            android:id="@+id/show_recommend_btn"
+            android:background="@color/white"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="15dp"/>
+
+
+
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/Auto_delete_recycle"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/show_recommend"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_100"
+
+        android:orientation="vertical">
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view2"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_temp"
+        app:menu="@menu/activity_temp_drawer"/>
+
+
+</android.support.v4.widget.DrawerLayout>

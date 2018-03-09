@@ -101,7 +101,13 @@ public class Image_classify extends AppCompatActivity  {
         initTensorFlowAndLoadModel();
 
         databaseHandler.globaladdData("firstrun","0");
-        databaseHandler.globaladdData("Flag_for_recycle","0");
+        databaseHandler.globaladdData("Flag_for_recycle","1");
+        databaseHandler.AutoDeleteGlobalAddData();
+        for(String cate : Global_Share.aList)
+        {
+            String val = databaseHandler.AutoDeleteGetData(cate);
+            Log.d("hey",val + " gh");
+        }
         Log.d("globalvalue",databaseHandler.globalgetvalue("firstrun"));
         if(databaseHandler.globalgetvalue("firstrun").equals("1")){
             Log.d("Skip","1");
@@ -129,7 +135,6 @@ public class Image_classify extends AppCompatActivity  {
         runnable = new Runnable() {
             private long startTime = System.currentTimeMillis();
             public void run() {
-
                 Mediacount = findcount();
                while (Mydbcount < Mediacount) {
                    Mydbcount = databaseHandlerCount.getDataCount();
@@ -147,8 +152,8 @@ public class Image_classify extends AppCompatActivity  {
                     @Override
                     public void run() {
                         databaseHandler.globalsetvalue("firstrun","1");
-            Intent i = new Intent(Image_classify.this, PermissionActivity.class);
-            startActivity(i);
+                        Intent i = new Intent(Image_classify.this, PermissionActivity.class);
+                        startActivity(i);
 
         }
     });

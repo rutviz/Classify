@@ -22,6 +22,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String table_name = "Classification";
     private static final String table_name_global = "Global";
     private static final String table_name_recyclebin = "Recyclebin";
+    private static final String table_name_auto_delete = "AutoDelete";
 
     private static final String id = "id";
     private static final String path = "path";
@@ -47,12 +48,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + category + " TEXT" + ","+date+" TEXT )";
         String Create_table2 = "CREATE TABLE " + table_name_global + "("
                 +variablename + " TEXT," + variablevalue + " VARCHAR2 )";
-
         String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
                 +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+modified_date + " VARCHAR2,"+ newpath + " VARCHAR2 )";
+
+        String Create_table4 = "CREATE TABLE " + table_name_auto_delete + "("
+                + id + " INTEGER PRIMARY KEY AUTOINCREMENT," + path + " TEXT,"
+                + category + " TEXT" + ","+date+" TEXT )";
         sqLiteDatabase.execSQL(Create_table);
         sqLiteDatabase.execSQL(Create_table2);
         sqLiteDatabase.execSQL(Create_table3);
+        sqLiteDatabase.execSQL(Create_table4);
     }
 
     @Override
@@ -63,11 +68,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void createtable(){
         SQLiteDatabase db = this.getWritableDatabase();
-//        String droptable = "DROP TABLE "+ table_name_recyclebin;
-//        db.execSQL(droptable);
-        String Create_table3 = "CREATE TABLE " + table_name_recyclebin + "("
-                +oldpath + " VARCHAR2," +delete_time + " VARCHAR2,"+modified_date + " VARCHAR2,"+ newpath + " VARCHAR2 )";
-        db.execSQL(Create_table3);
+        String Create_table4 = "CREATE TABLE " + table_name_auto_delete + "("
+                + id + " INTEGER PRIMARY KEY AUTOINCREMENT," + path + " TEXT,"
+                + category + " TEXT" + ","+date+" TEXT )";
+        db.execSQL(Create_table4);
     }
 
 
@@ -125,6 +129,46 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         db1.close();
     }
+    public void AutoDeleteGlobalAddData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db1 = this.getReadableDatabase();
+        for(String cate : Global_Share.aList)
+        {
+            String query = "SELECT "+variablename+" FROM "+table_name_global+" WHERE "+variablename+" = '"+cate+"'";
+            Cursor cursor = db1.rawQuery(query, null);
+            int count = cursor.getCount();
+            cursor.close();
+            if(count==0)
+            {
+                Log.d("hey","1");
+                ContentValues values = new ContentValues();
+                values.put(variablename, cate);
+                values.put(variablevalue, "0");
+                db.insert(table_name_global, null, values);
+            }
+        }
+        db.close();
+        db1.close();
+    }
+
+
+
+    public String AutoDeleteGetData(String category_delete)
+    {
+        String value = "";
+        String query = "SELECT "+variablevalue+" FROM "+ table_name_global + " WHERE " +variablename+" = '"+category_delete+"'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                value = cursor.getString(0);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return value;
+    }
+
     public List<String> recyclebingetdata(){
         List<String> paths = new ArrayList<>();
         String temp;
@@ -195,6 +239,71 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         db.close();
     }
+    public void addDataForAutoDelete(Classify_path classify) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // if(getDataCount()<1)
+        {
+            ContentValues values = new ContentValues();
+            values.put(path, classify.getPath()); // Contact Name
+            values.put(category, classify.getCategory()); // Contact Phone Number
+            values.put(date, classify.getDate()); // Contact Phone Number
+            // Inserting Row
+            db.insert(table_name_auto_delete, null, values);
+        }
+        db.close();
+    }
+
+    ArrayList<String> getCategoryFromAutoDelete(){
+        ArrayList<String> category_list= new ArrayList<>();
+
+        String query = "SELECT DISTINCT "+category+" FROM "+table_name_auto_delete;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                category_list.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return category_list;
+    }
+    ArrayList<String> getCategoryFromAutoDeleteSelected(){
+        ArrayList<String> category_list= new ArrayList<>();
+        String query = "SELECT DISTINCT "+category+" FROM "+table_name_auto_delete;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                category_list.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return category_list;
+    }
+
+    public int getCategoryCountFromAutoDelete(String cate) {
+        String countQuery = "SELECT  * FROM " + table_name_auto_delete + " WHERE " +category+" = '"+cate+"'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
+    public ArrayList<String> getUniqueDataPathOfAutoDelete(String Search) {
+        ArrayList<String> Data = new ArrayList<>();
+        String selectQuery;
+        selectQuery = "SELECT  "+path+" FROM " + table_name_auto_delete + " WHERE "+category+" = '"+Search+"' ORDER BY "+date+" DESC";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Data.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return Data;
+    }
 
     public String globalgetvalue(String variable_name){
         String value = "";
@@ -224,7 +333,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(query);
 
     }
-
 
     public int getDataCount() {
         String countQuery = "SELECT  * FROM " + table_name;
@@ -389,7 +497,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(query);
         Log.d("path123","Path deleted: "+value);
-
+    }
+    void deleteimagepathFromAutoDelete(String value){
+        String query = "DELETE FROM " + table_name_auto_delete +" WHERE "+ path +" = '"+value+"'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+        Log.d("path123","Path deleted: "+value);
     }
 
 

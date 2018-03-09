@@ -45,7 +45,12 @@
         <activity android:name=".Image_Detail" />
         <activity android:name=".ImageInfo" />
         <activity android:name=".PermissionActivity" />
-        <activity android:name=".AppSettings"></activity>
+        <activity android:name=".AppSettings" />
+        <activity android:name=".AutoDelete" />
+        <activity android:name=".AutoDelete_category" />
+        <activity android:name=".AutoDelete_Recommendation" />
+        <activity android:name=".Documentation" />
+        <activity android:name=".Document_view"></activity>
     </application>
 
 </manifest>
