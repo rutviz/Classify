@@ -11,24 +11,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -43,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class AutoDelete_category extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class AutoDelete_category extends AppCompatActivity {
 
     String cate,change;
     ArrayList<String> al = new ArrayList<>();
@@ -58,14 +55,14 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
     int width,height;
     final int[] Delete_mode = {1};
     ProgressDialog progressDialog;
-    public static ImageButton select_all,close,menu;
+    public static ImageButton select_all,close;
     public static TextView count_selected,title;
     int all_selected=0,flag=0,delete_flag=0;
-    Button delete;
+    ImageButton delete;
     DrawerLayout mDrawerLayout;
     AsyncTaskRunnerForDelete run;
     private NavigationView navigationView;
-
+    ImageView home,trash,auto_del,notification,settings;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,11 +70,88 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
         mActivity = this;
         close = (ImageButton) findViewById(R.id.close1);
         select_all = (ImageButton) findViewById(R.id.check1);
-        delete = (Button) findViewById(R.id.delete_auto_category);
+        delete = (ImageButton) findViewById(R.id.delete_auto_category);
         count_selected = (TextView) findViewById(R.id.count_selelcted1);
         title = (TextView) findViewById(R.id.trash_logo1);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
+
+        home = (ImageView) findViewById(R.id.Home);
+        trash = (ImageView) findViewById(R.id.Trash);
+        auto_del = (ImageView) findViewById(R.id.AutoDelete);
+        notification = (ImageView) findViewById(R.id.Notification);
+        settings = (ImageView) findViewById(R.id.Settings);
+        final RelativeLayout bottom_bar = (RelativeLayout)findViewById(R.id.toolbar2);
+        ViewGroup.LayoutParams lp = home.getLayoutParams();
+        int pdd = (int) Math.round(width/14.4);
+        auto_del.setPadding(pdd-20,pdd-20,pdd-20,pdd-20);
+        Log.d("widthh",width+"");
+        lp.width = width/5;
+        lp.height = width/5;
+        ViewGroup.LayoutParams lp2 = trash.getLayoutParams();
+        trash.setPadding(pdd,pdd,pdd,pdd);
+        home.setPadding(pdd,pdd,pdd,pdd);
+        notification.setPadding(pdd,pdd,pdd,pdd);
+        settings.setPadding(pdd,pdd,pdd,pdd);
+        lp2.width = width/5;
+        lp2.height = width/5;
+        ViewGroup.LayoutParams lp3 = auto_del.getLayoutParams();
+        lp3.width = width/5;
+        lp3.height = width/5;
+        ViewGroup.LayoutParams lp4 = notification.getLayoutParams();
+        lp4.width = width/5;
+        lp4.height = width/5;
+        ViewGroup.LayoutParams lp5 = settings.getLayoutParams();
+        lp5.width = width/5;
+        lp5.height = width/5;
+
+        home.setLayoutParams(lp);
+        trash.setLayoutParams(lp2);
+        auto_del.setLayoutParams(lp3);
+        notification.setLayoutParams(lp4);
+        settings.setLayoutParams(lp5);
+
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(AutoDelete_category.this,MainActivity.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(AutoDelete_category.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        trash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(AutoDelete_category.this,RecycleBin.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(AutoDelete_category.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());            }
+        });
+
+        notification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        auto_del.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(AutoDelete_category.this,AutoDelete.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(AutoDelete_category.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());            }
+        });
+
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent i = new Intent(AutoDelete_category.this,AppSettings.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(AutoDelete_category.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
         autoDelete = (RecyclerView)findViewById(R.id.recycler__auto_delete1);
         db = new DatabaseHandler(this);
         myDb = new DatabaseHandler(this);
@@ -107,12 +181,7 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
 
         close.setVisibility(View.VISIBLE);
         count_selected.setVisibility(View.VISIBLE);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout1);
-        navigationView = (NavigationView) findViewById(R.id.nav_view1);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_Images);
-        menu = (ImageButton) findViewById(R.id.menu_delete1);
-        menu.setVisibility(View.GONE);
+        delete.setVisibility(View.VISIBLE);
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,12 +194,6 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
             visible.add(1);
             delete_from_appp.add(al.get(i));
         }
-        menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
-            }
-        });
 
         count_selected.setText(delete_from_appp.size()+"");
         adapter = new image_adapter();
@@ -233,7 +296,7 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
     {
         @Override
         public image_adapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_grid,parent,false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_card,parent,false);
             return new image_adapter.ViewHolder(view);
         }
 
@@ -302,7 +365,7 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
                         select_all.setVisibility(View.VISIBLE);
                         close.setVisibility(View.VISIBLE);
                         count_selected.setVisibility(View.VISIBLE);
-                        menu.setVisibility(View.GONE);
+                        delete.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
 //                        Log.d(TAG,position+"");
                         holder.chk.setVisibility(View.VISIBLE);
@@ -348,7 +411,7 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
         close.setVisibility(View.GONE);
         select_all.setVisibility(View.GONE);
         count_selected.setVisibility(View.GONE);
-        menu.setVisibility(View.VISIBLE);
+        delete.setVisibility(View.GONE);
         count_selected.setText("0");
         all_selected = 0;
         Delete_mode[0] = 0;
@@ -377,49 +440,6 @@ public class AutoDelete_category extends AppCompatActivity implements Navigation
             visible.add(0);
         adapter.notifyDataSetChanged();
     }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.nav_Document)
-        {
-            // Handle the camera action
-        }
-        else if(id == R.id.nav_Images)
-        {
-            Intent i = new Intent(AutoDelete_category.this,MainActivity.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Trash)
-        {
-//            runner.cancel(true);
-            Intent i = new Intent(AutoDelete_category.this,RecycleBin.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Auto_delete)
-        {
-//            runner.cancel(true);
-            Intent i = new Intent(AutoDelete_category.this,AutoDelete.class);
-            startActivity(i);
-
-        }
-        else if (id == R.id.nav_Notification)
-        {
-
-        }
-        else if (id == R.id.nav_Settings)
-        {
-//            runner.cancel(true);
-            Intent i = new Intent(AutoDelete_category.this,AppSettings.class);
-            startActivity(i);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout1);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
 
     public class AsyncTaskRunnerForDelete extends AsyncTask<String, String, Void> {
         @Override

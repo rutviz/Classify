@@ -71,8 +71,8 @@ public class Image_View_Adapter extends PagerAdapter {
         RelativeLayout rlv = (RelativeLayout) viewLayout.findViewById(R.id.all_id);
         imgDisplay = (ImageViewTouch) viewLayout.findViewById(R.id.imgDisplay);
 
-        top = (RelativeLayout)viewLayout.findViewById(R.id.toplayer);
-        bottom = (RelativeLayout)viewLayout.findViewById(R.id.bottomlayer);
+//        top = (RelativeLayout)viewLayout.findViewById(R.id.toplayer);
+//        bottom = (RelativeLayout)viewLayout.findViewById(R.id.bottomlayer);
 
         Log.d(TAG,"showing "+ _imagePaths.get(position));
 //        BitmapFactory.Options options = new BitmapFactory.Options();

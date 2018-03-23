@@ -1,26 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="2dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/type_title"
-        android:background="@drawable/corner_tag"
-        android:text="Hello"
-        android:textSize="15dp"
-        android:textColor="#000"
-        android:fontFamily="sans-serif"
-        android:textAlignment="center"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:layout_marginLeft="15dp">
-    </TextView>
-    
 
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:id="@+id/card_types">
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/cat_imagee"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:src="@drawable/one"
+
+                />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/type_title"
+                android:maxLines="1"
+                android:text="All"
+                android:layout_below="@+id/cat_imagee"
+                android:gravity="center"
+                android:ellipsize="end"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:textSize="10dp"
+                android:textColor="#000"
+                android:fontFamily="sans-serif"
+                android:textAlignment="center"
+                android:layout_marginLeft="0dp"
+                >
+            </TextView>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/count"
+                android:maxLines="1"
+                android:text="20 Image "
+                android:gravity="center"
+                android:ellipsize="end"
+                android:textSize="8dp"
+                android:layout_below="@+id/type_title"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="10dp"
+                android:paddingBottom="10dp"/>
+        </RelativeLayout>
 
 </RelativeLayout>

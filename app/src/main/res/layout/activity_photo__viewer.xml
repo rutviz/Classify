@@ -6,61 +6,7 @@
     android:layout_height="match_parent"
     android:background="#000">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/toplayer"
-            android:background="@drawable/toolbar_top"
-            android:elevation="2dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_height="70dp"
-                    android:id="@+id/category_title"
-                    android:layout_alignParentTop="true"
-                    android:text="Person"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="20dp"
-                    android:padding="20dp"
-                    android:layout_centerVertical="true"
-                    android:textAlignment="center"/>
-
-            <ImageView
-                    android:id="@+id/btnBack"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:elevation="5dp"
-                    android:layout_margin="10dp"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_arrow_back_white_24dp"/>
-
-                <ImageView
-                    android:id="@+id/btninfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:elevation="5dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="0dp"
-                    android:layout_toLeftOf="@+id/hide"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_info_outline_white_24dp"/>
-
-            <ImageView
-                android:id="@+id/hide"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="5dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_alignParentRight="true"
-                android:padding="10dp"
-                android:src="@drawable/ic_close_white_24dp"/>
-
-
-        </RelativeLayout>
 
     <ImageView
         android:id="@+id/unhide"
@@ -80,40 +26,99 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000"
+            android:layout_marginBottom="50dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/editRecycle"
+
+
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/toolbar_top"
-        android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
-        android:visibility="gone"
-        android:layout_above="@+id/bottomlayer"
-        >
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent"
+        android:id="@+id/clayout"
+        android:elevation="12dp">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/bottom_sheet"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/toolbar_top"
-            android:id="@+id/bottomlayer">
+            android:background="@android:color/darker_gray"
+            android:transitionName="bottom_tranisition"
+            android:orientation="vertical"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="50dp"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
-            <Button
-                android:id="@+id/btnShare"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/toolbar2"
+                android:transitionName="bottom_tranisition"
+                android:background="@color/blue_new">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/category_title"
+                    android:layout_centerVertical="true"
+                    android:text="Persons"
+                    android:textSize="15dp"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/montreal_semibold"
+                    android:layout_centerHorizontal="true"/>
+
+                <ImageView
+                    android:id="@+id/btnBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="5dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ic_arrow_back_white_24dp"/>
+
+                <ImageView
+                    android:id="@+id/btninfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="5dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_info_outline_white_24dp"/>
+
+            </RelativeLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/editRecycle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:visibility="gone"
+                android:layout_below="@+id/toolbar2"
+                >
+            </android.support.v7.widget.RecyclerView>
+
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_alignParentLeft="true"
-                android:textColor="#ffffff"
-                android:text="Share"
-                android:background="@color/transparent"
-                android:drawableTop="@drawable/ic_share_white_24dp"
-                android:textStyle="bold"/>
+                android:background="@color/white"
+                android:layout_below="@id/editRecycle"
+                android:id="@+id/btmshr">
+
+                <Button
+                    android:id="@+id/btnShare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_alignParentLeft="true"
+                    android:textColor="@color/blue_new"
+                    android:text="Share"
+                    android:background="@color/transparent"
+                    android:drawableTop="@drawable/ic_share_black_24dp"
+                    android:textStyle="bold"/>
 
                 <Button
                     android:id="@+id/btnDelete"
@@ -122,22 +127,67 @@
                     android:layout_toRightOf="@+id/btnShare"
                     android:padding="10dp"
                     android:background="@color/transparent"
-                    android:textColor="#ffffff"
+                    android:textColor="@color/blue_new"
                     android:text="Delete"
-                    android:drawableTop="@drawable/ic_delete_sweep_white_24dp"
+                    android:drawableTop="@drawable/ic_delete_sweep_black_24dp"
                     android:textStyle="bold"/>
 
-            <Button
+                <Button
                     android:id="@+id/btnEditCategory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
                     android:layout_alignParentRight="true"
                     android:layout_toRightOf="@+id/btnDelete"
-                    android:textColor="#ffffff"
+                    android:textColor="@color/blue_new"
                     android:text="Edit"
                     android:background="@color/transparent"
-                    android:drawableTop="@drawable/ic_mode_edit_white_24dp"
+                    android:drawableTop="@drawable/ic_edit_black_24dp"
                     android:textStyle="bold"/>
-        </RelativeLayout>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btmshr"
+                android:id="@+id/bottom_bar"
+                android:textColor="@android:color/white"
+                android:background="@color/blue_new">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Home"
+                    android:src="@drawable/ic_home_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Trash"
+                    android:layout_toRightOf="@+id/Home"
+                    android:src="@drawable/ic_delete_sweep_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/AutoDelete"
+                    android:layout_toRightOf="@+id/Trash"
+                    android:src="@drawable/ic_delete_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Notification"
+                    android:layout_toRightOf="@+id/AutoDelete"
+                    android:src="@drawable/ic_notifications_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Settings"
+                    android:layout_toRightOf="@+id/Notification"
+                    android:src="@drawable/ic_settings_white_24dp"
+                    android:padding="25dp"/>
+            </RelativeLayout>
+
+        </RelativeLayout></android.support.design.widget.CoordinatorLayout>
 </RelativeLayout>

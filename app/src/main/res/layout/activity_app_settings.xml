@@ -7,24 +7,76 @@
     tools:context="com.classify.classify.AppSettings">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Turn off the trash for stopping the Backup"
-        android:padding="15dp"
-        android:id="@+id/textt"/>
+        android:layout_centerVertical="true"
+        android:text="Comming Soon"
+        android:gravity="center"
+        android:textSize="30dp"
+        android:fontFamily="@font/montreal_medium"/>
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="12dp">
 
-    <Switch
-        android:id="@+id/recycleSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:paddingBottom="15dp"
-        android:layout_marginRight="8dp"
-        android:paddingLeft="15dp"
-        android:paddingTop="15dp"
-        tools:layout_editor_absoluteX="190dp"
-        tools:layout_editor_absoluteY="35dp" />
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/bottom_sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:orientation="vertical"
+            android:transitionName="bottom_tranisition"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="60dp"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:id="@+id/bottom_bar"
+                android:background="@color/blue_new">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Home"
+                    android:src="@drawable/ic_home_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Trash"
+                    android:layout_toRightOf="@+id/Home"
+                    android:src="@drawable/ic_delete_sweep_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/AutoDelete"
+                    android:layout_toRightOf="@+id/Trash"
+                    android:src="@drawable/ic_delete_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Notification"
+                    android:layout_toRightOf="@+id/AutoDelete"
+                    android:src="@drawable/ic_notifications_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Settings"
+                    android:layout_toRightOf="@+id/Notification"
+                    android:src="@drawable/ic_settings_white_24dp"
+                    android:padding="25dp"/>
+            </RelativeLayout>
+
+        </RelativeLayout></android.support.design.widget.CoordinatorLayout>
+
+
 
 
 </RelativeLayout>

@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
-        android:background="@drawable/toolbar_top">
+        android:layout_alignParentBottom="true"
+        android:background="@color/blue_new">
 
         <ImageView
             android:id="@+id/btnBack"
@@ -27,13 +28,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/category_title"
-            android:layout_toRightOf="@+id/btnBack"
-            android:layout_alignParentTop="true"
-            android:text="Info"
-            android:textColor="@color/colorPrimary"
+            android:fontFamily="@font/montreal_medium"
+            android:text="Information"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
             android:textSize="18dp"
             android:padding="10dp"
-            android:layout_centerVertical="true"
             android:textAlignment="center"/>
 
     </RelativeLayout>
@@ -41,7 +41,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/toolbar"
         android:padding="30dp"
         android:background="@color/white">
 
@@ -51,30 +51,57 @@
             android:layout_height="wrap_content"
             android:text="Details"
             android:id="@+id/title"
-            android:layout_margin="10dp"
-            android:textColor="@color/grey_600"
+            android:layout_marginBottom="30dp"
+            android:textColor="@color/blue_new"
+            android:fontFamily="@font/montreal_medium"
             android:textSize="20dp"/>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/Title_name"
+            android:layout_below="@+id/title"
+            android:text="Name: "
+            android:layout_marginBottom="20dp"
+            android:textSize="15dp"
+            android:fontFamily="@font/montreal_medium"/>
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/name"
+            android:layout_toRightOf="@+id/Title_name"
             android:layout_below="@+id/title"
+            android:fontFamily="@font/montreal_medium"
             android:text="Name of the image "
-            android:layout_margin="10dp"/>
+            android:paddingLeft="10dp"
+            android:textSize="15dp"
+            android:textColor="@color/black"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/Title_name"
+            android:layout_marginBottom="10dp"
+            android:background="@color/grey_300"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/DateRL"
+            android:layout_marginTop="10dp"
             android:layout_below="@+id/name">
 
-            <ImageView
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/dateicon"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_date_range_grey_600_48dp"/>
+                android:text="Taken on: "
+                android:textSize="15dp"
+                android:fontFamily="@font/montreal_medium"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -82,8 +109,9 @@
                 android:layout_toRightOf="@+id/dateicon"
                 android:id="@+id/date"
                 android:text="February 3, 2018"
+                android:fontFamily="@font/montreal_medium"
                 android:paddingLeft="10dp"
-                android:textSize="20dp"
+                android:textSize="15dp"
                 android:textColor="@color/black"
                 android:layout_marginLeft="10dp"/>
 
@@ -92,16 +120,22 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/dateicon"
                 android:layout_below="@+id/date"
+                android:fontFamily="@font/montreal_medium"
                 android:text="Saturday 7:34 Am"
                 android:paddingLeft="10dp"
-                android:textSize="20dp"
+                android:textSize="15dp"
                 android:layout_marginLeft="10dp"
                 android:id="@+id/textView" />
 
 
         </RelativeLayout>
 
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/DateRL"
+            android:layout_marginTop="10dp"
+            android:background="@color/grey_300"/>
         <RelativeLayout
             android:id="@+id/pathRL"
             android:layout_width="match_parent"
@@ -110,12 +144,14 @@
             android:layout_below="@+id/DateRL"
             android:layout_marginTop="20dp">
 
-            <ImageView
+            <TextView
                 android:id="@+id/imageicon"
-                android:layout_width="wrap_content"
+                android:text="File info: "
+                android:fontFamily="@font/montreal_medium"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_burst_mode_grey_600_48dp" />
+                android:textSize="15dp"
+                 />
 
             <TextView
                 android:id="@+id/path"
@@ -125,6 +161,7 @@
                 android:layout_alignStart="@+id/size"
                 android:paddingLeft="10dp"
                 android:text="path"
+                android:fontFamily="@font/montreal_medium"
                 android:textColor="@color/black"
                 android:textSize="18dp" />
 
@@ -134,11 +171,19 @@
                 android:layout_below="@+id/path"
                 android:layout_marginLeft="10dp"
                 android:id="@+id/size"
+                android:fontFamily="@font/montreal_medium"
                 android:layout_toRightOf="@+id/imageicon"
                 android:paddingLeft="10dp"
                 android:text="4.7 MB"
-                android:textSize="20dp" />
+                android:textSize="15dp" />
         </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/pathRL"
+            android:layout_marginTop="10dp"
+            android:background="@color/grey_300"/>
 
         <RelativeLayout
             android:id="@+id/CategoryRL"
@@ -148,12 +193,14 @@
             android:layout_below="@+id/pathRL"
             android:layout_marginTop="20dp">
 
-            <ImageView
+            <TextView
                 android:id="@+id/caticon"
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_visibility_grey_600_48dp" />
+                android:text="category: "
+                android:fontFamily="@font/montreal_medium"
+                android:textSize="15dp"
+                 />
 
             <TextView
                 android:id="@+id/category"
@@ -164,6 +211,7 @@
                 android:paddingLeft="10dp"
                 android:text="Person"
                 android:textColor="@color/black"
+                android:fontFamily="@font/montreal_medium"
                 android:textSize="20dp" />
 
             <TextView
@@ -175,7 +223,8 @@
                 android:layout_toRightOf="@+id/caticon"
                 android:paddingLeft="10dp"
                 android:text="60 Images"
-                android:textSize="20dp" />
+                android:fontFamily="@font/montreal_medium"
+                android:textSize="15dp" />
         </RelativeLayout>
         <!--<ImageView-->
             <!--android:layout_width="wrap_content"-->

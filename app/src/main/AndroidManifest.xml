@@ -23,7 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity2" />
-        <activity android:name=".Photo_Viewer" />
+        <activity android:name=".Photo_Viewer"
+            android:theme="@style/ImageViewer"/>
         <activity
             android:name=".Splash_screen"
             android:label="Classify"
@@ -50,7 +51,8 @@
         <activity android:name=".AutoDelete_category" />
         <activity android:name=".AutoDelete_Recommendation" />
         <activity android:name=".Documentation" />
-        <activity android:name=".Document_view"></activity>
+        <activity android:name=".Document_view" />
+        <activity android:name=".Home" />
     </application>
 
 </manifest>

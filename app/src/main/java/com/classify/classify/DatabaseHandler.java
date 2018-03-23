@@ -351,6 +351,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return count;
     }
+    public int getpathCountFromCat(String cate) {
+
+        if(cate.equals("All"))
+        {
+            String countQuery = "SELECT  * FROM " + table_name;
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery(countQuery, null);
+            int count = cursor.getCount();
+            cursor.close();
+            return count;
+        }else {
+
+            String countQuery = "SELECT  * FROM " + table_name + " WHERE " +category+" = '"+cate+"'";
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery(countQuery, null);
+            int count = cursor.getCount();
+            cursor.close();
+            return count;
+        }
+
+    }
 
     public ArrayList<Classify_path> getData() {
         ArrayList<Classify_path> Data = new ArrayList<>();

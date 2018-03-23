@@ -8,19 +8,14 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -28,8 +23,11 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -43,7 +41,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecycleBin extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class RecycleBin extends AppCompatActivity{
 
     DatabaseHandler myDb;
     private RecyclerView mThumbnailRecyclerView;
@@ -64,6 +62,10 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     List<String> paths_of_image = new ArrayList<String>();
     List<Integer> visible = new ArrayList<Integer>();
 
+    Switch aSwitch;
+    DatabaseHandler db;
+
+
     public static Button delete_btn;
     public static ImageButton select_all;
     public static ImageButton close;
@@ -78,11 +80,13 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
     Thread t;
     String notification_title = "Classify in progress...";
     int notification_rate = 0;
-    DrawerLayout mDrawerLayout;
     int total_image;
     ImageView noImage;
-    ImageView menu;
     int width,height;
+    private TextView trash_logo_text;
+    private RelativeLayout bottom_sheet;
+    private BottomSheetBehavior mBottomSheetBehavior;
+    ImageView home,trash,auto_del,notification,settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +109,12 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
         trash_logo = (TextView) findViewById(R.id.trash_logo);
+        trash_logo_text = (TextView) findViewById(R.id.no_photos_text);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
+        final View bottomsheet = findViewById(R.id.bottom_sheet);
+        bottom_sheet = (RelativeLayout)findViewById(R.id.bottom_sheet);
+        final RelativeLayout bottom_bar = (RelativeLayout)findViewById(R.id.toolbar);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomsheet);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Deleting permanently...");
@@ -116,12 +125,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         pr.setTitle("Restoring...");
         pr.setCancelable(false);
         pr.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        menu = (ImageButton) findViewById(R.id.menu_delete);
-        navigationView.setCheckedItem(R.id.nav_Trash);
 
         delete_per.setOnClickListener(new OnClickListener() {
             @Override
@@ -154,13 +157,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
             }
         });
 
-        menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
-            }
-        });
-
         delete_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,6 +172,32 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                 imageadapter.notifyDataSetChanged();
             }
         });
+
+        db = new DatabaseHandler(this);
+        aSwitch = (Switch)findViewById(R.id.recycleSwitch);
+        String recycle_flags = db.globalgetvalue("Flag_for_recycle");
+        if(recycle_flags.equals("0"))
+        {
+            aSwitch.setChecked(false);
+        }
+        else {
+            aSwitch.setChecked(true);
+        }
+
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                String recycle_flag = db.globalgetvalue("Flag_for_recycle");
+                if(recycle_flag.equals("0"))
+                {
+                    db.globalEditaddData("Flag_for_recycle","1");
+                }
+                else {
+                    db.globalEditaddData("Flag_for_recycle","0");
+                }
+            }
+        });
+
 
         select_all.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,6 +225,92 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                     Log.d(TAG,""+i);
             }
         });
+
+
+
+    /*BottomBar*/
+
+        home = (ImageView) findViewById(R.id.Home);
+        trash = (ImageView) findViewById(R.id.Trash);
+        auto_del = (ImageView) findViewById(R.id.AutoDelete);
+        notification = (ImageView) findViewById(R.id.Notification);
+        settings = (ImageView) findViewById(R.id.Settings);
+
+
+        LayoutParams lp = home.getLayoutParams();
+        int pdd = (int) Math.round(width/14.4);
+        trash.setPadding(pdd-20,pdd-20,pdd-20,pdd-20);
+        Log.d("widthh",width+"");
+        lp.width = width/5;
+        lp.height = width/5;
+        LayoutParams lp2 = trash.getLayoutParams();
+        home.setPadding(pdd,pdd,pdd,pdd);
+        auto_del.setPadding(pdd,pdd,pdd,pdd);
+        notification.setPadding(pdd,pdd,pdd,pdd);
+        settings.setPadding(pdd,pdd,pdd,pdd);
+        lp2.width = width/5;
+        lp2.height = width/5;
+        LayoutParams lp3 = auto_del.getLayoutParams();
+        lp3.width = width/5;
+        lp3.height = width/5;
+        LayoutParams lp4 = notification.getLayoutParams();
+        lp4.width = width/5;
+        lp4.height = width/5;
+        LayoutParams lp5 = settings.getLayoutParams();
+        lp5.width = width/5;
+        lp5.height = width/5;
+
+        home.setLayoutParams(lp);
+        trash.setLayoutParams(lp2);
+        auto_del.setLayoutParams(lp3);
+        notification.setLayoutParams(lp4);
+        settings.setLayoutParams(lp5);
+
+        home.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(RecycleBin.this,MainActivity.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(RecycleBin.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        trash.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(RecycleBin.this,RecycleBin.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(RecycleBin.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        notification.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        auto_del.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(RecycleBin.this,AutoDelete.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(RecycleBin.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        settings.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(RecycleBin.this,AppSettings.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(RecycleBin.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+
+    /*End*/
     }
 
 
@@ -298,49 +406,12 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
 
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
 
-        if (id == R.id.nav_Document)
-        {
-            // Handle the camera action
-        }
-        else if(id == R.id.nav_Images)
-        {
-            Intent i = new Intent(RecycleBin.this,MainActivity.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Trash)
-        {
-            Intent i = new Intent(RecycleBin.this,RecycleBin.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Auto_delete)
-        {
-            Intent i = new Intent(RecycleBin.this,AutoDelete.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Notification)
-        {
-
-        }
-        else if (id == R.id.nav_Settings)
-        {
-
-            Intent i = new Intent(RecycleBin.this,AppSettings.class);
-            startActivity(i);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
     private class image_adapter extends RecyclerView.Adapter<image_adapter.ViewHolder>
     {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_grid,parent,false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_card    ,parent,false);
             return new ViewHolder(view);
         }
 
@@ -404,7 +475,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
                         select_all.setVisibility(View.VISIBLE);
                         close.setVisibility(View.VISIBLE);
                         trash_logo.setVisibility(View.GONE);
-                        menu.setVisibility(View.GONE);
                         count_selected.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
                         Log.d(TAG,position+"");
@@ -419,10 +489,14 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         @Override
         public int getItemCount()
         {
-            if(paths_of_image.size() == 0)
+            if(paths_of_image.size() == 0){
                 noImage.setVisibility(View.VISIBLE);
-            else
+                trash_logo_text.setVisibility(View.VISIBLE);
+            }
+            else {
                 noImage.setVisibility(View.GONE);
+                trash_logo_text.setVisibility(View.GONE);
+            }
             return paths_of_image.size();
         }
 
@@ -466,7 +540,6 @@ public class RecycleBin extends AppCompatActivity implements NavigationView.OnNa
         delete_per.setVisibility(View.GONE);
         close.setVisibility(View.GONE);
         trash_logo.setVisibility(View.VISIBLE);
-        menu.setVisibility(View.VISIBLE);
         select_all.setVisibility(View.GONE);
         count_selected.setVisibility(View.GONE);
         count_selected.setText("0");

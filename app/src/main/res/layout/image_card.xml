@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#fdfbfd">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        app:cardCornerRadius="3dp">
+            <ImageView
+            android:id="@+id/image_all"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:background="@color/grey_100"
+            android:scaleType="matrix"
+            android:elevation="1dp"
+            android:src="@color/white"
+            android:transitionName="image">
+        </ImageView>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/isSelected"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:background="#A6000000"
+            android:elevation="10dp"
+            android:src="@drawable/ic_check_white_24dp"
+            android:scaleType="centerInside"/>
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

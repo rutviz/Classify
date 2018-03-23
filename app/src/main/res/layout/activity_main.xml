@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,164 +8,274 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:id="@+id/toolbar"
-            android:layout_margin="0dp"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:padding="5dp"
-            android:background="@drawable/toolbar_top">
-            <!--app:layout_scrollFlags="scroll|enterAlways">-->
-
-            <ImageButton
-                android:id="@+id/menu_delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="0dp"
-                android:padding="10dp"
-                android:background="@color/transparent"
-                android:src="@drawable/ic_menu_white_24dp">
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/close"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:background="@color/transparent"
-                android:src="@drawable/ic_close_white_24dp">
-            </ImageButton>
-
-            <TextView
-                android:id="@+id/count_selelcted"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="0"
-                android:textSize="25dp"
-                android:padding="5dp"
-                android:layout_marginLeft="5dp"
-                android:textColor="#FFF"
-                android:layout_toRightOf="@+id/close"/>
-
-            <ImageView
-                android:id="@+id/logo_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/logo_white">
-            </ImageView>
-
-            <ImageButton
-                android:id="@+id/share"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="80dp"
-                android:background="@color/transparent"
-                android:layout_alignParentRight="true"
-                android:src="@drawable/ic_share_white_24dp"/>
-
-            <ImageButton
-                android:id="@+id/check"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent"
-                android:layout_toLeftOf="@+id/delete"
-                android:src="@drawable/ic_check_box_outline_blank_white_24dp"/>
-
-            <ImageButton
-                android:id="@+id/delete"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent"
-                android:layout_alignParentRight="true"
-                android:src="@drawable/ic_delete_sweep_white_24dp"/>
-
-        </RelativeLayout>
-
-    <RelativeLayout
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:background="@color/white">
+        android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:background="@drawable/toolbar_top"
-            android:id="@+id/search_box">
-
-            <AutoCompleteTextView
-                android:id="@+id/edit_search_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/corner_white"
-                android:drawableLeft="@drawable/ic_search_black_24dp"
-                android:drawablePadding="10dp"
-                android:fontFamily="sans-serif"
-                android:hint="Search photos"
-                android:padding="12dp"
-                android:elevation="0dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="0dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:textSize="15dp"
-                android:textColorHint="#263238">
-            </AutoCompleteTextView>
-
-        </RelativeLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view_type"
+        <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/toolbar_main"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/search_box"
-            android:background="@drawable/toolbar_top"
-            android:orientation="horizontal"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp">
-        </android.support.v7.widget.RecyclerView>
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/blue_new"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:titleTextColor="#FFFFFF"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            />
+    </android.support.design.widget.AppBarLayout>
+        <!--<android.support.v7.widget.CardView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="20dp"-->
+            <!--android:layout_marginLeft="10dp"-->
+            <!--android:layout_marginRight="10dp"-->
+            <!--app:cardCornerRadius="5dp"-->
+        <!--android:id="@+id/card_cate_type"-->
+        <!--android:layout_marginTop="70dp">-->
+
+            <!--<android.support.v7.widget.RecyclerView-->
+                <!--android:id="@+id/recycler_view_type"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:visibility="gone"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:paddingBottom="10dp"-->
+                <!--android:layout_marginTop="70dp"-->
+                <!--android:paddingTop="30dp"-->
+                <!--/>-->
+
+
+        <!--</android.support.v7.widget.CardView>-->
+
+        <!--<RelativeLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:background="#3f6af1"-->
+            <!--android:elevation="11dp"-->
+            <!--android:visibility="visible"-->
+            <!--android:id="@+id/search_box">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:text="Classify"-->
+                <!--android:textSize="25dp"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:fontFamily="@font/montreal_semibold"-->
+                <!--android:gravity="center"-->
+                <!--android:layout_centerHorizontal="true"/>-->
+
+        <!--</RelativeLayout>-->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_photos"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/grey_100"
-            android:layout_below="@+id/recycler_view_type"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
         </android.support.v7.widget.RecyclerView>
 
-        </RelativeLayout>
-    </RelativeLayout>
-
-        <android.support.design.widget.NavigationView
-            android:id="@+id/nav_view"
-            android:layout_width="wrap_content"
+        <android.support.design.widget.CoordinatorLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:fitsSystemWindows="true"
-            app:headerLayout="@layout/nav_header_temp"
-            android:background="#FFF"
-            style="ThemeOverlay.AppCompat.navTheme"
-            app:menu="@menu/activity_temp_drawer"/>
+            android:elevation="12dp">
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/bottom_sheet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/darker_gray"
+                android:orientation="vertical"
+                app:behavior_hideable="true"
+                app:behavior_peekHeight="50dp"
+                app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
-</android.support.v4.widget.DrawerLayout>
+
+                <RelativeLayout
+                    android:transitionName="bottom_tranisition"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:id="@+id/relative_bottom"
+                    android:background="@color/blue_new"
+                    android:fontFamily="@font/montreal_medium"
+                    android:textColor="@color/white" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_arrow_back_black_24dp"
+                        android:layout_centerVertical="true"
+                        android:padding="10dp"
+                        android:visibility="gone"
+                        android:id="@+id/back_srch"
+                        android:background="@color/white"
+                        />
+
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#FFF"
+                        android:id="@+id/search_bar"
+                        android:visibility="gone"
+                        android:hint="Search"
+                        android:layout_toRightOf="@+id/back_srch"
+                        android:padding="10dp"
+                        android:layout_toLeftOf="@+id/action_search"/>
+                    <ImageButton
+                        android:id="@+id/menu_delete"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="0dp"
+                        android:layout_centerVertical="true"
+                        android:padding="10dp"
+                        android:background="@color/transparent"
+                        android:src="@drawable/ic_menu_white_24dp">
+                    </ImageButton>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ALL"
+                        android:id="@+id/category_name"
+                        android:layout_centerVertical="true"
+                        android:textSize="15dp"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/montreal_semibold"
+                        android:layout_centerHorizontal="true"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/action_search"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_search_white_24dp"
+                        android:layout_marginLeft="0dp"
+                        android:layout_alignParentRight="true"
+                        android:padding="10dp"/>
+
+                    <ImageButton
+                        android:id="@+id/close"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:background="@color/transparent"
+                        android:src="@drawable/ic_arrow_back_white_24dp">
+                    </ImageButton>
+
+                    <TextView
+                        android:id="@+id/count_selelcted"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:text="0"
+                        android:layout_centerVertical="true"
+                        android:textSize="20sp"
+                        android:layout_marginLeft="15dp"
+                        android:fontFamily="@font/montreal_medium"
+                        android:textColor="#FFF"
+                        android:layout_toRightOf="@+id/close"/>
+
+                    <ImageButton
+                        android:id="@+id/share"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="80dp"
+                        android:background="@color/transparent"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/ic_share_white_24dp"/>
+
+                    <ImageButton
+                        android:id="@+id/check"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@color/transparent"
+                        android:layout_toLeftOf="@+id/delete"
+                        android:src="@drawable/ic_check_box_outline_blank_white_24dp"/>
+
+                    <ImageButton
+                        android:id="@+id/delete"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@color/transparent"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/ic_delete_sweep_white_24dp"/>
+                </RelativeLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:id="@+id/recycler_view_type"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/relative_bottom"
+                    android:background="#fff"
+                    android:scrollbars="horizontal"
+                    android:textColor="@android:color/white" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/bottom_bar"
+                    android:layout_below="@+id/recycler_view_type"
+                    android:textColor="@android:color/white"
+                    android:transitionName="bottom_bar_tranisition"
+                    android:background="@color/blue_new">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/Home"
+                        android:src="@drawable/ic_home_white_24dp"
+                        android:padding="25dp"/>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/Trash"
+                        android:layout_toRightOf="@+id/Home"
+                        android:src="@drawable/ic_delete_sweep_white_24dp"
+                        android:padding="25dp"/>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/AutoDelete"
+                        android:layout_toRightOf="@+id/Trash"
+                        android:src="@drawable/ic_delete_white_24dp"
+                        android:padding="25dp"/>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/Notification"
+                        android:layout_toRightOf="@+id/AutoDelete"
+                        android:src="@drawable/ic_notifications_white_24dp"
+                        android:padding="25dp"/>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/Settings"
+                        android:layout_toRightOf="@+id/Notification"
+                        android:src="@drawable/ic_settings_white_24dp"
+                        android:padding="25dp"/>
+                </RelativeLayout>
+
+
+            </RelativeLayout>
+
+        </android.support.design.widget.CoordinatorLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -5,46 +5,114 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.classify.classify.AutoDelete_Recommendation"
-    android:background="@drawable/toolbar_top">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/toplayer2"
-        android:background="@drawable/toolbar_top"
-        android:elevation="2dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/category_title"
-            android:layout_alignParentTop="true"
-            android:text="Delete Recommendation"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20dp"
-            android:padding="20dp"
-            android:layout_centerVertical="true"
-            android:textAlignment="center"/>
-
-        <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="5dp"
-            android:layout_margin="10dp"
-            android:padding="10dp"
-            android:src="@drawable/ic_arrow_back_white_24dp"/>
-
-
-    </RelativeLayout>
+    android:background="@color/grey_200"
+    >
 
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/recycler_recomnd"
-        android:layout_below="@+id/toplayer2">
+        android:layout_marginBottom="50dp"
+        >
     </android.support.v7.widget.RecyclerView>
+
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="12dp">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/bottom_sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:transitionName="bottom_tranisition"
+            android:orientation="vertical"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="50dp"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+            <RelativeLayout
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:id="@+id/toolbar2"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:padding="5dp"
+                android:background="@color/blue_new">
+
+                <TextView
+                    android:id="@+id/trash_logo1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete Recommendation"
+                    android:fontFamily="@font/montreal_medium"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:textColor="#FFF"
+                    android:textSize="20dp"/>
+
+
+                <ImageView
+                    android:id="@+id/btnBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="5dp"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_arrow_back_white_24dp"/>
+
+
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/toolbar2"
+                android:id="@+id/bottom_bar"
+                android:textColor="@android:color/white"
+                android:background="@color/blue_new">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Home"
+                    android:src="@drawable/ic_home_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Trash"
+                    android:layout_toRightOf="@+id/Home"
+                    android:src="@drawable/ic_delete_sweep_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/AutoDelete"
+                    android:layout_toRightOf="@+id/Trash"
+                    android:src="@drawable/ic_delete_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Notification"
+                    android:layout_toRightOf="@+id/AutoDelete"
+                    android:src="@drawable/ic_notifications_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Settings"
+                    android:layout_toRightOf="@+id/Notification"
+                    android:src="@drawable/ic_settings_white_24dp"
+                    android:padding="25dp"/>
+            </RelativeLayout>
+
+        </RelativeLayout></android.support.design.widget.CoordinatorLayout>
+
+
 
 </RelativeLayout>

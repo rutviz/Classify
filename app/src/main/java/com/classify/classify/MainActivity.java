@@ -13,7 +13,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -23,35 +22,39 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,7 +70,7 @@ import static com.classify.classify.Global_Share.CurrentCategory;
 import static com.classify.classify.Global_Share.classifier;
 import static com.classify.classify.Global_Share.mmediaStorecursor;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity  {
 
     private final static int READ_EXTERNAL_STORAGE_PERMMISSION_RESULT = 0;
     private final static int MEDIASTORE_LOADER_ID = 0;
@@ -77,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ImageButton share;
     DatabaseHandler myDB;
     ProgressDialog progressDialog;
-    private AutoCompleteTextView search;
+    private ImageView search;
     RecyclerView recyclerView_types;
     ArrayList<String> types = new ArrayList<>();
     int width,height;
@@ -90,12 +93,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String LABEL_FILE = "file:///android_asset/retrained_labels.txt";
     static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 99;
     final int[] Delete_mode = {0};
+    TextView title;
+    MaterialSearchView searchView;
 
-//    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+    private BottomSheetBehavior mBottomSheetBehavior;
+
+    //    private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
 //    private static final String LABEL_FILE =
 //            "file:///android_asset/imagenet_comp_graph_label_strings.txt";
-   // private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
-    DatabaseHandler databaseHandler,db2;
+    // private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0 ;
+    DatabaseHandler databaseHandler,db2,dbs;
     DatabaseHandler myDBForRecycle;
     Activity mActivity;
     ArrayAdapter<String> searchadapter;
@@ -107,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     List<String> paths_of_image = new ArrayList<String>();
     List<Integer> visible = new ArrayList<Integer>();
     type_adapter typeadapter ;
+    AutoCompleteTextView Search_bar;
 
     public static ImageButton delete_btn,select_all,close;
     TextView count_selected;
@@ -125,12 +133,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     int delete_flag=0;
     NavigationView navigationView;
     AsyncTaskRunner runner;
+    ImageView home,trash,auto_del,notification,settings,bck_srch;
     AsyncTaskRunnerForDelete run;
+    private TextView bottom_bar_activate;
+    private RelativeLayout bottom_sheet;
+    private int Bottom_flag = 0;
+    private TextView cat_name;
+    int count_of_image;
+    private RelativeLayout bottom_bar,top_bar;
+    private Toolbar mToolbar;
 
 
     @Override
     protected void onResume() {
-        navigationView.setCheckedItem(R.id.nav_Images);
+//        navigationView.setCheckedItem(R.id.nav_Images);
         super.onResume();
     }
 
@@ -140,33 +156,226 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         checkReadExternalStoragePermission();
 
+//        setSupportActionBar((android.support.v7.widget.Toolbar)findViewById(R.id.toolbar_with_search));
+
         myDB = new DatabaseHandler(MainActivity.this);
         width = getWindowManager().getDefaultDisplay().getWidth();
         height = getWindowManager().getDefaultDisplay().getHeight();
         myDBForRecycle = new DatabaseHandler(MainActivity.this);
+        dbs = new DatabaseHandler(MainActivity.this);
         db2 = new DatabaseHandler(MainActivity.this);
         delete_btn = (ImageButton) findViewById(R.id.delete);
         close = (ImageButton) findViewById(R.id.close);
         select_all = (ImageButton) findViewById(R.id.check);
         share = (ImageButton) findViewById(R.id.share);
         menu = (ImageButton) findViewById(R.id.menu_delete);
+        bck_srch = (ImageView) findViewById(R.id.back_srch);
         count_selected = (TextView) findViewById(R.id.count_selelcted);
+        final RelativeLayout bottom_trans = (RelativeLayout)findViewById(R.id.bottom_sheet);
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Moving to trash...");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationView.setCheckedItem(R.id.nav_Images);
+        search = (ImageView)findViewById(R.id.action_search);
+//        navigationView = (NavigationView) findViewById(R.id.nav_view);
+//        navigationView.setNavigationItemSelectedListener(this);
+//        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        navigationView.setCheckedItem(R.id.nav_Images);
+//        title = (TextView) findViewById(R.id.title);
+        int resId = R.anim.animate_slide_from_right;
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getBaseContext(), resId);
+        int resId1 = R.anim.animate_bottom;
+        LayoutAnimationController animation1 = AnimationUtils.loadLayoutAnimation(getBaseContext(), resId1);
+        final View bottomsheet = findViewById(R.id.bottom_sheet);
+        bottom_sheet = (RelativeLayout)findViewById(R.id.bottom_sheet);
+        bottom_bar = (RelativeLayout)findViewById(R.id.relative_bottom);
+//        top_bar = (RelativeLayout)findViewById(R.id.search_box);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomsheet);
+        bottom_bar_activate = (TextView) findViewById(R.id.category_name);
+        cat_name = (TextView) findViewById(R.id.category_name);
 
-       // startActivity(new Intent(MainActivity.this,AutoDelete_Recommendation.class));
+        count_of_image = dbs.getDataCount();
+        String catname = "All (" + count_of_image +")";
+        cat_name.setText(catname);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar_main);
+        setSupportActionBar(mToolbar);
+        setTitle(getString(R.string.app_name));
+        mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
+
+        Search_bar = (AutoCompleteTextView) findViewById(R.id.search_bar);
+        home = (ImageView) findViewById(R.id.Home);
+        trash = (ImageView) findViewById(R.id.Trash);
+        auto_del = (ImageView) findViewById(R.id.AutoDelete);
+        notification = (ImageView) findViewById(R.id.Notification);
+        settings = (ImageView) findViewById(R.id.Settings);
+
+        LayoutParams lp = home.getLayoutParams();
+        int pdd = (int) Math.round(width/14.4);
+        home.setPadding(pdd-20,pdd-20,pdd-20,pdd-20);
+        Log.d("widthh",width+"");
+        lp.width = width/5;
+        lp.height = width/5;
+        LayoutParams lp2 = trash.getLayoutParams();
+        trash.setPadding(pdd,pdd,pdd,pdd);
+        auto_del.setPadding(pdd,pdd,pdd,pdd);
+        notification.setPadding(pdd,pdd,pdd,pdd);
+        settings.setPadding(pdd,pdd,pdd,pdd);
+        lp2.width = width/5;
+        lp2.height = width/5;
+        LayoutParams lp3 = auto_del.getLayoutParams();
+        lp3.width = width/5;
+        lp3.height = width/5;
+        LayoutParams lp4 = notification.getLayoutParams();
+        lp4.width = width/5;
+        lp4.height = width/5;
+        LayoutParams lp5 = settings.getLayoutParams();
+        lp5.width = width/5;
+        lp5.height = width/5;
+
+        home.setLayoutParams(lp);
+        trash.setLayoutParams(lp2);
+        auto_del.setLayoutParams(lp3);
+        notification.setLayoutParams(lp4);
+        settings.setLayoutParams(lp5);
+
+        home.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this,MainActivity.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        trash.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    runner.cancel(true);
+                }catch (Exception e)
+                {
+
+                }
+//                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                Intent i = new Intent(MainActivity.this,RecycleBin.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        notification.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        auto_del.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    runner.cancel(true);
+                }catch (Exception e)
+                {
+
+                }
+                Intent i = new Intent(MainActivity.this,AutoDelete.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        settings.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    runner.cancel(true);
+                }catch (Exception e)
+                {
+
+                }
+                Intent i = new Intent(MainActivity.this,AppSettings.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        bck_srch.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Search_bar.setVisibility(View.GONE);
+                bck_srch.setVisibility(View.GONE);
+            }
+        });
+
+
+//        bottom_bar_activate.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(mBottomSheetBehavior.getState() == 3)
+//                {
+//                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                    mBottomSheetBehavior.setPeekHeight(50);
+//                }
+//                else if(mBottomSheetBehavior.getPeekHeight() == 550){
+//                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+//                }
+//                else
+//                {
+//                    mBottomSheetBehavior.setPeekHeight(550);
+//                }
+//            }
+//        });
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                Log.d("bottomsheet",slideOffset+" "+Bottom_flag);
+//                if(slideOffset == 1.0 && Bottom_flag == 0)
+//                {
+//                    LayoutParams lp= bottom_sheet.getLayoutParams();
+//                    Log.d("bottomsheet",lp.height+" -------------");
+//                    lp.height = getWindowManager().getDefaultDisplay().getHeight();
+//                    bottom_sheet.setLayoutParams(lp);
+//                    Bottom_flag = 1;
+//                }
+//                else if(slideOffset == 0.0 && Bottom_flag == 1)
+//                {
+//                    LayoutParams lp= bottom_sheet.getLayoutParams();
+//                    Log.d("bottomsheet",lp.height+" ----------------");
+//                    lp.height = recyclerView_types.getHeight()+100;
+//                    Log.d("bottomsheet",lp.height+"");
+//                    bottom_sheet.setLayoutParams(lp);
+//                    Bottom_flag = 0;
+//                }
+//                else
+//                {
+//                    LayoutParams lp= bottom_sheet.getLayoutParams();
+//                    Log.d("bottomsheet",lp.height+" ----------------------------");
+//                }
+            }
+        });
+        
+        // startActivity(new Intent(MainActivity.this,AutoDelete_Recommendation.class));
 
         checkPermission();
 
         menu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
+//                mDrawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
+
+        search.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Search_bar.setVisibility(View.VISIBLE);
+                bck_srch.setVisibility(View.VISIBLE);
             }
         });
 
@@ -174,20 +383,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view)
             {
-                    ArrayList<Uri> uris = new ArrayList<>();
-                    for(int i=0;i<delete_from_appp.size();i++)
-                    {
-                        uris.add(Uri.parse("file://"+delete_from_appp.get(i)));
-                    }
-                    Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                    sharingIntent.setType("image/jpeg");
-                    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Shared via Classify");
-                    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Shared via Classify ");
-                    //sharingIntent.putExtra(Intent.EXTRA_STREAM,mediaUri);
-                    sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,uris);
-                    MainActivity.this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
-                    Category_change();
-                    imageadapter.notifyDataSetChanged();
+                ArrayList<Uri> uris = new ArrayList<>();
+                for(int i=0;i<delete_from_appp.size();i++)
+                {
+                    uris.add(Uri.parse("file://"+delete_from_appp.get(i)));
+                }
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                sharingIntent.setType("image/jpeg");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Shared via Classify");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Shared via Classify ");
+                //sharingIntent.putExtra(Intent.EXTRA_STREAM,mediaUri);
+                sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,uris);
+                MainActivity.this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                Category_change();
+                imageadapter.notifyDataSetChanged();
             }
         });
 
@@ -195,7 +404,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 delete_flag=1;
-                runner.cancel(true);
+                try {
+                    runner.cancel(true);
+                }catch (Exception e)
+                {
+
+                }
                 String recycle_flag = db2.globalgetvalue("Flag_for_recycle");
                 if(recycle_flag.equals("1"))
                 {
@@ -206,7 +420,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void onClick(DialogInterface arg0, int arg1) {
                                     run = new AsyncTaskRunnerForDelete();
-                                    runner.cancel(true);
+                                    try {
+                                        runner.cancel(true);
+                                    }catch (Exception e)
+                                    {
+
+                                    }
                                     progressDialog.show();
                                     run.execute();
                                 }
@@ -234,7 +453,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void onClick(DialogInterface arg0, int arg1) {
                                     run = new AsyncTaskRunnerForDelete();
-                                    runner.cancel(true);
+                                    try {
+                                        runner.cancel(true);
+                                    }catch (Exception e)
+                                    {
+
+                                    }
                                     progressDialog.show();
                                     run.execute();
                                 }
@@ -283,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(TAG,delete_from_appp.size()+" "+Delete_mode[0]+" "+Specific_data.size()+" "+visible.size()+" "+all_selected);
 
                 for(int i :visible)
-                Log.d(TAG,""+i);
+                    Log.d(TAG,""+i);
             }
         });
 
@@ -301,27 +525,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         paths_of_image = databaseHandler.getImagepathlist();
 
 //        getSupportLoaderManager().initLoader(MEDIASTORE_LOADER_ID, null, this);
-        search = (AutoCompleteTextView) findViewById(R.id.edit_search_box);
+//        search = (AutoCompleteTextView) findViewById(R.id.edit_search_box);
         recyclerView_types = (RecyclerView) findViewById(R.id.recycler_view_type);
         mThumbnailRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_photos);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         mThumbnailRecyclerView.setHasFixedSize(true);
         //to hide focus of search
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        search.clearFocus();
+//        search.clearFocus();
         types.addAll(databaseHandler.getCategory());
         searchadapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,types);
-        search.setAdapter(searchadapter);
+//        search.setAdapter(searchadapter);
+        Search_bar.setAdapter(searchadapter);
         imageadapter = new image_adapter();
-        search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        Search_bar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String SEARCH =  search.getText().toString();
-                    CurrentCategory = SEARCH;
-                    databaseHandler = new DatabaseHandler(mActivity);
-                    Specific_data = databaseHandler.getUniqueData(SEARCH);
-                    mThumbnailRecyclerView.setAdapter(imageadapter);
-                    close.callOnClick();
+                String SEARCH =  Search_bar.getText().toString();
+                CurrentCategory = SEARCH;
+                databaseHandler = new DatabaseHandler(mActivity);
+                Specific_data = databaseHandler.getUniqueData(SEARCH);
+                mThumbnailRecyclerView.setAdapter(imageadapter);
+                close.callOnClick();
+
+                count_of_image = dbs.getpathCountFromCat(Search_bar.getText().toString());
+                String catname = Search_bar.getText().toString() + " (" + count_of_image +")";
+                cat_name.setText(catname);
+                Search_bar.setText("");
             }
         });
         close.setOnClickListener(new OnClickListener() {
@@ -332,13 +563,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        recyclerView_types.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        recyclerView_types.setLayoutManager(new GridLayoutManager(this,2,GridLayoutManager.HORIZONTAL,false));
         mThumbnailRecyclerView.setLayoutManager(gridLayoutManager);
 //        mMediaStoreAdapter = new MediaStoreAdapter(this,classifier);
         typeadapter = new type_adapter(types);
         recyclerView_types.setAdapter(typeadapter);
+        //recyclerView_types.setLayoutAnimation(animation);
+        mThumbnailRecyclerView.setLayoutAnimation(animation1);
         mThumbnailRecyclerView.setAdapter(imageadapter);
+
+
+
 //        mMediaStoreAdapter.notifyDataSetChanged();
+        mThumbnailRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0  && Delete_mode[0]==0) {
+//                    slideUp();
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+//                    top_bar.setVisibility(View.VISIBLE);
+                } else if (dy < 0 ) {
+//                    slideDown();
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                    top_bar.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+    }
+
+    private void hideViews() {
+    }
+
+    public void slideUp(){
+        mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2));
+
+    }
+    public void slideDown(){
+        mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2));
     }
 
     public void AsynctaskAfterPermission()
@@ -360,6 +627,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         t.start();
 
+
     }
 
     public  void StorageProblem(final String s)
@@ -374,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 MediaStore.Images.ImageColumns.DATA + "=?" , new String[]{ s });
                         myDB.deleteimagepath(s);
-                            UpdateUI();
+                        UpdateUI();
                     }
                 });
 
@@ -409,49 +677,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.nav_Document)
-        {
-            runner.cancel(true);
-            Intent i = new Intent(MainActivity.this,Documentation.class);
-            startActivity(i);
-        }
-        else if(id == R.id.nav_Images)
-        {
-            Intent i = new Intent(MainActivity.this,MainActivity.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Trash)
-        {
-            runner.cancel(true);
-            Intent i = new Intent(MainActivity.this,RecycleBin.class);
-            startActivity(i);
-        }
-        else if (id == R.id.nav_Auto_delete)
-        {
-            runner.cancel(true);
-            Intent i = new Intent(MainActivity.this,AutoDelete.class);
-            startActivity(i);
-
-        }
-        else if (id == R.id.nav_Notification)
-        {
-
-        }
-        else if (id == R.id.nav_Settings)
-        {
-            runner.cancel(true);
-            Intent i = new Intent(MainActivity.this,AppSettings.class);
-            startActivity(i);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
+//    @Override
+//    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//        int id = item.getItemId();
+//
+//        if (id == R.id.nav_Document)
+//        {
+//            runner.cancel(true);
+//            Intent i = new Intent(MainActivity.this,Documentation.class);
+//            startActivity(i);
+//        }
+//        else if(id == R.id.nav_Images)
+//        {
+//            Intent i = new Intent(MainActivity.this,MainActivity.class);
+//            startActivity(i);
+//        }
+//        else if (id == R.id.nav_Trash)
+//        {
+//            runner.cancel(true);
+//            Intent i = new Intent(MainActivity.this,RecycleBin.class);
+//            startActivity(i);
+//        }
+//        else if (id == R.id.nav_Auto_delete)
+//        {
+//            runner.cancel(true);
+//            Intent i = new Intent(MainActivity.this,AutoDelete.class);
+//            startActivity(i);
+//
+//        }
+//        else if (id == R.id.nav_Notification)
+//        {
+//
+//        }
+//        else if (id == R.id.nav_Settings)
+//        {
+//            runner.cancel(true);
+//            Intent i = new Intent(MainActivity.this,AppSettings.class);
+//            startActivity(i);
+//        }
+//
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        drawer.closeDrawer(GravityCompat.START);
+//        return true;
+//    }
 
     private void addNotification(String title,int rate) {
         String rates = "Total "+rate+ " images Classify out of " +total_image ;
@@ -518,10 +786,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected Void doInBackground(String... params) {
             if(delete_from_appp.size()!=0){
-               progressDialog.setMax(delete_from_appp.size());
+                progressDialog.setMax(delete_from_appp.size());
                 for (int i = 0; i < delete_from_appp.size(); i++) {
-                  progressDialog.setProgress(i);
-                   // Log.d("yess","2");
+                    progressDialog.setProgress(i);
+                    // Log.d("yess","2");
                     String myPath = delete_from_appp.get(i);
                     try{
 
@@ -543,7 +811,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     }
                     catch(Exception e){
-                       // StorageProblem(delete_from_appp.get(i));
+                        // StorageProblem(delete_from_appp.get(i));
                         Log.d("yes",e.getMessage());
                     }
                 }
@@ -625,42 +893,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(paths_of_images.get(init)), 224, 224);
 
                             Bitmap bitmap = null;
-                                try {
+                            try {
 //                                    Log.d("class_e",paths_of_images.get(init).toString());
-                                    Uri uri1 = Uri.parse("file://"+paths_of_images.get(init));
-                                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri1);
-                                    bitmap = Bitmap.createScaledBitmap(
-                                            bitmap, 224, 224, false);
-                                    final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                                    if (results.size() != 0) {
-                                        myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
-                                        Log.d("counts","13");
-                                        String value = myDB.AutoDeleteGetData(results.get(0).toString());
-                                        Log.d("counts",value + " 133");
-                                        if(value.equals("2"))
-                                        {
-                                            Log.d("counts","12");
-                                            myDB.addDataForAutoDelete(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
-                                            flag_of_activate=1;
-                                        }
-                                        notification_title = "Classify in progress...";
-                                        notification_rate = init+1;
-                                        addNotification(notification_title,notification_rate);
-                                    } else {
-                                        myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                                        notification_title = "Classify in progress...";
-                                        notification_rate = init+1;
-                                        addNotification(notification_title,notification_rate);
+                                Uri uri1 = Uri.parse("file://"+paths_of_images.get(init));
+                                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri1);
+                                bitmap = Bitmap.createScaledBitmap(
+                                        bitmap, 224, 224, false);
+                                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
+                                if (results.size() != 0) {
+                                    myDB.addData(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                    Log.d("counts","13");
+                                    String value = myDB.AutoDeleteGetData(results.get(0).toString());
+                                    Log.d("counts",value + " 133");
+                                    if(value.equals("2"))
+                                    {
+                                        Log.d("counts","12");
+                                        myDB.addDataForAutoDelete(new Classify_path(paths_of_images.get(init), results.get(0).toString(), date_list.get(init)));
+                                        flag_of_activate=1;
                                     }
+                                    notification_title = "Classify in progress...";
+                                    notification_rate = init+1;
+                                    addNotification(notification_title,notification_rate);
+                                } else {
+                                    myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                    notification_title = "Classify in progress...";
+                                    notification_rate = init+1;
+                                    addNotification(notification_title,notification_rate);
                                 }
-                                  catch (Exception e) {
+                            }
+                            catch (Exception e) {
 //                                      Log.d("class_e",e.getMessage());
-                                      myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
-                                      notification_title = "Classify in progress...";
-                                      notification_rate = init+1;
-                                      addNotification(notification_title,notification_rate);
-                                    e.printStackTrace();
-                                }
+                                myDB.addData(new Classify_path(paths_of_images.get(init), "none", date_list.get(init)));
+                                notification_title = "Classify in progress...";
+                                notification_rate = init+1;
+                                addNotification(notification_title,notification_rate);
+                                e.printStackTrace();
+                            }
 
                         }
 
@@ -706,10 +974,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onPause() {
         super.onPause();
-        runner.cancel(true);
+        try {
+            runner.cancel(true);
+        }catch (Exception e)
+        {
+
+        }
     }
-
-
 
     @Override
     protected void onPostResume() {
@@ -733,8 +1004,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view;
             if(type.size()!=0)
-           {
-             view= LayoutInflater.from(parent.getContext()).inflate(R.layout.type_card, parent, false);}
+            {
+                view= LayoutInflater.from(parent.getContext()).inflate(R.layout.type_card, parent, false);}
             else
             {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.loading, parent, false);
@@ -746,23 +1017,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onBindViewHolder(final ViewHolder holder, int position) {
             if(type.size()!=0)
             {
-                if(type.get(position).equals(CurrentCategory))
-                {
-                    holder.type_name.setBackgroundResource(R.drawable.corner_accent);
-                    holder.type_name.setTextColor(Color.parseColor("#FFFFFF"));
-                    holder.type_name.setTypeface(null, Typeface.BOLD);
-                }
-                else
-                {
-                    holder.type_name.setTextColor(Color.parseColor("#000000"));
-                    holder.type_name.setTypeface(null, Typeface.NORMAL);
-                    holder.type_name.setBackgroundResource(R.drawable.corner_tag);
-                }
+
+//                if(type.get(position).equals(CurrentCategory))
+//                {
+//                    holder.type_name.setBackgroundResource(R.drawable.corner_accent);
+//                    holder.type_name.setTextColor(Color.parseColor("#FFFFFF"));
+//                    holder.type_name.setTypeface(null, Typeface.BOLD);
+//                }
+//                else
+//                {
+//                    holder.type_name.setTextColor(Color.parseColor("#000000"));
+//                    holder.type_name.setTypeface(null, Typeface.NORMAL);
+//                    holder.type_name.setBackgroundResource(R.drawable.corner_tag);
+//                }
                 holder.type_name.setText(type.get(position));
-                holder.type_name.setOnClickListener(new OnClickListener() {
+                int icon = seticon(type.get(position));
+                holder.count_image.setText(dbs.getpathCountFromCat(type.get(position))+" Images");
+                holder.type_name.setTypeface(Typeface.createFromAsset(getAssets(),"montserrat-bold.ttf"));
+                holder.card_click.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        search.setText("");
+//                        search.setText("");
+                        if(holder.type_name.getText().equals("All"))
+                        {
+                            count_of_image = dbs.getDataCount();
+                            String catname = "All (" + count_of_image +")";
+                            cat_name.setText(catname);
+                        }else
+                        {
+                            count_of_image = dbs.getpathCountFromCat(holder.type_name.getText().toString());
+                            String catname = holder.type_name.getText().toString() + " (" + count_of_image +")";
+                            cat_name.setText(catname);
+                        }
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         String SEARCH = (String) holder.type_name.getText();
                         CurrentCategory = SEARCH;
                         //databaseHandler = new DatabaseHandler(mActivity);
@@ -781,6 +1068,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
+
+        public int seticon(String s)
+        {
+            int id;
+            switch (s)
+            {
+                case "Animals":
+                    id = R.drawable.animal;
+                    break;
+                case "Appliances":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                case "Animal":
+                    id = R.drawable.animal;
+                    break;
+                default : id = R.drawable.classify_logo;
+            }
+            return id;
+        }
+
+
         @Override
         public int getItemCount() {
 
@@ -792,13 +1136,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         public class ViewHolder extends RecyclerView.ViewHolder
         {
-            TextView type_name;
+            TextView type_name,count_image;
             ImageView imv;
+            RelativeLayout card_click;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 type_name = (TextView)itemView.findViewById(R.id.type_title);
+                count_image = (TextView)itemView.findViewById(R.id.count);
                 imv = (ImageView) itemView.findViewById(R.id.loading);
+                card_click = (RelativeLayout)itemView.findViewById(R.id.card_types);
             }
         }
     }
@@ -809,7 +1156,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_grid,parent,false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_card,parent,false);
             return new ViewHolder(view);
         }
 
@@ -824,13 +1171,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //            Log.d(TAG,""+visible.get(position));
 
             LayoutParams params = holder.image.getLayoutParams();
-            params.width = (width-6)/3;
-            params.height = (width-6)/3;
+            params.width = (width-38)/3;
+            params.height = (width-38)/3;
             holder.image.setLayoutParams(params);
 
             LayoutParams params1 = holder.chk.getLayoutParams();
-            params1.width = (width-6)/3;
-            params1.height = (width-6)/3;
+            params1.width = (width-38)/3;
+            params1.height = (width-38)/3;
             holder.image.setLayoutParams(params1);
 
             Glide.with(mActivity).load(Specific_data.get(position).getPath()).centerCrop().into(holder.image);
@@ -860,8 +1207,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Global_Share.paths_of_image = convert(Specific_data);
                         i.putExtra("id", position+"");
                         i.putExtra("category", databaseHandler.getSingleCategory(Specific_data.get(position).getPath()));
-                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity, (View) holder.image, "image");
-                        mActivity.startActivity(i, options.toBundle());
+                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this,bottom_bar, "bottom_tranisition");
+                        startActivity(i,options.toBundle());
                     }
 //                    Log.d(TAG,""+Delete_mode[0]+" "+visible.get(position));
                 }
@@ -876,8 +1223,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         share.setVisibility(View.VISIBLE);
                         menu.setVisibility(View.GONE);
                         close.setVisibility(View.VISIBLE);
+                        search.setVisibility(View.GONE);
+                        Search_bar.setVisibility(View.GONE);
+                        bck_srch.setVisibility(View.GONE);
                         count_selected.setVisibility(View.VISIBLE);
                         Delete_mode[0] = 1;
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 //                        Log.d(TAG,position+"");
                         holder.chk.setVisibility(View.VISIBLE);
                         delete_from_appp.add(Specific_data.get(position).getPath());
@@ -895,7 +1246,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public class ViewHolder extends RecyclerView.ViewHolder
         {
             ImageView image,chk;
-             CheckBox checkBox;
+            CheckBox checkBox;
             public ViewHolder(View itemView) {
                 super(itemView);
                 for(int i = 0; i<Specific_data.size();i++)
@@ -912,7 +1263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         delete_from_appp.clear();
         for(int i = 0; i<Specific_data.size();i++)
             visible.add(0);
-       hide_button();
+        hide_button();
     }
     void hide_button()
     {
@@ -920,9 +1271,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         delete_btn.setVisibility(View.GONE);
         share.setVisibility(View.GONE);
         close.setVisibility(View.GONE);
-        menu.setVisibility(View.VISIBLE);
+//        menu.setVisibility(View.VISIBLE);
+        search.setVisibility(View.VISIBLE);
         select_all.setVisibility(View.GONE);
         count_selected.setVisibility(View.GONE);
+        Search_bar.setVisibility(View.GONE);
+        bck_srch.setVisibility(View.GONE);
         count_selected.setText("0");
         all_selected = 0;
         Delete_mode[0] = 0;
@@ -1016,16 +1370,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return temp;
     }
 
+    boolean doubleBackToExitPressedOnce = false;
+
     @Override
-    public void onBackPressed()
-    {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
             MainActivity.this.finishAffinity();
         }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
     static {
         System.loadLibrary("native-lib");
@@ -1067,17 +1430,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {checkReadExternalStoragePermission();
                 }
                 break;
-                case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                    if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    }
-                    else
-                    {
-                        Intent i = new Intent(MainActivity.this, PermissionActivity.class);
-                        startActivity(i);
-                    }
-                    break;
-                default:
-                    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                }
+                else
+                {
+                    Intent i = new Intent(MainActivity.this, PermissionActivity.class);
+                    startActivity(i);
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 /*

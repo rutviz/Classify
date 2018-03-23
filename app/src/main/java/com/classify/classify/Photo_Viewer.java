@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
@@ -36,7 +37,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.classify.classify.Global_Share.CurrentCategory;
 import static com.classify.classify.Global_Share.paths_of_image;
 
 public class Photo_Viewer extends AppCompatActivity{
@@ -58,7 +58,8 @@ public class Photo_Viewer extends AppCompatActivity{
     String path;
     private ImageView hide,unhide;
     ArrayList<String> category_list = new ArrayList<>();
-
+    ImageView home,trash,auto_del,notification,settings;
+    private RelativeLayout bottom_bar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,25 +74,105 @@ public class Photo_Viewer extends AppCompatActivity{
         EditRecycle.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         Edit_adapter adapters = new Edit_adapter(category_list);
         EditRecycle.setAdapter(adapters);
-        UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
-        BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
+//        UpperLayer = (RelativeLayout) findViewById(R.id.toplayer);
+//        BottomLayer= (RelativeLayout) findViewById(R.id.bottomlayer);
         category_title = (TextView)findViewById(R.id.category_title);
         btnDelete = (Button) findViewById(R.id.btnDelete);
         btnInfo = (ImageView) findViewById(R.id.btninfo);
         btnShare = (Button) findViewById(R.id.btnShare);
         btnEdit = (Button) findViewById(R.id.btnEditCategory);
         back = (ImageView) findViewById(R.id.btnBack);
-        hide = (ImageView) findViewById(R.id.hide);
-        unhide = (ImageView) findViewById(R.id.unhide);
+//        hide = (ImageView) findViewById(R.id.hide);
+//        unhide = (ImageView) findViewById(R.id.unhide);
 
         Bundle bundle = getIntent().getExtras();
         int id = Integer.parseInt(bundle.getString("id"));
+        final String[] category = {bundle.getString("category")};
         LayoutParams params = btnShare.getLayoutParams();
         params.width = width/3;
         LayoutParams params2 = btnDelete.getLayoutParams();
         params2.width = width/3;
         btnShare.setLayoutParams(params);
         btnDelete.setLayoutParams(params2);
+        bottom_bar = (RelativeLayout)findViewById(R.id.toolbar2);
+        home = (ImageView) findViewById(R.id.Home);
+        trash = (ImageView) findViewById(R.id.Trash);
+        auto_del = (ImageView) findViewById(R.id.AutoDelete);
+        notification = (ImageView) findViewById(R.id.Notification);
+        settings = (ImageView) findViewById(R.id.Settings);
+
+        LayoutParams lp = home.getLayoutParams();
+        int pdd = (int) Math.round(width/14.4);
+        lp.width = width/5;
+        lp.height = width/5;
+        LayoutParams lp2 = trash.getLayoutParams();
+        home.setPadding(pdd,pdd,pdd,pdd);
+        trash.setPadding(pdd,pdd,pdd,pdd);
+        auto_del.setPadding(pdd,pdd,pdd,pdd);
+        notification.setPadding(pdd,pdd,pdd,pdd);
+        settings.setPadding(pdd,pdd,pdd,pdd);
+        lp2.width = width/5;
+        lp2.height = width/5;
+        LayoutParams lp3 = auto_del.getLayoutParams();
+        lp3.width = width/5;
+        lp3.height = width/5;
+        LayoutParams lp4 = notification.getLayoutParams();
+        lp4.width = width/5;
+        lp4.height = width/5;
+        LayoutParams lp5 = settings.getLayoutParams();
+        lp5.width = width/5;
+        lp5.height = width/5;
+
+        home.setLayoutParams(lp);
+        trash.setLayoutParams(lp2);
+        auto_del.setLayoutParams(lp3);
+        notification.setLayoutParams(lp4);
+        settings.setLayoutParams(lp5);
+
+        home.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Photo_Viewer.this,MainActivity.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Photo_Viewer.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        trash.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                Intent i = new Intent(Photo_Viewer.this,RecycleBin.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Photo_Viewer.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        notification.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        auto_del.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Photo_Viewer.this,AutoDelete.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Photo_Viewer.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
+        settings.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Photo_Viewer.this,AppSettings.class);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Photo_Viewer.this,bottom_bar, "bottom_tranisition");
+                startActivity(i,options.toBundle());
+            }
+        });
+
 
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(new Image_View_Adapter(this,Global_Share.paths_of_image));
@@ -137,23 +218,23 @@ public class Photo_Viewer extends AppCompatActivity{
             }
         });
 
-        hide.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                UpperLayer.setVisibility(View.INVISIBLE);
-                BottomLayer.setVisibility(View.INVISIBLE);
-                unhide.setVisibility(View.VISIBLE);
-                EditRecycle.setVisibility(View.INVISIBLE);
-            }
-        });
-        unhide.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                unhide.setVisibility(View.GONE);
-                UpperLayer.setVisibility(View.VISIBLE);
-                BottomLayer.setVisibility(View.VISIBLE);
-            }
-        });
+//        hide.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                UpperLayer.setVisibility(View.INVISIBLE);
+//                BottomLayer.setVisibility(View.INVISIBLE);
+//                unhide.setVisibility(View.VISIBLE);
+//                EditRecycle.setVisibility(View.INVISIBLE);
+//            }
+//        });
+//        unhide.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                unhide.setVisibility(View.GONE);
+//                UpperLayer.setVisibility(View.VISIBLE);
+//                BottomLayer.setVisibility(View.VISIBLE);
+//            }
+//        });
 
         back.setOnClickListener(new OnClickListener() {
             @Override
@@ -216,12 +297,8 @@ public class Photo_Viewer extends AppCompatActivity{
         viewPager.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if(CurrentCategory.equals("All"))
-                {
-                    Photo_Viewer.category_title.setText(db.getSingleCategory(Global_Share.paths_of_image.get(position)));
-                }
-                else
-                    Photo_Viewer.category_title.setText(CurrentCategory+"");
+                category[0] = db.getSingleCategory(Global_Share.paths_of_image.get(position));
+                Photo_Viewer.category_title.setText(category[0] +"");
             }
 
             @Override
@@ -234,6 +311,7 @@ public class Photo_Viewer extends AppCompatActivity{
 
             }
         });
+        Photo_Viewer.category_title.setText(category[0] +"");
 
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,132 +9,204 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/my_appbar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/grey_100"
-        app:elevation="0dp">
-
-        <RelativeLayout
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:padding="5dp"
-            android:background="@drawable/toolbar_top">
-            <!--app:layout_scrollFlags="scroll|enterAlways">-->
-
-            <ImageButton
-                android:id="@+id/menu_delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:background="@color/transparent"
-                android:src="@drawable/ic_menu_white_24dp">
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/close"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:background="@color/transparent"
-                android:src="@drawable/ic_close_white_24dp">
-            </ImageButton>
-
-            <TextView
-                android:id="@+id/count_selelcted"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="0"
-                android:textSize="25dp"
-                android:padding="5dp"
-                android:layout_marginLeft="5dp"
-                android:textColor="#FFF"
-                android:layout_toRightOf="@+id/close"/>
-
-            <TextView
-                android:id="@+id/trash_logo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trash"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:textColor="#FFF"
-                android:textSize="20dp"/>
-
-            <ImageButton
-                android:id="@+id/check"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent"
-                android:layout_toLeftOf="@+id/delete"
-                android:src="@drawable/ic_check_box_outline_blank_white_24dp"/>
-
-            <ImageButton
-                android:id="@+id/delete"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent"
-                android:layout_toLeftOf="@+id/restore"
-                android:src="@drawable/ic_delete_sweep_white_24dp"/>
-
-            <Button
-                android:id="@+id/restore"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent"
-                android:layout_alignParentRight="true"
-                android:text="Restore"
-                android:textColor="#FFF"/>
-        </RelativeLayout>
-    </android.support.design.widget.AppBarLayout>
 
         <ImageView
             android:id="@+id/no_photos"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            android:src="@drawable/niimage"
-            android:layout_below="@+id/my_appbar_container"/>
+            android:scaleType="center"
+            android:foregroundGravity="center"
+            android:src="@drawable/empty_trash"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="No Image Found in Trash"
+        android:fontFamily="@font/montreal_medium"
+        android:id="@+id/no_photos_text"
+        android:layout_below="@+id/no_photos"
+        android:textAlignment="center"
+        android:textSize="20sp"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler__recycle_view_photos"
         android:layout_width="match_parent"
+        android:visibility="visible"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:layout_below="@+id/my_appbar_container"
+        android:layout_marginBottom="50dp"
         android:orientation="vertical">
     </android.support.v7.widget.RecyclerView>
 
-    </RelativeLayout>
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_temp"
-        app:menu="@menu/activity_temp_drawer"/>
+        android:elevation="12dp">
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/bottom_sheet"
 
-</android.support.v4.widget.DrawerLayout>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:orientation="vertical"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="50dp"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+            <RelativeLayout
+                android:transitionName="bottom_tranisition"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:padding="5dp"
+                android:background="@color/blue_new">
+                <!--app:layout_scrollFlags="scroll|enterAlways">-->
+
+                <ImageButton
+                    android:id="@+id/close"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@color/transparent"
+                    android:src="@drawable/ic_arrow_back_white_24dp">
+                </ImageButton>
+
+                <TextView
+                    android:id="@+id/count_selelcted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="0"
+                    android:layout_centerVertical="true"
+                    android:textSize="20sp"
+                    android:padding="0dp"
+                    android:layout_marginLeft="15dp"
+                    android:fontFamily="@font/montreal_medium"
+                    android:textColor="#FFF"
+                    android:layout_toRightOf="@+id/close"/>
+
+                <TextView
+                    android:id="@+id/trash_logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trash"
+                    android:fontFamily="@font/montreal_medium"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:textColor="#FFF"
+                    android:textSize="20dp"/>
+
+                <ImageButton
+                    android:id="@+id/check"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@color/transparent"
+                    android:layout_toLeftOf="@+id/delete"
+                    android:src="@drawable/ic_check_box_outline_blank_white_24dp"/>
+
+                <ImageButton
+                    android:id="@+id/delete"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@color/transparent"
+                    android:layout_toLeftOf="@+id/restore"
+                    android:src="@drawable/ic_delete_sweep_white_24dp"/>
+
+                <Button
+                    android:id="@+id/restore"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@color/transparent"
+                    android:layout_alignParentRight="true"
+                    android:text="Restore"
+                    android:textColor="#FFF"/>
+
+        </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/toolbar"
+                android:id="@+id/sett"
+                android:background="#FFF"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Store images in Trash"
+                    android:fontFamily="@font/montreal_medium"
+                    android:textSize="20sp"/>
+                <Switch
+                    android:id="@+id/recycleSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sett"
+                android:id="@+id/bottom_bar"
+                android:transitionName="bottom_bar_tranisition"
+                android:textColor="@android:color/white"
+                android:background="@color/blue_new">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Home"
+                    android:src="@drawable/ic_home_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Trash"
+                    android:layout_toRightOf="@+id/Home"
+                    android:src="@drawable/ic_delete_sweep_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/AutoDelete"
+                    android:layout_toRightOf="@+id/Trash"
+                    android:src="@drawable/ic_delete_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Notification"
+                    android:layout_toRightOf="@+id/AutoDelete"
+                    android:src="@drawable/ic_notifications_white_24dp"
+                    android:padding="25dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Settings"
+                    android:layout_toRightOf="@+id/Notification"
+                    android:src="@drawable/ic_settings_white_24dp"
+                    android:padding="25dp"/>
+            </RelativeLayout>
+        </RelativeLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+        </RelativeLayout>

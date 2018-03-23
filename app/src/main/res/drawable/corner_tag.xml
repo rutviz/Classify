@@ -2,24 +2,19 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
     <stroke
-        android:width="1dp"
-        android:color="@color/grey_100">
+        android:width="2dp"
+        android:color="@color/blue_new">
     </stroke>
 
     <solid
-        android:color="#FFF">
-
+        android:color="@color/white">
     </solid>
 
-    <padding
-        android:left="20dp"
-        android:bottom="8dp"
-        android:right="20dp"
-        android:top="8dp">
-    </padding>
-
     <corners
-        android:radius="25dp">
+        android:topLeftRadius="2dp"
+        android:topRightRadius="2dp"
+        >
     </corners>
+
 
 </shape>
