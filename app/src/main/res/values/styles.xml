@@ -25,7 +25,7 @@
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_bglogo</item>
+        <item name="android:windowBackground">@drawable/final_splash</item>
         <item name="android:text">Classify</item>
         <item name="android:textColor">#FFF</item>
         <item name="android:textSize">14sp</item>

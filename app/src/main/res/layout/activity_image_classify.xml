@@ -12,7 +12,7 @@
         android:id="@+id/splash_screen0"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/splash_bg"
+        android:background="@color/blue_new"
         android:clickable="true"
         tools:layout_editor_absoluteY="8dp"
         tools:layout_editor_absoluteX="8dp">

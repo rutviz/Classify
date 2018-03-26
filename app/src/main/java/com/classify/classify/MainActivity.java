@@ -1032,6 +1032,7 @@ public class MainActivity extends AppCompatActivity  {
 //                }
                 holder.type_name.setText(type.get(position));
                 int icon = seticon(type.get(position));
+                Glide.with(mActivity).load(icon).fitCenter().into(holder.cat_image_icon);
                 holder.count_image.setText(dbs.getpathCountFromCat(type.get(position))+" Images");
                 holder.type_name.setTypeface(Typeface.createFromAsset(getAssets(),"montserrat-bold.ttf"));
                 holder.card_click.setOnClickListener(new OnClickListener() {
@@ -1078,48 +1079,55 @@ public class MainActivity extends AppCompatActivity  {
                     id = R.drawable.animal;
                     break;
                 case "Appliances":
-                    id = R.drawable.animal;
+                    id = R.drawable.appliances;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Building":
+                    id = R.drawable.building;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Documents":
+                    id = R.drawable.download;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Food":
+                    id = R.drawable.food;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "God":
+                    id = R.drawable.god;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "People":
+                    id = R.drawable.people;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Meme":
+                    id = R.drawable.meme;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Nature":
+                    id = R.drawable.nature;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Person":
+                    id = R.drawable.person;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Screenshots":
+                    id = R.drawable.screenshot;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Streets":
+                    id = R.drawable.streets;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Thoughts":
+                    id = R.drawable.thoughts;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Vehicles":
+                    id = R.drawable.vehicle;
                     break;
-                case "Animal":
-                    id = R.drawable.animal;
+                case "Wishes":
+                    id = R.drawable.wishes;
                     break;
-                default : id = R.drawable.classify_logo;
+
+                case "All":
+                    id = R.drawable.all;
+                    break;
+                case "none":
+                    id = R.drawable.none;
+                    break;
+                default : id = R.drawable.logo;
             }
             return id;
         }
@@ -1137,7 +1145,7 @@ public class MainActivity extends AppCompatActivity  {
         public class ViewHolder extends RecyclerView.ViewHolder
         {
             TextView type_name,count_image;
-            ImageView imv;
+            ImageView imv,cat_image_icon;
             RelativeLayout card_click;
 
             public ViewHolder(View itemView) {
@@ -1145,6 +1153,7 @@ public class MainActivity extends AppCompatActivity  {
                 type_name = (TextView)itemView.findViewById(R.id.type_title);
                 count_image = (TextView)itemView.findViewById(R.id.count);
                 imv = (ImageView) itemView.findViewById(R.id.loading);
+                cat_image_icon = (ImageView) itemView.findViewById(R.id.cat_imagee);
                 card_click = (RelativeLayout)itemView.findViewById(R.id.card_types);
             }
         }
